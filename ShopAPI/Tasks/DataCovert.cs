@@ -75,7 +75,7 @@ namespace ShopAPI.Tasks {
         /// <param name="materialID">物料id</param>
         /// <param name="favoritesTitle">当商品为选品库商品时，才会有 favoritesTitle</param>
         /// <returns></returns>
-        public static List<realsunGoodsModal> taobaoGoodsList2realsunGoodsList (List<TaobaoGoodsModal> taobaoGoodsList ) {
+        public static List<realsunGoodsModal> taobaoGoodsList2realsunGoodsList (List<TbkDgOptimusMaterialResponse.MapDataDomain> taobaoGoodsList, string materialID, string favoritesTitle = "") {
             var ret = new List<realsunGoodsModal> ();
             foreach (var item in taobaoGoodsList) {
                 var goodsPhotos = "";
@@ -133,8 +133,8 @@ namespace ShopAPI.Tasks {
                     sub_title = item.SubTitle,
                     superior_brand = Convert.ToInt64 (item.SuperiorBrand),
                     goods_origin = "taobao",
-                    material_id = item.materialID,
-                    favorites_title = item.favoritesTitle,
+                    material_id = materialID,
+                    favorites_title = favoritesTitle,
                     coupon_click_url = item.CouponClickUrl,
                     zk_final_price = item.ZkFinalPrice,
                 };

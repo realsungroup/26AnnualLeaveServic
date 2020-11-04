@@ -48,14 +48,33 @@ namespace ShopAPI.Tasks {
             public List<MaterialRecordModal> subdata { get; set; }
         }
 
+        public class MaterialListItemModal : MaterialRecordModal {
+            public List<TbkDgOptimusMaterialResponse.MapDataDomain> goodsList { get; set; }
+        }
+
+        public class NeedSyncGoodsModal : commercialTenantSetModal {
+            public List<MaterialListItemModal> materialList { get; set; }
+        }
+
+        /// <summary>
+        /// 需要同步的淘宝商品列表
+        /// </summary>
+        /// <typeparam name="NeedSyncGoodsModal"></typeparam>
+        /// <returns></returns>
+        public List<NeedSyncGoodsModal> needSyncGoodsList = new List<NeedSyncGoodsModal> ();
+
         /// <summary>
         /// 运行任务
         /// </summary>
         /// <returns></returns>
-        public async Task<List<TaobaoGoodsModal>> run () {
+        public async Task<List<TbkDgOptimusMaterialResponse.MapDataDomain>> run () {
             var commercialTenantSetRes = await getCommercialTenantSet ();
-            List<TaobaoGoodsModal> list = new List<TaobaoGoodsModal> ();
+            List<TbkDgOptimusMaterialResponse.MapDataDomain> list = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
             foreach (var item in commercialTenantSetRes.data) {
+                
+                
+                    
+
                 var ret = getCommercialTenantGoodsList (item);
                 list.AddRange (ret);
             }
@@ -67,14 +86,14 @@ namespace ShopAPI.Tasks {
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        public List<TaobaoGoodsModal> getCommercialTenantGoodsList (commercialTenantSetModal record) {
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getCommercialTenantGoodsList (commercialTenantSetModal record) {
             WriteLine ("开始获取商户的商品，商户编号：" + record.business_ID);
 
             // 获取物料 id
             var materialIDRecords = record.subdata;
 
             if (materialIDRecords == null) {
-                return new List<TaobaoGoodsModal> ();
+                return new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
             }
 
             // 筛选出有效的物料ID表的记录
@@ -90,7 +109,7 @@ namespace ShopAPI.Tasks {
             WriteLine ("非选品库商品数量:" + normalGoodsArr.Count);
             WriteLine ("选品库商品数量:" + selectionGoodsArr.Count);
 
-            var goodsArr = new List<TaobaoGoodsModal> ();
+            var goodsArr = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
             goodsArr.AddRange (normalGoodsArr);
             goodsArr.AddRange (selectionGoodsArr);
             WriteLine ("商品总数量:" + goodsArr.Count);
@@ -230,12 +249,12 @@ namespace ShopAPI.Tasks {
             return false;
         }
 
-        public List<TaobaoGoodsModal> inValid_佣金比例 = new List<TaobaoGoodsModal> ();
-        public List<TaobaoGoodsModal> inValid_优惠券数量 = new List<TaobaoGoodsModal> ();
-        public List<TaobaoGoodsModal> inValid_优惠券结束时间 = new List<TaobaoGoodsModal> ();
-        public List<TaobaoGoodsModal> inValid_是否品牌精选 = new List<TaobaoGoodsModal> ();
-        public List<TaobaoGoodsModal> inValid_价格 = new List<TaobaoGoodsModal> ();
-        public List<TaobaoGoodsModal> inValid_优惠券金额 = new List<TaobaoGoodsModal> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_佣金比例 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_优惠券数量 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_优惠券结束时间 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_是否品牌精选 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_价格 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_优惠券金额 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
 
         /// <summary>
         /// 是否是有效的商品
@@ -243,7 +262,7 @@ namespace ShopAPI.Tasks {
         /// <param name="goods"></param>
         /// <param name="conditionRecord"></param>
         /// <returns></returns>
-        public bool isValidGoods (TaobaoGoodsModal goods, commercialTenantSetModal conditionRecord) {
+        public bool isValidGoods (TbkDgOptimusMaterialResponse.MapDataDomain goods, commercialTenantSetModal conditionRecord) {
             if (!isCommissionRateValid (goods.CommissionRate, conditionRecord.commission_rate)) {
                 inValid_佣金比例.Add (goods);
                 return false;
@@ -291,12 +310,11 @@ namespace ShopAPI.Tasks {
             return dtDateTime;
         }
 
-        public List<TaobaoGoodsModal> getAllNormalGoodsList (List<MaterialRecordModal> records) {
-            var goodsList = new List<TaobaoGoodsModal> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getAllNormalGoodsList (List<MaterialRecordModal> records) {
+            var goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
             foreach (var record in records) {
                 var getGoodsTask = new GetGoodsTask ();
                 var materialID = Convert.ToInt64 (record.material_ID);
-                WriteLine ("materialID: " + materialID);
                 getGoodsTask.getOneMaterialGoodsList (materialID);
                 var goodsArr = getGoodsTask.getGoodsList ();
                 goodsList.AddRange (goodsArr);
@@ -304,8 +322,8 @@ namespace ShopAPI.Tasks {
             return goodsList;
         }
 
-        public List<TaobaoGoodsModal> getSelectionGoodsList (List<MaterialRecordModal> records) {
-            var goodsList = new List<TaobaoGoodsModal> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getSelectionGoodsList (List<MaterialRecordModal> records) {
+            var goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
             foreach (var record in records) {
                 var materialIDList = record.material_ID.Split (",");
                 if (materialIDList.Length != 2) {

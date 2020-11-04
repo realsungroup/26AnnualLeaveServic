@@ -72,12 +72,12 @@ namespace ShopAPI.Tasks {
         /// <summary>
         /// 获取到的选品库列表
         /// </summary>
-        public List<TaobaoGoodsModal> selectionList = new List<TaobaoGoodsModal> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> selectionList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
 
         /// <summary>
         /// 获取到的选品库列表
         /// </summary>
-        public List<TaobaoGoodsModal> goodsList = new List<TaobaoGoodsModal> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
 
         public List<favoritesListItemModal> favoritesList = new List<favoritesListItemModal> ();
 
@@ -116,14 +116,7 @@ namespace ShopAPI.Tasks {
                 return;
             }
 
-            var newGoodsList = new List<TaobaoGoodsModal> ();
-            foreach (var item in rsp.ResultList) {
-                var newItem = (TaobaoGoodsModal) item;
-                newItem.materialID = selectionMaterialId + "";
-                newGoodsList.Add (newItem);
-            }
-
-            selectionList.AddRange (newGoodsList);
+            selectionList.AddRange (rsp.ResultList);
             if (hasNextPage (rsp)) {
                 selectionPageNo += 1;
                 getSelectionList ();
@@ -157,15 +150,7 @@ namespace ShopAPI.Tasks {
                 return;
             }
 
-            var newGoodsList = new List<TaobaoGoodsModal> ();
-            foreach (var item in rsp.ResultList) {
-                var newItem = (TaobaoGoodsModal) item;
-                newItem.favoritesTitle = title;
-                newItem.materialID = goodsMaterialId + "";
-                newGoodsList.Add (newItem);
-            }
-
-            goodsList.AddRange (newGoodsList);
+            goodsList.AddRange (rsp.ResultList);
             if (hasNextPage (rsp)) {
                 goodsPageNo += 1;
                 getGoodsList (favoritesListItem);
