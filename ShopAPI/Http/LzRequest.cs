@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using static System.Console;
+using Newtonsoft.Json;
 
 namespace ShopAPI.Http {
     public class HttpCommonReponseModals {
@@ -120,6 +122,26 @@ namespace ShopAPI.Http {
                 .SetQueryParams (query)
                 .GetJsonAsync<GetTagbleResponseModal<T>> ();
 
+            return res;
+        }
+
+        /// <summary>
+        /// 添加记录
+        /// </summary>
+        /// <param name="resid"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public async Task<T> AddRecords<T> (string resid, object data) {
+            var url = "api/100/table/Save";
+            var reqURL = getReqURL (baseURL, url);
+
+            var res = await reqURL
+                .WithHeaders (new { Content_Type = "application/json" })
+                .PostJsonAsync (new {
+                    resid,
+                    data = JsonConvert.SerializeObject (data)
+                }).ReceiveJson<T> ();
             return res;
         }
 

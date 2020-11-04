@@ -44,6 +44,9 @@ namespace ShopAPI.Modals {
         public string favorites_title { get; set; }
         public string coupon_click_url { get; set; }
         public string zk_final_price { get; set; }
+
+        public long _id { get; set; }
+        public string _state { get; set; }
     }
 
 }

@@ -33,6 +33,7 @@ namespace ShopAPI.Tasks {
         /// <returns></returns>
         public static List<RealsunGoodsModal> taobaoGoodsList2realsunGoodsList (List<TbkDgOptimusMaterialResponse.MapDataDomain> taobaoGoodsList, string materialID, string favoritesTitle = "") {
             var ret = new List<RealsunGoodsModal> ();
+            var i = 1;
             foreach (var item in taobaoGoodsList) {
                 var goodsPhotos = "";
                 var word = "";
@@ -57,6 +58,8 @@ namespace ShopAPI.Tasks {
                 }
 
                 var goodsItem = new RealsunGoodsModal {
+                    _id = i++,
+                    _state = "editoradd",
                     goods_name = item.Title,
                     goods_img = item.PictUrl,
                     goods_price = float.Parse (item.ZkFinalPrice),
