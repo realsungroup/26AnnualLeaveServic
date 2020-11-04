@@ -38,7 +38,7 @@ namespace ShopAPI.Controllers {
             req.MaterialId = 28026L;
             TbkDgOptimusMaterialResponse rsp = client.Execute (req);
 
-            return Ok (rsp.Body);
+            return Ok (rsp);
         }
     }
 }

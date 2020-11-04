@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Flurl;
+using Flurl.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,13 +15,19 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using ShopAPI.Jobs;
+using static System.Console;
+using Newtonsoft.Json.Serialization;
 
 namespace ShopAPI {
     public class Startup {
         public Startup (IConfiguration configuration) {
-            LoginRealsunJob.start ();
-
+            init ();
             Configuration = configuration;
+        }
+
+        public async void init () {
+            await LoginRealsunJob.init ();
+            LoginRealsunJob.start ();
         }
 
         public IConfiguration Configuration { get; }
@@ -27,7 +35,6 @@ namespace ShopAPI {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices (IServiceCollection services) {
             services.AddControllers ();
-
             services.AddMvc ();
 
             services.AddMvc ()
@@ -43,7 +50,7 @@ namespace ShopAPI {
 
                 var name = typeof (Startup).Assembly.GetName () + ".xml";
 
-                var filePath = Path.Combine (System.AppContext.BaseDirectory, "EmployeeConnectAPI.xml");
+                var filePath = Path.Combine (System.AppContext.BaseDirectory, "ShopAPI.xml");
                 c.IncludeXmlComments (filePath);
             });
 
@@ -51,6 +58,7 @@ namespace ShopAPI {
             services.Configure<ApiBehaviorOptions> ((o) => {
                 o.SuppressModelStateInvalidFilter = true;
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

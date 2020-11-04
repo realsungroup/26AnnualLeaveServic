@@ -5,32 +5,47 @@ using Quartz.Impl;
 using static System.Console;
 using Flurl;
 using static ShopAPI.Constant;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using ShopAPI.Http;
 
 namespace ShopAPI.Jobs {
     /// <summary>
     /// 登录 realsun 平台的定时任务
     /// </summary>
     public class LoginRealsunJob : IJob {
-        public Task Execute (IJobExecutionContext context) {
-
-            Console.WriteLine ("hhh");
-
-            return Task.CompletedTask;
+        public async Task Execute (IJobExecutionContext context) {
+            await start ();
+            // return Task.CompletedTask;
+        }
+        /// <summary>
+        /// 开始执行任务
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<object> start () {
+            var client = new LzRequest (Constant.realsunBaseURL);
+            var res = await client.login (Constant.realsunUsername, Constant.realsunPassword);
+            var accessToken = (string) res.AccessToken;
+            Constant.realsunAccessToken = accessToken;
+            return res;
         }
 
-        public static async Task<object> start () {
+        /// <summary>
+        /// 初始化任务
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<object> init () {
             var schedulerFactory = new StdSchedulerFactory ();
             var scheduler = await schedulerFactory.GetScheduler ();
 
             await scheduler.Start ();
-            WriteLine ($"任务调度器已启动");
+            WriteLine ($"LoginRealsunJob init");
 
             // 创建作业和触发器
-            var jobDetail = JobBuilder.Create<SyncGoods> ().Build ();
+            var jobDetail = JobBuilder.Create<LoginRealsunJob> ().Build ();
             var trigger = TriggerBuilder.Create ()
                 .WithSimpleSchedule (m => {
-                    // m.WithIntervalInMinutes (10).RepeatForever ();
-                    m.WithIntervalInSeconds (2).RepeatForever ();
+                    m.WithIntervalInHours (24).RepeatForever ();
                 })
                 .Build ();
 
