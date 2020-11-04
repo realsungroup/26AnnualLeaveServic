@@ -137,7 +137,7 @@ namespace ShopAPI.Http {
             var reqURL = getReqURL (baseURL, url);
 
             var res = await reqURL
-                .WithHeaders (new { Content_Type = "application/json" })
+                .WithHeaders (headers)
                 .PostJsonAsync (new {
                     resid,
                     data = JsonConvert.SerializeObject (data)

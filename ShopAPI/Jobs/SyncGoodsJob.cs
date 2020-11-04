@@ -50,12 +50,11 @@ namespace ShopAPI.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<Hashtable> start (bool debug = false) {
+        public static async Task<object> start (bool debug = false) {
             var ret = new Hashtable ();
 
             var getNeedSyncGoodsListTask = new GetNeedSyncGoodsListTask ();
             var needSycnGoodsList = await getNeedSyncGoodsListTask.run ();
-            ret.Add ("needSycnGoodsList", needSycnGoodsList);
 
             if (debug) {
                 var inValid_价格 = getNeedSyncGoodsListTask.inValid_价格;
@@ -80,12 +79,15 @@ namespace ShopAPI.Jobs {
                 ret.Add ("inValid_是否品牌精选", new { total = inValid_是否品牌精选.Count, list = inValid_是否品牌精选, fieldName = "SuperiorBrand" });
             }
 
-            // var willSyncGoodsList = DataCovert.taobaoGoodsList2realsunGoodsList (needSycnGoodsList);
+            return await addGoodsToRealsun (needSycnGoodsList);
+        }
 
-            // ret.Add ("willSyncGoodsList", willSyncGoodsList);
+        public static async Task<object> addGoodsToRealsun (List<RealsunGoodsModal> goodsList) {
+            var client = new LzRequest (realsunBaseURL);
 
-            return ret;
+            client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
+            return await client.AddRecords<object> (goodsResid, goodsList);
         }
 
         /// <summary>

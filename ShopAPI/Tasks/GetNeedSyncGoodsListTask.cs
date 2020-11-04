@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Quartz;
 using Quartz.Impl;
@@ -121,6 +122,9 @@ namespace ShopAPI.Tasks {
 
             // 获取物料 id
             var materialIDRecords = record.subdata;
+
+            materialIDRecords = materialIDRecords.GetRange (0, 1);
+
             if (materialIDRecords == null) {
                 return needSyncGoodsModal;
             }
@@ -128,16 +132,26 @@ namespace ShopAPI.Tasks {
             foreach (var materialIDRecord in materialIDRecords) {
                 // 有效的物料ID
                 if (materialIDRecord.is_valid == "Y") {
+                    WriteLine ("==============================");
+                    WriteLine ("物料ID：" + materialIDRecord.material_ID);
+
                     var materialItem = new MaterialListItemModal ();
                     materialItem.material_ID = materialIDRecord.material_ID;
                     //  非选品库
                     if (materialIDRecord.is_selection != "Y") {
                         materialItem.isSelection = false;
                         materialItem.goodsList = getNormalGoodsList (materialIDRecord);
+                        WriteLine ("商品数量：" + materialItem.goodsList);
                     } else {
                         // 选品库
                         materialItem.isSelection = true;
                         materialItem.favoritesList = getSelectionGoodsList (materialIDRecord);
+                        WriteLine ("分组数量：" + materialItem.goodsList);
+
+                        foreach (var item in materialItem.favoritesList) {
+                            WriteLine (" 分组名称：" + item.favoritesTitle);
+                            WriteLine (" 商品数量：" + item.goodsList.Count);
+                        }
                     }
 
                     needSyncGoodsModal.materialList.Add (materialItem);
