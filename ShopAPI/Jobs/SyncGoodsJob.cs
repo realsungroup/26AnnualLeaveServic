@@ -50,11 +50,12 @@ namespace ShopAPI.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<Hashtable> start (bool debug = true) {
+        public static async Task<Hashtable> start (bool debug = false) {
             var ret = new Hashtable ();
 
             var getNeedSyncGoodsListTask = new GetNeedSyncGoodsListTask ();
             var needSycnGoodsList = await getNeedSyncGoodsListTask.run ();
+            ret.Add ("needSycnGoodsList", needSycnGoodsList);
 
             if (debug) {
                 var inValid_价格 = getNeedSyncGoodsListTask.inValid_价格;

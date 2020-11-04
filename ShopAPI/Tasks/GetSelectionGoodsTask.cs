@@ -20,11 +20,6 @@ namespace ShopAPI.Tasks {
             this.goodsMaterialId = goodsMaterialId;
         }
 
-        public class favoritesListItemModal {
-            public long id { get; set; }
-            public string title { get; set; }
-        }
-
         /// <summary>
         /// 选品库页码
         /// </summary>
@@ -79,7 +74,7 @@ namespace ShopAPI.Tasks {
         /// </summary>
         public List<TbkDgOptimusMaterialResponse.MapDataDomain> goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
 
-        public List<favoritesListItemModal> favoritesList = new List<favoritesListItemModal> ();
+        public List<FavoritesListItemModal> favoritesList = new List<FavoritesListItemModal> ();
 
         public void start () {
             getSelectionList ();
@@ -87,13 +82,13 @@ namespace ShopAPI.Tasks {
         }
 
         public void getFavoritesList () {
-            var list = new List<favoritesListItemModal> ();
+            var list = new List<FavoritesListItemModal> ();
             foreach (var selectionItem in selectionList) {
                 if (selectionItem.FavoritesInfo.TotalCount != 0) {
                     foreach (var item in selectionItem.FavoritesInfo.FavoritesList) {
-                        list.Add (new favoritesListItemModal () {
-                            id = item.FavoritesId,
-                                title = item.FavoritesTitle
+                        list.Add (new FavoritesListItemModal () {
+                            favoritesID = item.FavoritesId,
+                                favoritesTitle = item.FavoritesTitle
                         });
                     }
                 }
@@ -128,15 +123,17 @@ namespace ShopAPI.Tasks {
         public void getAllGoodsList () {
             foreach (var favoritesListItem in favoritesList) {
                 getGoodsList (favoritesListItem);
+                favoritesListItem.goodsList = goodsList;
+                goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
             }
         }
 
         /// <summary>
         /// 获取商品列表
         /// </summary>
-        public void getGoodsList (favoritesListItemModal favoritesListItem) {
-            var id = favoritesListItem.id;
-            var title = favoritesListItem.title;
+        public void getGoodsList (FavoritesListItemModal favoritesListItem) {
+            var id = favoritesListItem.favoritesID;
+            var title = favoritesListItem.favoritesTitle;
             ITopClient client = new DefaultTopClient ("https://eco.taobao.com/router/rest", Constant.appkey, Constant.appsecret, "json");
             TbkDgOptimusMaterialRequest req = new TbkDgOptimusMaterialRequest ();
             req.PageNo = goodsPageNo;

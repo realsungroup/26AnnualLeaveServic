@@ -49,11 +49,21 @@ namespace ShopAPI.Tasks {
         }
 
         public class MaterialListItemModal : MaterialRecordModal {
+            // 是否是选品库商品（如果是，则取 favoritesList，否则直接取 goodsList）
+            public bool isSelection { get; set; }
+
+            // isSelection 为 false 时，goodsList 才有值
             public List<TbkDgOptimusMaterialResponse.MapDataDomain> goodsList { get; set; }
+
+            // isSelection 为 true 时，favoritesList 才有值
+            public List<FavoritesListItemModal> favoritesList { get; set; }
         }
 
-        public class NeedSyncGoodsModal : commercialTenantSetModal {
+        public class NeedSyncGoodsModal {
             public List<MaterialListItemModal> materialList { get; set; }
+
+            // 条件
+            public commercialTenantSetModal conditionRecord { get; set; }
         }
 
         /// <summary>
@@ -67,18 +77,34 @@ namespace ShopAPI.Tasks {
         /// 运行任务
         /// </summary>
         /// <returns></returns>
-        public async Task<List<TbkDgOptimusMaterialResponse.MapDataDomain>> run () {
+        public async Task<List<RealsunGoodsModal>> run () {
             var commercialTenantSetRes = await getCommercialTenantSet ();
-            List<TbkDgOptimusMaterialResponse.MapDataDomain> list = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+            List<NeedSyncGoodsModal> list = new List<NeedSyncGoodsModal> ();
             foreach (var item in commercialTenantSetRes.data) {
-                
-                
-                    
-
                 var ret = getCommercialTenantGoodsList (item);
-                list.AddRange (ret);
+                list.Add (ret);
             }
-            return list;
+
+            var records = new List<RealsunGoodsModal> ();
+            foreach (var item in list) {
+                foreach (var materialItem in item.materialList) {
+                    // 选品库商品
+                    if (materialItem.isSelection) {
+                        foreach (var favoritesItem in materialItem.favoritesList) {
+                            var validGoods = favoritesItem.goodsList.Where (x => isValidGoods (x, item.conditionRecord)).ToList ();
+                            var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, materialItem.material_ID, favoritesItem.favoritesTitle);
+                            records.AddRange (newRecords);
+                        }
+                    } else {
+                        // 非选品库商品
+                        var validGoods = materialItem.goodsList.Where (x => isValidGoods (x, item.conditionRecord)).ToList ();
+                        var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, materialItem.material_ID);
+                        records.AddRange (newRecords);
+                    }
+                }
+            }
+
+            return records;
         }
 
         /// <summary>
@@ -86,40 +112,39 @@ namespace ShopAPI.Tasks {
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getCommercialTenantGoodsList (commercialTenantSetModal record) {
+        public NeedSyncGoodsModal getCommercialTenantGoodsList (commercialTenantSetModal record) {
             WriteLine ("开始获取商户的商品，商户编号：" + record.business_ID);
+
+            var needSyncGoodsModal = new NeedSyncGoodsModal ();
+            needSyncGoodsModal.materialList = new List<MaterialListItemModal> ();
+            needSyncGoodsModal.conditionRecord = record;
 
             // 获取物料 id
             var materialIDRecords = record.subdata;
-
             if (materialIDRecords == null) {
-                return new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+                return needSyncGoodsModal;
             }
 
-            // 筛选出有效的物料ID表的记录
-            var validMaterIDRecords = materialIDRecords.Where (item => item.is_valid == "Y").ToList ().GetRange (0, 1);
-            // 筛选出非选品库
-            var normalRecords = validMaterIDRecords.Where (item => item.is_selection != "Y").ToList ();
-            // 筛选出选品库
-            var selectionRecords = validMaterIDRecords.Where (item => item.is_selection == "Y").ToList ();
+            foreach (var materialIDRecord in materialIDRecords) {
+                // 有效的物料ID
+                if (materialIDRecord.is_valid == "Y") {
+                    var materialItem = new MaterialListItemModal ();
+                    materialItem.material_ID = materialIDRecord.material_ID;
+                    //  非选品库
+                    if (materialIDRecord.is_selection != "Y") {
+                        materialItem.isSelection = false;
+                        materialItem.goodsList = getNormalGoodsList (materialIDRecord);
+                    } else {
+                        // 选品库
+                        materialItem.isSelection = true;
+                        materialItem.favoritesList = getSelectionGoodsList (materialIDRecord);
+                    }
 
-            var normalGoodsArr = getAllNormalGoodsList (normalRecords);
-            var selectionGoodsArr = getSelectionGoodsList (selectionRecords);
+                    needSyncGoodsModal.materialList.Add (materialItem);
+                }
+            }
 
-            WriteLine ("非选品库商品数量:" + normalGoodsArr.Count);
-            WriteLine ("选品库商品数量:" + selectionGoodsArr.Count);
-
-            var goodsArr = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-            goodsArr.AddRange (normalGoodsArr);
-            goodsArr.AddRange (selectionGoodsArr);
-            WriteLine ("商品总数量:" + goodsArr.Count);
-
-            // 筛选出有效的商品
-            WriteLine ("开始筛选有效的商品：");
-            var validGoodsList = goodsArr.Where (item => isValidGoods (item, record)).ToList ();
-
-            WriteLine ("有效的商品总数量:" + validGoodsList.Count);
-            return validGoodsList;
+            return needSyncGoodsModal;
         }
 
         /// <summary>
@@ -310,34 +335,42 @@ namespace ShopAPI.Tasks {
             return dtDateTime;
         }
 
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getAllNormalGoodsList (List<MaterialRecordModal> records) {
-            var goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-            foreach (var record in records) {
-                var getGoodsTask = new GetGoodsTask ();
-                var materialID = Convert.ToInt64 (record.material_ID);
-                getGoodsTask.getOneMaterialGoodsList (materialID);
-                var goodsArr = getGoodsTask.getGoodsList ();
-                goodsList.AddRange (goodsArr);
-            }
-            return goodsList;
+        /// <summary>
+        /// 获取非选品物料的商品
+        /// </summary>
+        /// <param name="record"></param>
+        /// <returns></returns>
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getNormalGoodsList (MaterialRecordModal record) {
+            var getGoodsTask = new GetGoodsTask ();
+
+            var materialID = Convert.ToInt64 (record.material_ID);
+
+            getGoodsTask.getOneMaterialGoodsList (materialID);
+
+            return getGoodsTask.getGoodsList ();
         }
 
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getSelectionGoodsList (List<MaterialRecordModal> records) {
-            var goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-            foreach (var record in records) {
-                var materialIDList = record.material_ID.Split (",");
-                if (materialIDList.Length != 2) {
-                    return goodsList;
-                }
-                var selectionMaterialID = Convert.ToInt64 (materialIDList[0]);
-                var goodsMaterialID = Convert.ToInt64 (materialIDList[1]);
+        /// <summary>
+        /// 获取选品物料的商品
+        /// </summary>
+        /// <param name="record"></param>
+        /// <returns></returns>
+        public List<FavoritesListItemModal> getSelectionGoodsList (MaterialRecordModal record) {
+            var goodsList = new List<FavoritesListItemModal> ();
 
-                var getSelectionGoodsTask = new GetSelectionGoodsTask (selectionMaterialID, goodsMaterialID);
-                getSelectionGoodsTask.start ();
+            var materialIDList = record.material_ID.Split (",");
 
-                goodsList.AddRange (getSelectionGoodsTask.goodsList);
+            if (materialIDList.Length != 2) {
+                return goodsList;
             }
-            return goodsList;
+
+            var selectionMaterialID = Convert.ToInt64 (materialIDList[0]);
+            var goodsMaterialID = Convert.ToInt64 (materialIDList[1]);
+
+            var getSelectionGoodsTask = new GetSelectionGoodsTask (selectionMaterialID, goodsMaterialID);
+            getSelectionGoodsTask.start ();
+
+            return getSelectionGoodsTask.favoritesList;
         }
 
         /// <summary>

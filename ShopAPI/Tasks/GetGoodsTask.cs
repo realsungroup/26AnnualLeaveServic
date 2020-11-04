@@ -59,8 +59,6 @@ namespace ShopAPI.Tasks {
             if (hasNextPage (rsp)) {
                 pageNo += 1;
                 getOneMaterialGoodsList (materialId);
-            } else {
-                WriteLine ("总共：" + GoodsList.Count);
             }
         }
 
