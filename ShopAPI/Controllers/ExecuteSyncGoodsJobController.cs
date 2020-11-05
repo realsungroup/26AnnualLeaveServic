@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using ShopAPI.Jobs;
 using static ShopAPI.Constant;
 using ShopAPI.Http;
+using ShopAPI.Modals;
 
 namespace ShopAPI.Controllers {
 
@@ -27,8 +28,16 @@ namespace ShopAPI.Controllers {
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<OkObjectResult> executeSyncGoodsJob () {
-            var res = await SyncGoodsJob.start ();
+        public async Task<OkObjectResult> executeSyncGoodsJob ([FromQuery] SyncGoodsQueryModal query) {
+
+            bool _debug;
+            if (query.debug == "Y") {
+                _debug = true;
+            } else {
+                _debug = false;
+            }
+
+            var res = await SyncGoodsJob.start (query.materialID, _debug);
             return Ok (res);
         }
     }

@@ -50,36 +50,35 @@ namespace ShopAPI.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start (bool debug = false) {
+        public static async Task<object> start (string materialID = null, bool debug = false) {
             var ret = new Hashtable ();
 
-            var getNeedSyncGoodsListTask = new GetNeedSyncGoodsListTask ();
+            var getNeedSyncGoodsListTask = new GetNeedSyncGoodsListTask (materialID, debug);
             var needSycnGoodsList = await getNeedSyncGoodsListTask.run ();
 
             if (debug) {
-                var inValid_价格 = getNeedSyncGoodsListTask.inValid_价格;
-                var inValid_优惠券数量 = getNeedSyncGoodsListTask.inValid_优惠券数量;
-                var inValid_优惠券结束时间 = getNeedSyncGoodsListTask.inValid_优惠券结束时间;
-                var inValid_优惠券金额 = getNeedSyncGoodsListTask.inValid_优惠券金额;
-                var inValid_佣金比例 = getNeedSyncGoodsListTask.inValid_佣金比例;
-                var inValid_是否品牌精选 = getNeedSyncGoodsListTask.inValid_是否品牌精选;
+                var _1_inValid_佣金比例 = getNeedSyncGoodsListTask._1_inValid_佣金比例;
+                var _2_inValid_优惠券数量 = getNeedSyncGoodsListTask._2_inValid_优惠券数量;
+                var _3_inValid_优惠券结束时间 = getNeedSyncGoodsListTask._3_inValid_优惠券结束时间;
+                var _4_inValid_是否品牌精选 = getNeedSyncGoodsListTask._4_inValid_是否品牌精选;
+                var _5_inValid_价格 = getNeedSyncGoodsListTask._5_inValid_价格;
+                var _6_inValid_优惠券金额 = getNeedSyncGoodsListTask._6_inValid_优惠券金额;
 
+                ret.Add ("_1_inValid_佣金比例", new { total = _1_inValid_佣金比例.Count, list = _1_inValid_佣金比例, fieldName = "CommissionRate" });
                 ret.Add ("needSycnGoodsList", new { total = needSycnGoodsList.Count, list = needSycnGoodsList });
-
-                ret.Add ("inValid_价格", new { total = inValid_价格.Count, list = inValid_价格, fieldName = "ZkFinalPrice" });
-
-                ret.Add ("inValid_优惠券数量", new { total = inValid_优惠券数量.Count, list = inValid_优惠券数量, fieldName = "CouponRemainCount" });
-
-                ret.Add ("inValid_优惠券结束时间", new { total = inValid_优惠券结束时间.Count, list = inValid_优惠券结束时间, fieldName = "CouponEndTime" });
-
-                ret.Add ("inValid_优惠券金额", new { total = inValid_优惠券金额.Count, list = inValid_优惠券金额, fieldName = "CouponAmount" });
-
-                ret.Add ("inValid_佣金比例", new { total = inValid_佣金比例.Count, list = inValid_佣金比例, fieldName = "CommissionRate" });
-
-                ret.Add ("inValid_是否品牌精选", new { total = inValid_是否品牌精选.Count, list = inValid_是否品牌精选, fieldName = "SuperiorBrand" });
+                ret.Add ("_2_inValid_优惠券数量", new { total = _2_inValid_优惠券数量.Count, list = _2_inValid_优惠券数量, fieldName = "CouponRemainCount" });
+                ret.Add ("_3_inValid_优惠券结束时间", new { total = _3_inValid_优惠券结束时间.Count, list = _3_inValid_优惠券结束时间, fieldName = "CouponEndTime" });
+                ret.Add ("_4_inValid_是否品牌精选", new { total = _4_inValid_是否品牌精选.Count, list = _4_inValid_是否品牌精选, fieldName = "SuperiorBrand" });
+                ret.Add ("_5_inValid_价格", new { total = _5_inValid_价格.Count, list = _5_inValid_价格, fieldName = "ZkFinalPrice" });
+                ret.Add ("_6_inValid_优惠券金额", new { total = _6_inValid_优惠券金额.Count, list = _6_inValid_优惠券金额, fieldName = "CouponAmount" });
             }
 
-            return await addGoodsToRealsun (needSycnGoodsList);
+            // 添加商品到 realsun 平台
+            // var addRes = await addGoodsToRealsun (needSycnGoodsList);
+
+            // ret.Add ("addRes", addRes);
+
+            return new { };
         }
 
         public static async Task<object> addGoodsToRealsun (List<RealsunGoodsModal> goodsList) {

@@ -37,13 +37,14 @@ namespace ShopAPI.Tasks {
         /// <summary>
         /// 获取到的商品
         /// </summary>
-        private List<TbkDgOptimusMaterialResponse.MapDataDomain> GoodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
 
         /// <summary>
         /// 获取一个物料id下所有的商品
         /// </summary>
         /// <param name="materialId"></param>
         public void getOneMaterialGoodsList (long materialId) {
+            WriteLine ("  pageNo:" + pageNo);
             ITopClient client = new DefaultTopClient ("https://eco.taobao.com/router/rest", Constant.appkey, Constant.appsecret, "json");
             TbkDgOptimusMaterialRequest req = new TbkDgOptimusMaterialRequest ();
             req.PageNo = pageNo;
@@ -51,19 +52,21 @@ namespace ShopAPI.Tasks {
             req.AdzoneId = adzoneId;
             req.MaterialId = materialId;
             TbkDgOptimusMaterialResponse rsp = client.Execute (req);
+
             if (rsp == null || rsp.ResultList == null) {
+                WriteLine ("  over...");
                 return;
             }
+            WriteLine ("  rsp.ResultList.Count:" + rsp.ResultList.Count);
 
-            GoodsList.AddRange (rsp.ResultList);
+            goodsList.AddRange (rsp.ResultList);
             if (hasNextPage (rsp)) {
                 pageNo += 1;
                 getOneMaterialGoodsList (materialId);
+            } else {
+                WriteLine ("  over...");
             }
         }
 
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getGoodsList () {
-            return this.GoodsList;
-        }
     }
 }

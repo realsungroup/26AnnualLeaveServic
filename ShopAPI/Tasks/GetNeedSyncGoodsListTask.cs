@@ -23,6 +23,23 @@ namespace ShopAPI.Tasks {
     /// 获取需要同步的商品
     /// </summary>
     public class GetNeedSyncGoodsListTask {
+
+        public GetNeedSyncGoodsListTask () { }
+        public GetNeedSyncGoodsListTask (string materialID, bool debug = false) {
+            this.materialID = materialID;
+            this.debug = debug;
+        }
+
+        /// <summary>
+        /// 请求的商品的物料ID，用于测试。如果为 null，则请求所有的物料ID的商品；如果有值，则只请求该物料ID的商品
+        /// </summary>
+        public string materialID = null;
+
+        /// <summary>
+        /// 是否是 debug 模式。如果是 debug 模式，则会记录未通过校验的淘宝商品，从实例对象上可以获取未通过校验的商品
+        /// </summary>
+        public bool debug = false;
+
         /// <summary>
         /// 物料ID表记录 Modal
         /// </summary>
@@ -105,6 +122,8 @@ namespace ShopAPI.Tasks {
                 }
             }
 
+            WriteLine (" 3.需要同步的商品数量：" + records.Count);
+
             return records;
         }
 
@@ -114,16 +133,20 @@ namespace ShopAPI.Tasks {
         /// <param name="record"></param>
         /// <returns></returns>
         public NeedSyncGoodsModal getCommercialTenantGoodsList (commercialTenantSetModal record) {
+            WriteLine ("=============================================");
             WriteLine ("开始获取商户的商品，商户编号：" + record.business_ID);
 
             var needSyncGoodsModal = new NeedSyncGoodsModal ();
             needSyncGoodsModal.materialList = new List<MaterialListItemModal> ();
             needSyncGoodsModal.conditionRecord = record;
 
-            // 获取物料 id
+            // 获取物料ID
             var materialIDRecords = record.subdata;
 
-            materialIDRecords = materialIDRecords.GetRange (0, 1);
+            // 筛选物料ID
+            if (materialID != null) {
+                materialIDRecords = materialIDRecords.Where (x => x.material_ID == materialID).ToList ();
+            }
 
             if (materialIDRecords == null) {
                 return needSyncGoodsModal;
@@ -132,8 +155,8 @@ namespace ShopAPI.Tasks {
             foreach (var materialIDRecord in materialIDRecords) {
                 // 有效的物料ID
                 if (materialIDRecord.is_valid == "Y") {
-                    WriteLine ("==============================");
-                    WriteLine ("物料ID：" + materialIDRecord.material_ID);
+
+                    WriteLine (" 1.物料ID：" + materialIDRecord.material_ID);
 
                     var materialItem = new MaterialListItemModal ();
                     materialItem.material_ID = materialIDRecord.material_ID;
@@ -141,16 +164,16 @@ namespace ShopAPI.Tasks {
                     if (materialIDRecord.is_selection != "Y") {
                         materialItem.isSelection = false;
                         materialItem.goodsList = getNormalGoodsList (materialIDRecord);
-                        WriteLine ("商品数量：" + materialItem.goodsList);
+                        WriteLine (" 2.商品数量：" + materialItem.goodsList.Count);
                     } else {
                         // 选品库
                         materialItem.isSelection = true;
                         materialItem.favoritesList = getSelectionGoodsList (materialIDRecord);
-                        WriteLine ("分组数量：" + materialItem.goodsList);
+                        WriteLine (" 2.分组数量：" + materialItem.goodsList);
 
                         foreach (var item in materialItem.favoritesList) {
-                            WriteLine (" 分组名称：" + item.favoritesTitle);
-                            WriteLine (" 商品数量：" + item.goodsList.Count);
+                            WriteLine ("  a.分组名称：" + item.favoritesTitle);
+                            WriteLine ("  b.商品数量：" + item.goodsList.Count);
                         }
                     }
 
@@ -288,12 +311,12 @@ namespace ShopAPI.Tasks {
             return false;
         }
 
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_佣金比例 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_优惠券数量 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_优惠券结束时间 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_是否品牌精选 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_价格 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> inValid_优惠券金额 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _1_inValid_佣金比例 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _2_inValid_优惠券数量 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _3_inValid_优惠券结束时间 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _4_inValid_是否品牌精选 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _5_inValid_价格 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _6_inValid_优惠券金额 = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
 
         /// <summary>
         /// 是否是有效的商品
@@ -303,27 +326,39 @@ namespace ShopAPI.Tasks {
         /// <returns></returns>
         public bool isValidGoods (TbkDgOptimusMaterialResponse.MapDataDomain goods, commercialTenantSetModal conditionRecord) {
             if (!isCommissionRateValid (goods.CommissionRate, conditionRecord.commission_rate)) {
-                inValid_佣金比例.Add (goods);
+                if (debug) {
+                    _1_inValid_佣金比例.Add (goods);
+                }
                 return false;
             };
             if (!isCouponRemainCountValid (goods.CouponRemainCount, conditionRecord.coupon_remain_count)) {
-                inValid_优惠券数量.Add (goods);
+                if (debug) {
+                    _2_inValid_优惠券数量.Add (goods);
+                }
                 return false;
             }
             if (!isCouponEndDayValid (goods.CouponEndTime, conditionRecord.coupon_end_day)) {
-                inValid_优惠券结束时间.Add (goods);
+                if (debug) {
+                    _3_inValid_优惠券结束时间.Add (goods);
+                }
                 return false;
             }
             if (!isSuperiorBrand (goods.SuperiorBrand, conditionRecord.superior_brand)) {
-                inValid_是否品牌精选.Add (goods);
+                if (debug) {
+                    _4_inValid_是否品牌精选.Add (goods);
+                }
                 return false;
             }
             if (!isSalePriceValid (goods.ZkFinalPrice, conditionRecord.sale_price_down, conditionRecord.sale_price_up)) {
-                inValid_价格.Add (goods);
+                if (debug) {
+                    _5_inValid_价格.Add (goods);
+                }
                 return false;
             }
             if (!isCouponAmountValid (goods.CouponAmount, conditionRecord.coupon_amount)) {
-                inValid_优惠券金额.Add (goods);
+                if (debug) {
+                    _6_inValid_优惠券金额.Add (goods);
+                }
                 return false;
             }
             return true;
@@ -361,7 +396,7 @@ namespace ShopAPI.Tasks {
 
             getGoodsTask.getOneMaterialGoodsList (materialID);
 
-            return getGoodsTask.getGoodsList ();
+            return getGoodsTask.goodsList;
         }
 
         /// <summary>

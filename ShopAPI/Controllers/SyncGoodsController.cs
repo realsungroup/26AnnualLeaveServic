@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShopAPI;
+using ShopAPI.Modals;
 using Top.Api;
 using Top.Api.Request;
 using Top.Api.Response;
@@ -28,7 +29,7 @@ namespace ShopAPI.Controllers {
         /// <param name="body">请求体</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<OkObjectResult> syncGoods () {
+        public async Task<OkObjectResult> syncGoods ([FromQuery] SyncGoodsQueryModal query) {
             ITopClient client = new DefaultTopClient ("https://eco.taobao.com/router/rest", Constant.appkey, Constant.appsecret, "json");
 
             TbkDgOptimusMaterialRequest req = new TbkDgOptimusMaterialRequest ();
