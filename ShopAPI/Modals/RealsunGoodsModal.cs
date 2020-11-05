@@ -10,6 +10,7 @@ namespace ShopAPI.Modals {
         public float goods_price { get; set; }
         public string goods_dec { get; set; }
         public string goods_photos { get; set; }
+        public string bussiness_ID { get; set; }
 
         // 其他
         public long coupon_amount { get; set; }

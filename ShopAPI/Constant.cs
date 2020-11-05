@@ -27,5 +27,9 @@ namespace ShopAPI {
         /// </summary>
         public static string goodsResid = "650990015567";
 
+        /// <summary>
+        /// 商铺表
+        /// </summary>
+        public static string shopResid = "650991724130";
     }
 }

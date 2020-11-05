@@ -18,29 +18,6 @@ using Top.Api.Response;
 
 namespace ShopAPI.Jobs {
     public class SyncGoodsJob : IJob {
-        /// <summary>
-        /// 物料ID表记录 Modal
-        /// </summary>
-        public class MaterialRecordModal {
-            public string material_name { get; set; }
-            public string business_ID { get; set; }
-            public string material_ID { get; set; }
-            public string is_valid { get; set; }
-            public string is_selection { get; set; }
-        }
-        /// <summary>
-        /// 商户设置表 Modal
-        /// </summary>
-        public class commercialTenantSetModal {
-            public string business_ID { get; set; }
-            public string shop_ID { get; set; }
-            public string commission_rate { get; set; }
-            public string coupon_remain_count { get; set; }
-            public string coupon_end_day { get; set; }
-            public string superior_brand { get; set; }
-            public string sale_price_up { get; set; }
-            public string sale_price_down { get; set; }
-        }
 
         public async Task Execute (IJobExecutionContext context) {
             await start ();
@@ -74,11 +51,11 @@ namespace ShopAPI.Jobs {
             }
 
             // 添加商品到 realsun 平台
-            // var addRes = await addGoodsToRealsun (needSycnGoodsList);
+            var addRes = await addGoodsToRealsun (needSycnGoodsList);
 
-            // ret.Add ("addRes", addRes);
+            ret.Add ("addRes", addRes);
 
-            return new { };
+            return ret;
         }
 
         public static async Task<object> addGoodsToRealsun (List<RealsunGoodsModal> goodsList) {

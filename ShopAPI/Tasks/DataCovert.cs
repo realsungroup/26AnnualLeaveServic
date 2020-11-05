@@ -11,6 +11,7 @@ using static ShopAPI.Constant;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using ShopAPI;
 using ShopAPI.Modals;
 using ShopAPI.Tasks;
 using Top.Api;
@@ -23,7 +24,7 @@ namespace ShopAPI.Tasks {
     /// 数据转换类
     /// </summary>
     public class DataCovert {
-        
+
         /// <summary>
         /// 淘宝商品记录转换为 realsun 平台商品记录
         /// </summary>
@@ -31,7 +32,7 @@ namespace ShopAPI.Tasks {
         /// <param name="materialID">物料id</param>
         /// <param name="favoritesTitle">当商品为选品库商品时，才会有 favoritesTitle</param>
         /// <returns></returns>
-        public static List<RealsunGoodsModal> taobaoGoodsList2realsunGoodsList (List<TbkDgOptimusMaterialResponse.MapDataDomain> taobaoGoodsList, string materialID, string favoritesTitle = "") {
+        public static List<RealsunGoodsModal> taobaoGoodsList2realsunGoodsList (List<TbkDgOptimusMaterialResponse.MapDataDomain> taobaoGoodsList, string bussinessID, string materialID, string favoritesTitle = "") {
             var ret = new List<RealsunGoodsModal> ();
             var i = 1;
             foreach (var item in taobaoGoodsList) {
@@ -57,6 +58,12 @@ namespace ShopAPI.Tasks {
                     }
                 }
 
+                var endTime = "";
+                if (item.CouponEndTime != null) {
+                    var dateTime = Utils.UnixTimeStampToDateTime (Convert.ToDouble (item.CouponEndTime) / 1000);
+                    endTime = dateTime.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                }
+
                 var goodsItem = new RealsunGoodsModal {
                     _id = i++,
                     _state = "editoradd",
@@ -65,6 +72,7 @@ namespace ShopAPI.Tasks {
                     goods_price = float.Parse (item.ZkFinalPrice),
                     goods_dec = item.ItemDescription,
                     goods_photos = goodsPhotos,
+                    bussiness_ID = bussinessID,
                     coupon_amount = item.CouponAmount,
                     small_images = goodsPhotos,
                     shop_title = item.ShopTitle,
@@ -78,7 +86,7 @@ namespace ShopAPI.Tasks {
                     coupon_start_time = item.CouponStartTime,
                     seller_id = item.SellerId,
                     volume = item.Volume,
-                    coupon_end_time = item.CouponEndTime,
+                    coupon_end_time = endTime,
                     click_url = item.ClickUrl,
                     level_one_category_id = item.LevelOneCategoryId,
                     category_name = item.CategoryName,

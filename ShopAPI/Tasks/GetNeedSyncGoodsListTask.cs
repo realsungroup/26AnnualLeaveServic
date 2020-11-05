@@ -40,32 +40,6 @@ namespace ShopAPI.Tasks {
         /// </summary>
         public bool debug = false;
 
-        /// <summary>
-        /// 物料ID表记录 Modal
-        /// </summary>
-        public class MaterialRecordModal {
-            public string material_name { get; set; }
-            public string business_ID { get; set; }
-            public string material_ID { get; set; }
-            public string is_valid { get; set; }
-            public string is_selection { get; set; }
-        }
-        /// <summary>
-        /// 商户设置表 Modal
-        /// </summary>
-        public class commercialTenantSetModal {
-            public string business_ID { get; set; }
-            public string shop_ID { get; set; }
-            public string? commission_rate { get; set; }
-            public long? coupon_remain_count { get; set; }
-            public long? coupon_end_day { get; set; }
-            public string? superior_brand { get; set; }
-            public float? sale_price_up { get; set; }
-            public float? sale_price_down { get; set; }
-            public long? coupon_amount { get; set; }
-            public List<MaterialRecordModal> subdata { get; set; }
-        }
-
         public class MaterialListItemModal : MaterialRecordModal {
             // 是否是选品库商品（如果是，则取 favoritesList，否则直接取 goodsList）
             public bool isSelection { get; set; }
@@ -81,7 +55,7 @@ namespace ShopAPI.Tasks {
             public List<MaterialListItemModal> materialList { get; set; }
 
             // 条件
-            public commercialTenantSetModal conditionRecord { get; set; }
+            public CommercialTenantSetModal conditionRecord { get; set; }
         }
 
         /// <summary>
@@ -105,18 +79,20 @@ namespace ShopAPI.Tasks {
 
             var records = new List<RealsunGoodsModal> ();
             foreach (var item in list) {
+                var conditionRecord = item.conditionRecord;
+                var bussinessID = conditionRecord.business_ID;
                 foreach (var materialItem in item.materialList) {
                     // 选品库商品
                     if (materialItem.isSelection) {
                         foreach (var favoritesItem in materialItem.favoritesList) {
-                            var validGoods = favoritesItem.goodsList.Where (x => isValidGoods (x, item.conditionRecord)).ToList ();
-                            var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, materialItem.material_ID, favoritesItem.favoritesTitle);
+                            var validGoods = favoritesItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
+                            var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID, favoritesItem.favoritesTitle);
                             records.AddRange (newRecords);
                         }
                     } else {
                         // 非选品库商品
-                        var validGoods = materialItem.goodsList.Where (x => isValidGoods (x, item.conditionRecord)).ToList ();
-                        var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, materialItem.material_ID);
+                        var validGoods = materialItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
+                        var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID);
                         records.AddRange (newRecords);
                     }
                 }
@@ -132,7 +108,7 @@ namespace ShopAPI.Tasks {
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        public NeedSyncGoodsModal getCommercialTenantGoodsList (commercialTenantSetModal record) {
+        public NeedSyncGoodsModal getCommercialTenantGoodsList (CommercialTenantSetModal record) {
             WriteLine ("=============================================");
             WriteLine ("开始获取商户的商品，商户编号：" + record.business_ID);
 
@@ -324,7 +300,7 @@ namespace ShopAPI.Tasks {
         /// <param name="goods"></param>
         /// <param name="conditionRecord"></param>
         /// <returns></returns>
-        public bool isValidGoods (TbkDgOptimusMaterialResponse.MapDataDomain goods, commercialTenantSetModal conditionRecord) {
+        public bool isValidGoods (TbkDgOptimusMaterialResponse.MapDataDomain goods, CommercialTenantSetModal conditionRecord) {
             if (!isCommissionRateValid (goods.CommissionRate, conditionRecord.commission_rate)) {
                 if (debug) {
                     _1_inValid_佣金比例.Add (goods);
@@ -426,13 +402,13 @@ namespace ShopAPI.Tasks {
         /// 获取商户设置表记录
         /// </summary>
         /// <returns></returns>
-        public async Task<GetTagbleResponseModal<commercialTenantSetModal>> getCommercialTenantSet () {
+        public async Task<GetTagbleResponseModal<CommercialTenantSetModal>> getCommercialTenantSet () {
             var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
             var options = new GetTableOptionsModal { subresid = materialResid };
 
-            return await client.getTable<commercialTenantSetModal> (commercialTenantSetResid, options);
+            return await client.getTable<CommercialTenantSetModal> (commercialTenantSetResid, options);
         }
     }
 }
