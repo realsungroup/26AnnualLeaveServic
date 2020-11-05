@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShopAPI.Jobs;
+using static System.Console;
 
 namespace ShopAPI.Controllers {
     /// <summary>
@@ -25,6 +26,7 @@ namespace ShopAPI.Controllers {
         /// <returns></returns>
         [HttpGet]
         public async Task<OkObjectResult> executeLoginRealsunJob () {
+            WriteLine ("开始执行登录 realsun 平台任务");
             var res = await LoginRealsunJob.start ();
             return Ok (res);
         }

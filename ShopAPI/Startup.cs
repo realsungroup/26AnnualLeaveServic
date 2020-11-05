@@ -16,6 +16,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using ShopAPI.Jobs;
 using static System.Console;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Serialization;
 
 namespace ShopAPI {
@@ -66,6 +68,21 @@ namespace ShopAPI {
             if (env.IsDevelopment ()) {
                 app.UseDeveloperExceptionPage ();
             }
+
+            app.Use (async (context, next) => {
+
+                // Do work that doesn't write to the Response.
+                WriteLine ("accessToken:" + context.Request.Headers["accessToken"]);
+                // if (context.Request.Headers["accessToken"].ToString () == "") {
+                //     await context.Response.WriteAsync ("没有权限");
+                // }
+
+                // WriteLine ("Before...");
+                await next.Invoke ();
+                // WriteLine ("After...");
+
+                // Do logging or other work that doesn't write to the Response.
+            });
 
             app.UseHttpsRedirection ();
 

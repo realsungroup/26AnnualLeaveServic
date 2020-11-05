@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # .tgz
 *.tgz
+
+# Nlog temp
+temp/
