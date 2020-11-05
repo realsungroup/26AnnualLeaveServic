@@ -5,6 +5,7 @@ namespace ShopAPI.Modals {
     ///  商品表 Modal
     /// </summary>
     public class GoodsTableModal {
+        public string goods_id { get; set; }
         public string goods_name { get; set; }
         public string goods_img { get; set; }
         public float? goods_price { get; set; }

@@ -40,11 +40,12 @@ namespace ShopAPI.Jobs {
             var undercarriageGoodsList = new List<GroundingTableModal> ();
 
             foreach (var resItem in res) {
+                var shopID = resItem.shopID;
                 // 转换上架商品
-                var gResult = DataCovertTask.goodsTalbe2GroundingTable (resItem.groundingGoodsList, "Y");
+                var gResult = DataCovertTask.goodsTalbe2GroundingTable (resItem.groundingGoodsList, "Y", shopID);
                 groundingGoodsList.AddRange (gResult);
                 // 转换下架商品
-                var uResult = DataCovertTask.goodsTalbe2GroundingTable (resItem.undercarriageGoodsList, "N");
+                var uResult = DataCovertTask.goodsTalbe2GroundingTable (resItem.undercarriageGoodsList, "N", shopID);
                 undercarriageGoodsList.AddRange (uResult);
             }
 

@@ -11,5 +11,7 @@ namespace ShopAPI.Modals {
         /// </summary>
         /// <value></value>
         public string isPutaway { get; set; }
+
+        public string shop_ID { get; set; }
     }
 }

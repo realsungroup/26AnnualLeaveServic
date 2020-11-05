@@ -121,8 +121,9 @@ namespace ShopAPI.Tasks {
         /// </summary>
         /// <param name="shopTableList">商品记录</param>
         /// <param name="isPutaway">是否上架</param>
+        /// <param name="shopID">商铺ID</param>
         /// <returns></returns>
-        public static List<GroundingTableModal> goodsTalbe2GroundingTable (List<GoodsTableModal> shopTableList, string isPutaway) {
+        public static List<GroundingTableModal> goodsTalbe2GroundingTable (List<GoodsTableModal> shopTableList, string isPutaway, string shopID) {
             var ret = new List<GroundingTableModal> ();
 
             var i = 1;
@@ -133,6 +134,9 @@ namespace ShopAPI.Tasks {
                     _id = i++,
                     _state = "editoradd",
                     isPutaway = isPutaway,
+                    goods_id = item.goods_id,
+                    shop_ID = shopID,
+
                     goods_name = item.goods_name,
                     goods_img = item.goods_img,
                     goods_price = item.goods_price,
