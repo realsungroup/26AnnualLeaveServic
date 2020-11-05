@@ -5,7 +5,7 @@ namespace ShopAPI.Modals {
     /// 商铺表 Modal
     /// </summary>
     public class ShopTableModal {
-
-        public long before_day { get; set; }
+        public string business_ID { get; set; }
+        public long? before_day { get; set; }
     }
 }

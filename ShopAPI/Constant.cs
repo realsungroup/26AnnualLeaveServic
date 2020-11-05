@@ -31,5 +31,10 @@ namespace ShopAPI {
         /// 商铺表
         /// </summary>
         public static string shopResid = "650991724130";
+
+        /// <summary>
+        /// 上架表
+        /// </summary>
+        public static string groundingResid = "650998291867";
     }
 }

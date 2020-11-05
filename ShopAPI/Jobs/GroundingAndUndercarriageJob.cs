@@ -30,15 +30,60 @@ namespace ShopAPI.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start (string materialID = null, bool debug = false) {
+        public static async Task<object> start (bool debug = false) {
             var ret = new Hashtable ();
 
             var getGroundingAndUndercarriageGoodsListTask = new GetGroundingAndUndercarriageGoodsListTask ();
             var res = await getGroundingAndUndercarriageGoodsListTask.run ();
 
+            var groundingGoodsList = new List<GroundingTableModal> ();
+            var undercarriageGoodsList = new List<GroundingTableModal> ();
+
+            foreach (var resItem in res) {
+                // 转换上架商品
+                var gResult = DataCovertTask.goodsTalbe2GroundingTable (resItem.groundingGoodsList, "Y");
+                groundingGoodsList.AddRange (gResult);
+                // 转换下架商品
+                var uResult = DataCovertTask.goodsTalbe2GroundingTable (resItem.undercarriageGoodsList, "N");
+                undercarriageGoodsList.AddRange (uResult);
+            }
+
+            WriteLine ("开始上架、下架商品：");
+            WriteLine ("上架商品数量：" + groundingGoodsList.Count);
+            WriteLine ("下架商品数量：" + undercarriageGoodsList.Count);
+
+            // 上架商品
+            var gRes = await groundingGoods (groundingGoodsList);
+            // 下架商品
+            var uRes = await undercarriageGoods (undercarriageGoodsList);
+
             ret.Add ("res", res);
+            ret.Add ("上架的商品", gRes);
+            ret.Add ("下架的商品", uRes);
 
             return ret;
+        }
+
+        /// <summary>
+        /// 上架商品
+        /// </summary>
+        /// <param name="goodsList"></param>
+        /// <returns></returns>
+        public static async Task<object> groundingGoods (List<GroundingTableModal> goodsList) {
+            var client = new LzRequest (realsunBaseURL);
+            client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
+            return await client.AddRecords<object> (groundingResid, goodsList);
+        }
+
+        /// <summary>
+        /// 下架商品
+        /// </summary>
+        /// <param name="goodsList"></param>
+        /// <returns></returns>
+        public static async Task<object> undercarriageGoods (List<GroundingTableModal> goodsList) {
+            var client = new LzRequest (realsunBaseURL);
+            client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
+            return await client.AddRecords<object> (groundingResid, goodsList);
         }
 
         /// <summary>

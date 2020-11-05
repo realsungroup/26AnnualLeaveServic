@@ -23,7 +23,7 @@ namespace ShopAPI.Tasks {
     /// <summary>
     /// 数据转换类
     /// </summary>
-    public class DataCovert {
+    public class DataCovertTask {
 
         /// <summary>
         /// 淘宝商品记录转换为 realsun 平台商品记录
@@ -32,8 +32,8 @@ namespace ShopAPI.Tasks {
         /// <param name="materialID">物料id</param>
         /// <param name="favoritesTitle">当商品为选品库商品时，才会有 favoritesTitle</param>
         /// <returns></returns>
-        public static List<RealsunGoodsModal> taobaoGoodsList2realsunGoodsList (List<TbkDgOptimusMaterialResponse.MapDataDomain> taobaoGoodsList, string bussinessID, string materialID, string favoritesTitle = "") {
-            var ret = new List<RealsunGoodsModal> ();
+        public static List<GoodsTableModal> taobaoGoodsList2realsunGoodsList (List<TbkDgOptimusMaterialResponse.MapDataDomain> taobaoGoodsList, string bussinessID, string materialID, string favoritesTitle = "") {
+            var ret = new List<GoodsTableModal> ();
             var i = 1;
             foreach (var item in taobaoGoodsList) {
                 var goodsPhotos = "";
@@ -64,7 +64,13 @@ namespace ShopAPI.Tasks {
                     endTime = dateTime.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
                 }
 
-                var goodsItem = new RealsunGoodsModal {
+                var startTime = "";
+                if (item.CouponStartTime != null) {
+                    var dateTime = Utils.UnixTimeStampToDateTime (Convert.ToDouble (item.CouponStartTime) / 1000);
+                    startTime = dateTime.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                }
+
+                var goodsItem = new GoodsTableModal {
                     _id = i++,
                     _state = "editoradd",
                     goods_name = item.Title,
@@ -83,7 +89,7 @@ namespace ShopAPI.Tasks {
                     user_type = item.UserType,
                     coupon_remain_count = item.CouponRemainCount,
                     commission_rate = item.CommissionRate,
-                    coupon_start_time = item.CouponStartTime,
+                    coupon_start_time = startTime,
                     seller_id = item.SellerId,
                     volume = item.Volume,
                     coupon_end_time = endTime,
@@ -109,5 +115,68 @@ namespace ShopAPI.Tasks {
             }
             return ret;
         }
+
+        /// <summary>
+        /// 商品表记录转为上架表记录
+        /// </summary>
+        /// <param name="shopTableList">商品记录</param>
+        /// <param name="isPutaway">是否上架</param>
+        /// <returns></returns>
+        public static List<GroundingTableModal> goodsTalbe2GroundingTable (List<GoodsTableModal> shopTableList, string isPutaway) {
+            var ret = new List<GroundingTableModal> ();
+
+            var i = 1;
+
+            foreach (var item in shopTableList) {
+
+                var newItem = new GroundingTableModal {
+                    _id = i++,
+                    _state = "editoradd",
+                    isPutaway = isPutaway,
+                    goods_name = item.goods_name,
+                    goods_img = item.goods_img,
+                    goods_price = item.goods_price,
+                    goods_dec = item.goods_dec,
+                    goods_photos = item.goods_photos,
+                    bussiness_ID = item.bussiness_ID,
+                    coupon_amount = item.coupon_amount,
+                    small_images = item.small_images,
+                    shop_title = item.shop_title,
+                    category_id = item.category_id,
+                    coupon_start_fee = item.coupon_start_fee,
+                    item_id = item.item_id,
+                    coupon_total_count = item.coupon_total_count,
+                    user_type = item.user_type,
+                    coupon_remain_count = item.coupon_remain_count,
+                    commission_rate = item.commission_rate,
+                    coupon_start_time = item.coupon_start_time,
+                    seller_id = item.seller_id,
+                    volume = item.volume,
+                    coupon_end_time = item.coupon_end_time,
+                    click_url = item.click_url,
+                    level_one_category_id = item.level_one_category_id,
+                    category_name = item.category_name,
+                    white_image = item.white_image,
+                    word = item.word,
+                    uv_sum_pre_sale = item.uv_sum_pre_sale,
+                    coupon_share_url = item.coupon_share_url,
+                    nick = item.nick,
+                    reserve_price = item.reserve_price,
+                    sale_price = item.sale_price,
+                    sub_title = item.sub_title,
+                    superior_brand = item.superior_brand,
+                    goods_origin = item.goods_origin,
+                    material_id = item.material_id,
+                    favorites_title = item.favorites_title,
+                    coupon_click_url = item.coupon_click_url,
+                    zk_final_price = item.zk_final_price,
+                };
+
+                ret.Add (newItem);
+            }
+
+            return ret;
+        }
+
     }
 }

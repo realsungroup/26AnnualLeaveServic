@@ -69,7 +69,7 @@ namespace ShopAPI.Tasks {
         /// 运行任务
         /// </summary>
         /// <returns></returns>
-        public async Task<List<RealsunGoodsModal>> run () {
+        public async Task<List<GoodsTableModal>> run () {
             var commercialTenantSetRes = await getCommercialTenantSet ();
             List<NeedSyncGoodsModal> list = new List<NeedSyncGoodsModal> ();
             foreach (var item in commercialTenantSetRes.data) {
@@ -77,7 +77,7 @@ namespace ShopAPI.Tasks {
                 list.Add (ret);
             }
 
-            var records = new List<RealsunGoodsModal> ();
+            var records = new List<GoodsTableModal> ();
             foreach (var item in list) {
                 var conditionRecord = item.conditionRecord;
                 var bussinessID = conditionRecord.business_ID;
@@ -86,13 +86,13 @@ namespace ShopAPI.Tasks {
                     if (materialItem.isSelection) {
                         foreach (var favoritesItem in materialItem.favoritesList) {
                             var validGoods = favoritesItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
-                            var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID, favoritesItem.favoritesTitle);
+                            var newRecords = DataCovertTask.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID, favoritesItem.favoritesTitle);
                             records.AddRange (newRecords);
                         }
                     } else {
                         // 非选品库商品
                         var validGoods = materialItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
-                        var newRecords = DataCovert.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID);
+                        var newRecords = DataCovertTask.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID);
                         records.AddRange (newRecords);
                     }
                 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
@@ -44,20 +45,24 @@ namespace ShopAPI.Tasks {
             public string shopID { get; set; }
 
             /// <summary>
-            /// 符合上面条件的商品
+            /// 上架商品
             /// </summary>
             /// <value></value>
-            public List<RealsunGoodsModal> goodsList { get; set; }
+            public List<GoodsTableModal> groundingGoodsList { get; set; }
+
+            /// <summary>
+            /// 下架商品
+            /// </summary>
+            /// <value></value>
+            public List<GoodsTableModal> undercarriageGoodsList { get; set; }
+
         }
 
         public List<GetGroundingAndUntercarriageModal> getGroundingAndUntercarriageList = new List<GetGroundingAndUntercarriageModal> ();
 
-        public async Task<object> run () {
+        public async Task<List<GetGroundingAndUntercarriageModal>> run () {
             var ret = new List<GetGroundingAndUntercarriageModal> ();
             var ctsRecords = await getCommercialTenantSetRecords ();
-
-            // 获取所有的商品
-            // var allGoodsList = await getAllGoodsList ();
 
             foreach (var ctsRecord in ctsRecords) {
                 var item = new GetGroundingAndUntercarriageModal ();
@@ -67,43 +72,69 @@ namespace ShopAPI.Tasks {
                 var conditionRecord = await getConditionRecordByID (item.shopID);
                 if (conditionRecord != null) {
                     item.conditionRecord = conditionRecord;
-                    // 根据条件获取商品
-                    item.goodsList = await getGoodsListByCondition (item.conditionRecord);
+                    // 根据条件获取上架、下架商品
+                    var res = await getGoodsListByCondition (item.conditionRecord);
 
+                    item.groundingGoodsList = res["groundingGoodsList"] as List<GoodsTableModal>;
+                    item.undercarriageGoodsList = res["undercarriageGoodsList"] as List<GoodsTableModal>;
+
+                    ret.Add (item);
                 }
+
             }
 
-            return new { };
+            return ret;
         }
 
         /// <summary>
-        /// 通过条件获取商品列表
+        /// 通过条件获取上架、下架商品列表
         /// </summary>
         /// <param name="conditionRecord"></param>
         /// <returns></returns>
-        public async Task<List<RealsunGoodsModal>> getGoodsListByCondition (ShopTableModal conditionRecord) {
+        public async Task<Hashtable> getGoodsListByCondition (ShopTableModal conditionRecord) {
+            var ret = new Hashtable ();
 
-            var goodsList = new List<RealsunGoodsModal> ();
+            var groundingGoodsList = new List<GoodsTableModal> ();
+            var undercarriageGoodsList = new List<GoodsTableModal> ();
 
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
-            // var options = new GetTableOptionsModal () {
-            //     cmswhere = ""
-            // }
+            var groundingOptions = new GetTableOptionsModal ();
+            var undercarriageOptions = new GetTableOptionsModal ();
 
-            // client.getTable<RealsunGoodsModal> (goodsResid, );
-            return goodsList;
-        }
+            groundingOptions.cmswhere = $"bussiness_ID = '{conditionRecord.business_ID}'";
+            undercarriageOptions.cmswhere = $"bussiness_ID = '{conditionRecord.business_ID}'";
 
-        /// <summary>
-        /// 获取所有的商品
-        /// </summary>
-        /// <param name="conditionRecord"></param>
-        /// <returns></returns>
-        public async Task<List<RealsunGoodsModal>> getAllGoodsList () {
-            client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
-            var res = await client.getTable<RealsunGoodsModal> (goodsResid);
-            return res.data;
+            // 是否请求下架商品
+            var isRequestUndercarriageGoodsList = true;
+            if (conditionRecord.before_day != null) {
+                var now = DateTime.Now;
+                var actualEndDateTime = now.AddDays (Convert.ToDouble (conditionRecord.before_day));
+                var actualEndDateTimeStr = actualEndDateTime.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+
+                WriteLine ("HHHH");
+
+                groundingOptions.cmswhere += $" and coupon_end_time > '{actualEndDateTimeStr}'";
+                undercarriageOptions.cmswhere += $" and coupon_end_time <= '{actualEndDateTimeStr}'";
+
+            } else {
+                isRequestUndercarriageGoodsList = false;
+            }
+
+            // 获取上架商品
+            var res = await client.getTable<GoodsTableModal> (goodsResid, groundingOptions);
+            groundingGoodsList = res.data;
+
+            // 获取下架商品
+            if (isRequestUndercarriageGoodsList) {
+                var undercarriageGoodsListRes = await client.getTable<GoodsTableModal> (goodsResid, undercarriageOptions);
+                undercarriageGoodsList = undercarriageGoodsListRes.data;
+            }
+
+            ret.Add ("groundingGoodsList", groundingGoodsList);
+            ret.Add ("undercarriageGoodsList", undercarriageGoodsList);
+
+            return ret;
         }
 
         /// <summary>

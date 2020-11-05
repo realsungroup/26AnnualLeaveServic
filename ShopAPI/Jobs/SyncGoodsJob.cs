@@ -58,7 +58,7 @@ namespace ShopAPI.Jobs {
             return ret;
         }
 
-        public static async Task<object> addGoodsToRealsun (List<RealsunGoodsModal> goodsList) {
+        public static async Task<object> addGoodsToRealsun (List<GoodsTableModal> goodsList) {
             var client = new LzRequest (realsunBaseURL);
 
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
