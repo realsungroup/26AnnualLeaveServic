@@ -51,10 +51,7 @@ namespace ShopAPI.Jobs {
             }
 
             // 添加商品到 realsun 平台
-            object addRes = null;
-            if (debug) {
-                addRes =  await addGoodsToRealsun (needSycnGoodsList);
-            }
+            var addRes = await addGoodsToRealsun (needSycnGoodsList);
 
             ret.Add ("addRes", addRes);
 
@@ -62,11 +59,41 @@ namespace ShopAPI.Jobs {
         }
 
         public static async Task<object> addGoodsToRealsun (List<GoodsTableModal> goodsList) {
-            var client = new LzRequest (realsunBaseURL);
+            var list = new List<List<GoodsTableModal>> ();
 
+            var i = 1;
+            var listIndex = 0;
+            foreach (var goods in goodsList) {
+                if (i == 1) {
+                    var arr = new List<GoodsTableModal> ();
+                    arr.Add (goods);
+                    list.Add (arr);
+                    i++;
+                } else if (i > 1 && i < 100) {
+                    list[listIndex].Add (goods);
+                    i++;
+                } else if (i == 100) {
+                    list[listIndex].Add (goods);
+                    i = 1;
+                    listIndex++;
+                }
+            }
+
+            var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
-            return await client.AddRecords<object> (goodsResid, goodsList);
+            var ret = new List<object> ();
+            var j = 1;
+            foreach (var itemList in list) {
+                WriteLine (j);
+                WriteLine ("itemList.Count:" + itemList.Count);
+                var res = await client.AddRecords<object> (goodsResid, itemList);
+                WriteLine ("end");
+                j++;
+                ret.Add (res);
+            }
+
+            return ret;
         }
 
         /// <summary>
