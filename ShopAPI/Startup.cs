@@ -30,6 +30,9 @@ namespace ShopAPI {
         public async void init () {
             await LoginRealsunJob.init ();
             LoginRealsunJob.start ();
+
+            await GroundingAndUndercarriageJob.init ();
+            await SyncGoodsJob.init ();
         }
 
         public IConfiguration Configuration { get; }

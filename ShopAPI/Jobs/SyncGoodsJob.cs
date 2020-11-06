@@ -79,10 +79,9 @@ namespace ShopAPI.Jobs {
 
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<SyncGoodsJob> ().Build ();
+
             var trigger = TriggerBuilder.Create ()
-                .WithSimpleSchedule (m => {
-                    m.WithIntervalInMinutes (10).RepeatForever ();
-                })
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (4, 0))
                 .Build ();
 
             // 添加调度
