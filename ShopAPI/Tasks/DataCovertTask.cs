@@ -44,7 +44,7 @@ namespace ShopAPI.Tasks {
                         if (goodsPhotos.Length > 0) {
                             goodsPhotos = $"{goodsPhotos};https${photoStr}";
                         } else {
-                            goodsPhotos += photoStr;
+                            goodsPhotos += $"https{photoStr}";
                         }
                     }
                 }
