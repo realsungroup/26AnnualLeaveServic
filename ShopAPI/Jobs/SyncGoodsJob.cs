@@ -51,9 +51,7 @@ namespace ShopAPI.Jobs {
             }
 
             // 添加商品到 realsun 平台
-            var addRes = await addGoodsToRealsun (needSycnGoodsList);
-
-            ret.Add ("addRes", addRes);
+            addGoodsToRealsun (needSycnGoodsList);
 
             return ret;
         }
