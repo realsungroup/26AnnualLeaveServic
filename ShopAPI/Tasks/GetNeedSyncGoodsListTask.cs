@@ -233,19 +233,13 @@ namespace ShopAPI.Tasks {
         /// <returns></returns>
         public bool isSuperiorBrand (string taobaoSuperiorBrand, string? conditionSuperiorBrand) {
             if (conditionSuperiorBrand == null) {
-                string[] lines1 = { "111", $"taobao:{taobaoSuperiorBrand}", };
-                System.IO.File.AppendAllLines (@"isCommissionRateValid.txt",  lines1);
                 return true;
             }
 
             if (taobaoSuperiorBrand == conditionSuperiorBrand) {
-                string[] lines2 = { "222", $"taobao:{taobaoSuperiorBrand}", };
-
-                System.IO.File.AppendAllLines (@"isCommissionRateValid.txt", lines2);
                 return true;
             }
-            string[] lines3 = { "333" };
-            System.IO.File.AppendAllLines (@"isCommissionRateValid.txt", lines3);
+
             return false;
         }
         /// <summary>
@@ -273,6 +267,7 @@ namespace ShopAPI.Tasks {
             if (conditionMinPrice != null && conditionMaxPrice != null) {
                 return _taobaoSalePrice >= conditionMinPrice && _taobaoSalePrice <= conditionMaxPrice;
             }
+
             return false;
         }
 
