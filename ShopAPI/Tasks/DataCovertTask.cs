@@ -96,7 +96,7 @@ namespace ShopAPI.Tasks {
                     click_url = item.ClickUrl,
                     level_one_category_id = item.LevelOneCategoryId,
                     category_name = item.CategoryName,
-                    white_image = $"https:{item.WhiteImage}",
+                    white_image = item.WhiteImage,
                     word = word,
                     uv_sum_pre_sale = item.UvSumPreSale,
                     coupon_share_url = item.CouponShareUrl,
