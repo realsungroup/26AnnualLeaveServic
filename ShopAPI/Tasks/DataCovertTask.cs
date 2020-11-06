@@ -93,7 +93,7 @@ namespace ShopAPI.Tasks {
                     seller_id = item.SellerId,
                     volume = item.Volume,
                     coupon_end_time = endTime,
-                    click_url = item.ClickUrl,
+                    click_url = $"https:{item.ClickUrl}",
                     level_one_category_id = item.LevelOneCategoryId,
                     category_name = item.CategoryName,
                     white_image = item.WhiteImage,
@@ -108,7 +108,7 @@ namespace ShopAPI.Tasks {
                     goods_origin = "taobao",
                     material_id = materialID,
                     favorites_title = favoritesTitle,
-                    coupon_click_url = item.CouponClickUrl,
+                    coupon_click_url = $"https:{item.CouponClickUrl}",
                     zk_final_price = item.ZkFinalPrice,
                 };
                 ret.Add (goodsItem);
@@ -157,7 +157,7 @@ namespace ShopAPI.Tasks {
                     seller_id = item.seller_id,
                     volume = item.volume,
                     coupon_end_time = item.coupon_end_time,
-                    click_url = $"https:{item.click_url}",
+                    click_url = item.click_url,
                     level_one_category_id = item.level_one_category_id,
                     category_name = item.category_name,
                     white_image = item.white_image,
@@ -172,7 +172,7 @@ namespace ShopAPI.Tasks {
                     goods_origin = item.goods_origin,
                     material_id = item.material_id,
                     favorites_title = item.favorites_title,
-                    coupon_click_url = $"https:{item.coupon_click_url}",
+                    coupon_click_url = item.coupon_click_url,
                     zk_final_price = item.zk_final_price,
                 };
 
