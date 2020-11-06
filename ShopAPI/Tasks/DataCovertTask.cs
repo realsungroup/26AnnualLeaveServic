@@ -42,9 +42,9 @@ namespace ShopAPI.Tasks {
                 if (item.SmallImages != null) {
                     foreach (var photoStr in item.SmallImages) {
                         if (goodsPhotos.Length > 0) {
-                            goodsPhotos = $"{goodsPhotos};https${photoStr}";
+                            goodsPhotos = $"{goodsPhotos};https:{photoStr}";
                         } else {
-                            goodsPhotos += $"https{photoStr}";
+                            goodsPhotos += $"https:{photoStr}";
                         }
                     }
                 }
@@ -74,7 +74,7 @@ namespace ShopAPI.Tasks {
                     _id = i++,
                     _state = "editoradd",
                     goods_name = item.Title,
-                    goods_img = $"https{item.PictUrl}",
+                    goods_img = $"https:{item.PictUrl}",
                     goods_price = float.Parse (item.ZkFinalPrice),
                     goods_dec = item.ItemDescription == null ? item.SubTitle : item.ItemDescription,
                     goods_photos = goodsPhotos,
@@ -96,7 +96,7 @@ namespace ShopAPI.Tasks {
                     click_url = item.ClickUrl,
                     level_one_category_id = item.LevelOneCategoryId,
                     category_name = item.CategoryName,
-                    white_image = $"https{item.WhiteImage}",
+                    white_image = $"https:{item.WhiteImage}",
                     word = word,
                     uv_sum_pre_sale = item.UvSumPreSale,
                     coupon_share_url = item.CouponShareUrl,
