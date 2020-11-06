@@ -76,7 +76,7 @@ namespace ShopAPI.Tasks {
                     goods_name = item.Title,
                     goods_img = $"https:{item.PictUrl}",
                     goods_price = float.Parse (item.ZkFinalPrice),
-                    goods_dec = item.ItemDescription == null ? item.SubTitle : item.ItemDescription,
+                    goods_dec = item.ItemDescription.Length == 0 ? item.SubTitle : item.ItemDescription,
                     goods_photos = goodsPhotos,
                     bussiness_ID = bussinessID,
                     coupon_amount = item.CouponAmount,
