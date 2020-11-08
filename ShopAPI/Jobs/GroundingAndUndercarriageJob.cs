@@ -133,7 +133,7 @@ namespace ShopAPI.Jobs {
             var jobDetail = JobBuilder.Create<SyncGoodsJob> ().Build ();
             var trigger = TriggerBuilder.Create ()
                 .WithSimpleSchedule (m => {
-                    m.WithIntervalInMinutes (10).RepeatForever ();
+                    m.WithIntervalInMinutes (30).RepeatForever ();
                 })
                 .Build ();
 
