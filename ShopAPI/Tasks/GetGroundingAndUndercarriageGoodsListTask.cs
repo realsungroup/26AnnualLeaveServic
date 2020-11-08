@@ -108,11 +108,14 @@ namespace ShopAPI.Tasks {
             // 是否请求下架商品
             var isRequestUndercarriageGoodsList = true;
             if (conditionRecord.before_day != null) {
+
                 var now = DateTime.Now;
                 var actualEndDateTime = now.AddDays (Convert.ToDouble (conditionRecord.before_day));
                 var actualEndDateTimeStr = actualEndDateTime.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
-                WriteLine ("HHHH");
+                WriteLine ("conditionRecord.before_day:" + conditionRecord.before_day);
+                WriteLine ("now.ToString:" + now.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss"));
+                WriteLine ("actualEndDateTimeStr:" + actualEndDateTimeStr);
 
                 groundingOptions.cmswhere += $" and coupon_end_time > '{actualEndDateTimeStr}'";
                 undercarriageOptions.cmswhere += $" and coupon_end_time <= '{actualEndDateTimeStr}'";

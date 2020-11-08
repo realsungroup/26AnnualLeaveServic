@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using static System.Console;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace ShopAPI.Http {
@@ -124,6 +125,8 @@ namespace ShopAPI.Http {
 
             return res;
         }
+
+        public delegate Task<T> AddRecordsDel<T> (string resid, object data);
 
         /// <summary>
         /// 添加记录

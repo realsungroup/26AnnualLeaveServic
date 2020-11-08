@@ -12,6 +12,7 @@ using static ShopAPI.Constant;
 using System.Collections.Generic;
 using ShopAPI.Modals;
 using ShopAPI.Tasks;
+using static ShopAPI.Utils;
 using Top.Api;
 using Top.Api.Request;
 using Top.Api.Response;
@@ -59,25 +60,7 @@ namespace ShopAPI.Jobs {
         }
 
         public static async Task<object> addGoodsToRealsun (List<GoodsTableModal> goodsList) {
-            var list = new List<List<GoodsTableModal>> ();
-
-            var i = 1;
-            var listIndex = 0;
-            foreach (var goods in goodsList) {
-                if (i == 1) {
-                    var arr = new List<GoodsTableModal> ();
-                    arr.Add (goods);
-                    list.Add (arr);
-                    i++;
-                } else if (i > 1 && i < 100) {
-                    list[listIndex].Add (goods);
-                    i++;
-                } else if (i == 100) {
-                    list[listIndex].Add (goods);
-                    i = 1;
-                    listIndex++;
-                }
-            }
+            var list = List2TwoDimensionList<GoodsTableModal> (goodsList);
 
             var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });

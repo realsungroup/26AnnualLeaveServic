@@ -15,6 +15,7 @@ using ShopAPI.Tasks;
 using Top.Api;
 using Top.Api.Request;
 using Top.Api.Response;
+using static ShopAPI.Utils;
 
 namespace ShopAPI.Jobs {
     /// <summary>
@@ -71,9 +72,24 @@ namespace ShopAPI.Jobs {
         /// <param name="goodsList"></param>
         /// <returns></returns>
         public static async Task<object> groundingGoods (List<GroundingTableModal> goodsList) {
+            WriteLine ("开始上架商品：");
             var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
-            return await client.AddRecords<object> (groundingResid, goodsList);
+
+            var list = List2TwoDimensionList<GroundingTableModal> (goodsList);
+
+            var ret = new List<object> ();
+            var j = 1;
+            foreach (var itemList in list) {
+                WriteLine (j);
+                WriteLine ("itemList.Count:" + itemList.Count);
+                var res = await client.AddRecords<object> (groundingResid, goodsList);
+                WriteLine ("end");
+                j++;
+                ret.Add (res);
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -82,9 +98,24 @@ namespace ShopAPI.Jobs {
         /// <param name="goodsList"></param>
         /// <returns></returns>
         public static async Task<object> undercarriageGoods (List<GroundingTableModal> goodsList) {
+            WriteLine ("开始下架商品：");
+
             var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
-            return await client.AddRecords<object> (groundingResid, goodsList);
+
+            var list = List2TwoDimensionList<GroundingTableModal> (goodsList);
+            var ret = new List<object> ();
+            var j = 1;
+            foreach (var itemList in list) {
+                WriteLine (j);
+                WriteLine ("itemList.Count:" + itemList.Count);
+                var res = await client.AddRecords<object> (groundingResid, goodsList);
+                WriteLine ("end");
+                j++;
+                ret.Add (res);
+            }
+
+            return ret;
         }
 
         /// <summary>
