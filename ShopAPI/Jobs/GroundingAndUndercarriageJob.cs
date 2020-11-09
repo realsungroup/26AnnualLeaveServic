@@ -76,17 +76,18 @@ namespace ShopAPI.Jobs {
             var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
-            var list = List2TwoDimensionList<GroundingTableModal> (goodsList);
+            var list = List2TwoDimensionList<GroundingTableModal> (goodsList, 20);
+
+            WriteLine ("list.Count:" + list.Count);
 
             var ret = new List<object> ();
             var j = 1;
             foreach (var itemList in list) {
                 WriteLine (j);
                 WriteLine ("itemList.Count:" + itemList.Count);
-                var res = await client.AddRecords<object> (groundingResid, goodsList);
+                var res = await client.AddRecords<object> (groundingResid, itemList);
                 WriteLine ("end");
                 j++;
-                ret.Add (res);
             }
 
             return ret;
@@ -103,16 +104,15 @@ namespace ShopAPI.Jobs {
             var client = new LzRequest (realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
-            var list = List2TwoDimensionList<GroundingTableModal> (goodsList);
+            var list = List2TwoDimensionList<GroundingTableModal> (goodsList, 20);
             var ret = new List<object> ();
             var j = 1;
             foreach (var itemList in list) {
                 WriteLine (j);
                 WriteLine ("itemList.Count:" + itemList.Count);
-                var res = await client.AddRecords<object> (groundingResid, goodsList);
+                var res = await client.AddRecords<object> (groundingResid, itemList);
                 WriteLine ("end");
                 j++;
-                ret.Add (res);
             }
 
             return ret;

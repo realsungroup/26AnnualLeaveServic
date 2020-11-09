@@ -40,7 +40,7 @@ namespace ShopAPI {
                 } else if (i > 1 && i < count) {
                     retList[listIndex].Add (item);
                     i++;
-                } else if (i == 100) {
+                } else if (i == count) {
                     retList[listIndex].Add (item);
                     i = 1;
                     listIndex++;
