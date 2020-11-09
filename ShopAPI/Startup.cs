@@ -31,8 +31,9 @@ namespace ShopAPI {
             await LoginRealsunJob.init ();
             LoginRealsunJob.start ();
 
-            // await GroundingAndUndercarriageJob.init ();
-            // await SyncGoodsJob.init ();
+            await GroundingJob.init ();
+            await UndercarriageJob.init ();
+            await SyncGoodsJob.init ();
         }
 
         public IConfiguration Configuration { get; }
