@@ -23,9 +23,19 @@ namespace ShopAPI {
         public static string commercialTenantSetResid = "657632198616";
 
         /// <summary>
-        /// 商品表
+        /// 商品明细表
         /// </summary>
-        public static string goodsResid = "658233019592";
+        public static string goodsResid = "650990015567";
+
+        /// <summary>
+        /// 商品明细表-不包含下架
+        /// </summary>
+        public static string notUnderGoodsResid = "658233019592";
+
+        /// <summary>
+        /// 商品明细表-不包含已上架已下架（isPutaway 值为空的商品）
+        /// </summary>
+        public static string nullGoodsResid = "658253937383";
 
         /// <summary>
         /// 商铺表

@@ -159,10 +159,10 @@ namespace ShopAPI.Tasks {
             await getGroundingGoodsList (groundingOptions);
 
             // 获取下架商品
-            // if (isRequestUndercarriageGoodsList) {
-            //     WriteLine ($"cmswhere:{undercarriageOptions.cmswhere}");
-            //     await getUndercarriageGoodsList (undercarriageOptions);
-            // }
+            if (isRequestUndercarriageGoodsList) {
+                WriteLine ($"cmswhere:{undercarriageOptions.cmswhere}");
+                await getUndercarriageGoodsList (undercarriageOptions);
+            }
 
             ret.Add ("groundingGoodsList", groundingGoodsList);
             ret.Add ("undercarriageGoodsList", undercarriageGoodsList);
@@ -181,7 +181,7 @@ namespace ShopAPI.Tasks {
 
             WriteLine ($"开始获取第 {groundingPageIndex} 页数据");
 
-            var res = await client.getTable<GoodsTableModal> (goodsResid, groundingOptions);
+            var res = await client.getTable<GoodsTableModal> (nullGoodsResid, groundingOptions);
 
             groundingGoodsList.AddRange (res.data);
 
@@ -191,8 +191,7 @@ namespace ShopAPI.Tasks {
 
             WriteLine ("==============================");
 
-            // if (groundingPageIndex < totalPage - 1) {
-            if (false) {
+            if (groundingPageIndex < totalPage - 1) {
                 groundingPageIndex++;
                 return await getGroundingGoodsList (groundingOptions);
             } else {

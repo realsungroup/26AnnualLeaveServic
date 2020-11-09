@@ -139,7 +139,27 @@ namespace ShopAPI.Tasks {
                     //  非选品库
                     if (materialIDRecord.is_selection != "Y") {
                         materialItem.isSelection = false;
-                        materialItem.goodsList = getNormalGoodsList (materialIDRecord);
+
+                        // 实时热销商品只取前 n 个
+                        object count = null;
+                        if (materialIDRecord.is_hot_sell == "Y") {
+                            if (materialIDRecord.hot_sell_count != null) {
+                                count = materialIDRecord.hot_sell_count;
+                            }
+                        }
+
+                        var goodsList = getNormalGoodsList (materialIDRecord);
+                        if (count != null) {
+                            if (goodsList.Count >= (int) count) {
+                                materialItem.goodsList = goodsList.GetRange (0, (int) count);
+                            } else {
+                                materialItem.goodsList = goodsList;
+                            }
+                        } else {
+                            // count 没有的话，则不同步实时热销榜的数据
+                            materialItem.goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+                        }
+
                         WriteLine (" 2.商品数量：" + materialItem.goodsList.Count);
                     } else {
                         // 选品库

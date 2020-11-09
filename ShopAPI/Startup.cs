@@ -72,21 +72,6 @@ namespace ShopAPI {
                 app.UseDeveloperExceptionPage ();
             }
 
-            app.Use (async (context, next) => {
-
-                // Do work that doesn't write to the Response.
-                WriteLine ("accessToken:" + context.Request.Headers["accessToken"]);
-                // if (context.Request.Headers["accessToken"].ToString () == "") {
-                //     await context.Response.WriteAsync ("没有权限");
-                // }
-
-                // WriteLine ("Before...");
-                await next.Invoke ();
-                // WriteLine ("After...");
-
-                // Do logging or other work that doesn't write to the Response.
-            });
-
             app.UseHttpsRedirection ();
 
             app.UseRouting ();

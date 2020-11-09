@@ -17,18 +17,18 @@ using ShopAPI.Modals;
 
 namespace ShopAPI.Controllers {
     /// <summary>
-    /// 执行商品上下架任务
+    /// 执行商品下架任务
     /// </summary>
     [ApiController]
     [Route ("api/v1/[controller]")]
-    public class ExecuteGroundingAndUndercarriageJobController : ControllerBase {
+    public class ExecuteUndercarriageJobController : ControllerBase {
         /// <summary>
-        /// 执行商品上下架任务
+        /// 执行商品下架任务
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<OkObjectResult> executeGroundingAndUndercarriageJob () {
-            var res = await GroundingAndUndercarriageJob.start ();
+        public async Task<OkObjectResult> executeUndercarriageJob () {
+            var res = await UndercarriageJob.start ();
             return Ok (res);
         }
     }

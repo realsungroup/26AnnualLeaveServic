@@ -16,27 +16,19 @@ using ShopAPI.Http;
 using ShopAPI.Modals;
 
 namespace ShopAPI.Controllers {
-
     /// <summary>
-    /// 执行同步商品的任务
+    /// 执行商品上架任务
     /// </summary>
     [ApiController]
     [Route ("api/v1/[controller]")]
-    public class ExecuteSyncGoodsJobController : ControllerBase {
+    public class ExecuteGroundingJobController : ControllerBase {
         /// <summary>
-        /// 执行同步商品的任务
+        /// 执行商品上架任务
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<OkObjectResult> executeSyncGoodsJob ([FromQuery] SyncGoodsQueryModal query) {
-            bool _debug;
-            if (query.debug == "Y") {
-                _debug = true;
-            } else {
-                _debug = false;
-            }
-
-            var res = await SyncGoodsJob.start (query.materialID, _debug);
+        public async Task<OkObjectResult> executeGroundingJob () {
+            var res = await GroundingJob.start ();
             return Ok (res);
         }
     }
