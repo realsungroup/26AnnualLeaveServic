@@ -75,7 +75,10 @@ namespace ShopAPI.Jobs {
             foreach (var itemList in list) {
                 WriteLine (j);
                 WriteLine ("itemList.Count:" + itemList.Count);
+                // 同步商品
                 var res = await client.AddRecords<object> (goodsResid, itemList);
+                // 商品上架
+                await GroundingJob.start ();
                 WriteLine ("end");
                 j++;
             }
