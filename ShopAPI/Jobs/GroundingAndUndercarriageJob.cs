@@ -59,9 +59,9 @@ namespace ShopAPI.Jobs {
             // 下架商品
             var uRes = await undercarriageGoods (undercarriageGoodsList);
 
-            ret.Add ("res", res);
-            ret.Add ("上架的商品", gRes);
-            ret.Add ("下架的商品", uRes);
+            // ret.Add ("res", res);
+            // ret.Add ("上架的商品", gRes);
+            // ret.Add ("下架的商品", uRes);
 
             return ret;
         }

@@ -38,7 +38,7 @@ namespace ShopAPI.Http {
     /// <typeparam name="T">data 每一项的类型</typeparam>
     public class GetTagbleResponseModal<T> {
         public List<T> data { get; set; }
-        public int total { get; set; }
+        public long total { get; set; }
         public object error { get; set; }
 
         public string token { get; set; }

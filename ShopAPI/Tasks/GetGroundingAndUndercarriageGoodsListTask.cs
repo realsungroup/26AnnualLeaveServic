@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -27,6 +29,40 @@ namespace ShopAPI.Tasks {
         }
 
         private LzRequest client = null;
+
+        /// <summary>
+        /// 获取上架商品的每页数量
+        /// </summary>
+        private long groundingPageSize = 100;
+
+        /// <summary>
+        /// 获取上架商品的页码
+        /// </summary>
+        private long groundingPageIndex = 0;
+
+        /// <summary>
+        /// 获取下架商品的每页数量
+        /// </summary>
+        private long undercarriagePageSize = 100;
+
+        /// <summary>
+        /// 获取下架商品的页码
+        /// </summary>
+        private long undercarriagePageIndex = 0;
+
+        /// <summary>
+        /// 需要上架的商品
+        /// </summary>
+        /// <typeparam name="GoodsTableModal"></typeparam>
+        /// <returns></returns>
+        public List<GoodsTableModal> groundingGoodsList = new List<GoodsTableModal> ();
+
+        /// <summary>
+        /// 需要下架的商品
+        /// </summary>
+        /// <typeparam name="GoodsTableModal"></typeparam>
+        /// <returns></returns>
+        public List<GoodsTableModal> undercarriageGoodsList = new List<GoodsTableModal> ();
 
         /// <summary>
         /// 上下架商品 Modal
@@ -93,10 +129,6 @@ namespace ShopAPI.Tasks {
         /// <returns></returns>
         public async Task<Hashtable> getGoodsListByCondition (ShopTableModal conditionRecord) {
             var ret = new Hashtable ();
-
-            var groundingGoodsList = new List<GoodsTableModal> ();
-            var undercarriageGoodsList = new List<GoodsTableModal> ();
-
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
             var groundingOptions = new GetTableOptionsModal ();
@@ -108,7 +140,6 @@ namespace ShopAPI.Tasks {
             // 是否请求下架商品
             var isRequestUndercarriageGoodsList = true;
             if (conditionRecord.before_day != null) {
-
                 var now = DateTime.Now;
                 var actualEndDateTime = now.AddDays (Convert.ToDouble (conditionRecord.before_day));
                 var actualEndDateTimeStr = actualEndDateTime.ToString ("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
@@ -125,19 +156,77 @@ namespace ShopAPI.Tasks {
             }
 
             // 获取上架商品
-            var res = await client.getTable<GoodsTableModal> (goodsResid, groundingOptions);
-            groundingGoodsList = res.data;
+            await getGroundingGoodsList (groundingOptions);
 
             // 获取下架商品
             if (isRequestUndercarriageGoodsList) {
-                var undercarriageGoodsListRes = await client.getTable<GoodsTableModal> (goodsResid, undercarriageOptions);
-                undercarriageGoodsList = undercarriageGoodsListRes.data;
+                WriteLine ($"cmswhere:{undercarriageOptions.cmswhere}");
+                await getUndercarriageGoodsList (undercarriageOptions);
             }
 
             ret.Add ("groundingGoodsList", groundingGoodsList);
             ret.Add ("undercarriageGoodsList", undercarriageGoodsList);
 
             return ret;
+        }
+
+        /// <summary>
+        /// 获取需要上架的商品
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> getGroundingGoodsList (GetTableOptionsModal groundingOptions) {
+            var ret = new { };
+            groundingOptions.pagesize = groundingPageSize + "";
+            groundingOptions.pageindex = groundingPageIndex + "";
+
+            WriteLine ($"开始获取第 {groundingPageIndex} 页数据");
+
+            var res = await client.getTable<GoodsTableModal> (goodsResid, groundingOptions);
+
+            groundingGoodsList.AddRange (res.data);
+
+            var totalPage = (long) Math.Ceiling ((double) res.total / groundingPageSize);
+
+            WriteLine ($"本页数量： {res.data.Count} 。总共 {res.total} 条数据。总页数：{totalPage}");
+
+            WriteLine ("==============================");
+
+            if (groundingPageIndex < totalPage - 1) {
+                groundingPageIndex++;
+                return await getGroundingGoodsList (groundingOptions);
+            } else {
+                return ret;
+            }
+        }
+
+        /// <summary>
+        /// 获取需要下架的商品
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> getUndercarriageGoodsList (GetTableOptionsModal options) {
+            var ret = new { };
+
+            options.pagesize = undercarriagePageSize + "";
+            options.pageindex = undercarriagePageIndex + "";
+
+            WriteLine ($"开始获取第 {undercarriagePageIndex} 页数据");
+
+            var res = await client.getTable<GoodsTableModal> (goodsResid, options);
+
+            undercarriageGoodsList.AddRange (res.data);
+
+            var totalPage = (long) Math.Ceiling ((double) res.total / undercarriagePageSize);
+
+            WriteLine ($"本页数量： {res.data.Count} 。总共 {res.total} 条数据。总页数：{totalPage}");
+
+            WriteLine ("==============================");
+
+            if (undercarriagePageIndex < totalPage - 1) {
+                undercarriagePageIndex++;
+                return await getUndercarriageGoodsList (options);
+            } else {
+                return ret;
+            }
         }
 
         /// <summary>
@@ -164,6 +253,5 @@ namespace ShopAPI.Tasks {
             var res = await client.getTable<CommercialTenantSetModal> (commercialTenantSetResid);
             return res.data;
         }
-
     }
 }
