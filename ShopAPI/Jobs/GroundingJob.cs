@@ -73,13 +73,13 @@ namespace ShopAPI.Jobs {
             WriteLine ("list.Count:" + list.Count);
 
             var ret = new List<object> ();
-            var j = 1;
+            var index = 1;
             foreach (var itemList in list) {
-                WriteLine (j);
-                WriteLine ("itemList.Count:" + itemList.Count);
-                var res = await client.AddRecords<object> (groundingResid, itemList);
-                WriteLine ("end");
-                j++;
+                WriteLine ($"{index} 正在上架的商品数量:" + itemList.Count);
+                try {
+                    await client.AddRecords<object> (groundingResid, itemList);
+                } catch (System.Exception) { }
+                index++;
             }
 
             return ret;

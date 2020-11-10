@@ -162,21 +162,27 @@ namespace ShopAPI.Tasks {
 
             WriteLine ($"开始获取第 {pageIndex} 页数据");
 
-            var res = await client.getTable<GoodsTableModal> (nullGoodsResid, options);
+            try {
+                var res = await client.getTable<GoodsTableModal> (nullGoodsResid, options);
+                goodsList.AddRange (res.data);
 
-            goodsList.AddRange (res.data);
+                var totalPage = (long) Math.Ceiling ((double) res.total / pageSize);
 
-            var totalPage = (long) Math.Ceiling ((double) res.total / pageSize);
+                WriteLine ($"本页数量： {res.data.Count} 。总共 {res.total} 条数据。总页数：{totalPage}");
+                WriteLine ("==============================");
 
-            WriteLine ($"本页数量： {res.data.Count} 。总共 {res.total} 条数据。总页数：{totalPage}");
-            WriteLine ("==============================");
+                if (pageIndex < totalPage - 1) {
+                    pageIndex++;
+                    return await getGoodsList (options);
+                } else {
+                    return ret;
+                }
 
-            if (pageIndex < totalPage - 1) {
-                pageIndex++;
-                return await getGoodsList (options);
-            } else {
+            } catch (System.Exception e) {
+                WriteLine (e.Message);
                 return ret;
             }
+
         }
 
         /// <summary>
@@ -189,12 +195,16 @@ namespace ShopAPI.Tasks {
 
             var options = new GetTableOptionsModal ();
             options.cmswhere = $"shopid = '{shopID}'";
-            var res = await client.getTable<ShopTableModal> (shopResid, options);
 
-            if (res.data.Count != 0) {
-                return res.data[0];
+            try {
+                var res = await client.getTable<ShopTableModal> (shopResid, options);
+                if (res.data.Count != 0) {
+                    return res.data[0];
+                }
+                return null;
+            } catch (System.Exception) {
+                return null;
             }
-            return null;
         }
 
         /// <summary>

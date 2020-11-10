@@ -70,15 +70,14 @@ namespace ShopAPI.Jobs {
 
             var list = List2TwoDimensionList<GroundingTableModal> (goodsList, 20);
             var ret = new List<object> ();
-            var j = 1;
+            var index = 1;
             foreach (var itemList in list) {
-                WriteLine (j);
-                WriteLine ("itemList.Count:" + itemList.Count);
-                var res = await client.AddRecords<object> (groundingResid, itemList);
-                WriteLine ("end");
-                j++;
+                WriteLine ($"{index} 正在下架的商品数量:" + itemList.Count);
+                try {
+                    await client.AddRecords<object> (groundingResid, itemList);
+                } catch (System.Exception) { }
+                index++;
             }
-
             return ret;
         }
 

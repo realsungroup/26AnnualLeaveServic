@@ -51,7 +51,10 @@ namespace ShopAPI.Tasks {
             req.PageSize = pageSize;
             req.AdzoneId = adzoneId;
             req.MaterialId = materialId;
-            TbkDgOptimusMaterialResponse rsp = client.Execute (req);
+            TbkDgOptimusMaterialResponse rsp = null;
+            try {
+                rsp = client.Execute (req);
+            } catch (System.Exception) { }
 
             if (rsp == null || rsp.ResultList == null) {
                 WriteLine ("  over...");

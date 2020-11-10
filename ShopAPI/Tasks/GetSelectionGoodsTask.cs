@@ -106,7 +106,12 @@ namespace ShopAPI.Tasks {
             req.PageSize = selectionPageSize;
             req.AdzoneId = adzoneId;
             req.MaterialId = selectionMaterialId;
-            TbkDgOptimusMaterialResponse rsp = client.Execute (req);
+
+            TbkDgOptimusMaterialResponse rsp = null;
+            try {
+                rsp = client.Execute (req);
+            } catch (System.Exception) { }
+
             if (rsp == null || rsp.ResultList == null) {
                 return;
             }
@@ -142,7 +147,11 @@ namespace ShopAPI.Tasks {
             req.MaterialId = goodsMaterialId;
             req.FavoritesId = id + "";
 
-            TbkDgOptimusMaterialResponse rsp = client.Execute (req);
+            TbkDgOptimusMaterialResponse rsp = null;
+            try {
+                rsp = client.Execute (req);
+            } catch (System.Exception) { }
+
             if (rsp == null || rsp.ResultList == null) {
                 return;
             }

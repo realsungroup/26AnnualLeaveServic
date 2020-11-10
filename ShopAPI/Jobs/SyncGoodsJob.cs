@@ -34,23 +34,6 @@ namespace ShopAPI.Jobs {
             var task = new GetNeedSyncGoodsListTask (materialID, debug);
             var needSycnGoodsList = await task.run ();
 
-            // if (debug) {
-            //     var _1_inValid_佣金比例 = task._1_inValid_佣金比例;
-            //     var _2_inValid_优惠券数量 = task._2_inValid_优惠券数量;
-            //     var _3_inValid_优惠券结束时间 = task._3_inValid_优惠券结束时间;
-            //     var _4_inValid_是否品牌精选 = task._4_inValid_是否品牌精选;
-            //     var _5_inValid_价格 = task._5_inValid_价格;
-            //     var _6_inValid_优惠券金额 = task._6_inValid_优惠券金额;
-
-            //     ret.Add ("_1_inValid_佣金比例", new { total = _1_inValid_佣金比例.Count, list = _1_inValid_佣金比例, fieldName = "CommissionRate" });
-            //     ret.Add ("needSycnGoodsList", new { total = needSycnGoodsList.Count, list = needSycnGoodsList });
-            //     ret.Add ("_2_inValid_优惠券数量", new { total = _2_inValid_优惠券数量.Count, list = _2_inValid_优惠券数量, fieldName = "CouponRemainCount" });
-            //     ret.Add ("_3_inValid_优惠券结束时间", new { total = _3_inValid_优惠券结束时间.Count, list = _3_inValid_优惠券结束时间, fieldName = "CouponEndTime" });
-            //     ret.Add ("_4_inValid_是否品牌精选", new { total = _4_inValid_是否品牌精选.Count, list = _4_inValid_是否品牌精选, fieldName = "SuperiorBrand" });
-            //     ret.Add ("_5_inValid_价格", new { total = _5_inValid_价格.Count, list = _5_inValid_价格, fieldName = "ZkFinalPrice" });
-            //     ret.Add ("_6_inValid_优惠券金额", new { total = _6_inValid_优惠券金额.Count, list = _6_inValid_优惠券金额, fieldName = "CouponAmount" });
-            // }
-
             // 添加商品到 realsun 平台
             await addGoodsToRealsun (needSycnGoodsList);
 
@@ -71,16 +54,16 @@ namespace ShopAPI.Jobs {
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
 
             var ret = new List<object> ();
-            var j = 1;
+            var index = 1;
             foreach (var itemList in list) {
-                WriteLine (j);
-                WriteLine ("itemList.Count:" + itemList.Count);
-                // 同步商品
-                var res = await client.AddRecords<object> (goodsResid, itemList);
-                // 商品上架
-                await GroundingJob.start ();
-                WriteLine ("end");
-                j++;
+                WriteLine ($"{index} 同步商品数量:" + itemList.Count);
+                try {
+                    // 同步商品
+                    await client.AddRecords<object> (goodsResid, itemList);
+                    // 商品上架
+                    await GroundingJob.start ();
+                } catch (System.Exception) { }
+                index++;
             }
 
             return ret;
