@@ -149,15 +149,20 @@ namespace ShopAPI.Tasks {
                         }
 
                         var goodsList = getNormalGoodsList (materialIDRecord);
-                        if (count != null) {
-                            if (goodsList.Count >= (int) count) {
-                                materialItem.goodsList = goodsList.GetRange (0, (int) count);
+
+                        if (materialIDRecord.is_hot_sell == "Y") {
+                            if (count != null) {
+                                if (goodsList.Count >= (int) count) {
+                                    materialItem.goodsList = goodsList.GetRange (0, (int) count);
+                                } else {
+                                    materialItem.goodsList = goodsList;
+                                }
                             } else {
-                                materialItem.goodsList = goodsList;
+                                // count 没有的话，则不同步实时热销榜的数据
+                                materialItem.goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
                             }
                         } else {
-                            // count 没有的话，则不同步实时热销榜的数据
-                            materialItem.goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain> ();
+                            materialItem.goodsList = goodsList;
                         }
 
                         WriteLine (" 2.商品数量：" + materialItem.goodsList.Count);
