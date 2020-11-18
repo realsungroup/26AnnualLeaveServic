@@ -52,6 +52,11 @@ namespace ShopAPI.Jobs {
             // 下架商品
             if (goodsList.Count != 0) {
                 await undercarriageGoods (goodsList);
+                // 等 1 毫秒后再下架商品
+                System.Timers.Timer t = new System.Timers.Timer (1);
+                t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+                t.AutoReset = false;
+                t.Enabled = true;
             } else {
                 // 等 10 分钟后再下架商品
                 System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);

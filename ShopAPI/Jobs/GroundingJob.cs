@@ -53,6 +53,11 @@ namespace ShopAPI.Jobs {
             // 上架商品
             if (goodsList.Count != 0) {
                 await groundingGoods (goodsList);
+                // 等 1 毫秒后再上架商品
+                System.Timers.Timer t = new System.Timers.Timer (1);
+                t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+                t.AutoReset = false;
+                t.Enabled = true;
             } else {
                 // 等 10 分钟后再上架商品
                 System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);
@@ -90,7 +95,9 @@ namespace ShopAPI.Jobs {
                 WriteLine ($"{index} 正在上架的商品数量:" + itemList.Count);
                 try {
                     await client.AddRecords<object> (groundingResid, itemList);
-                } catch (System.Exception) { }
+                } catch (System.Exception ex) {
+                    WriteLine (ex.Message);
+                }
                 index++;
             }
 

@@ -42,7 +42,7 @@ namespace ShopAPI {
         public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
             // 上下架商品
             GroundingJob.start ();
-            UndercarriageJob.start ();
+            // UndercarriageJob.start ();
         }
 
         public IConfiguration Configuration { get; }
