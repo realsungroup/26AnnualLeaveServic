@@ -51,11 +51,23 @@ namespace ShopAPI.Jobs {
             WriteLine ("上架商品数量：" + goodsList.Count);
 
             // 上架商品
-            await groundingGoods (goodsList);
-
-            ret.Add ("上架的商品数量：", goodsList.Count);
+            if (goodsList.Count != 0) {
+                await groundingGoods (goodsList);
+            } else {
+                // 等 10 分钟后再上架商品
+                System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);
+                t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+                t.AutoReset = false;
+                t.Enabled = true;
+            }
 
             return ret;
+        }
+
+        // 倒计时事件
+        public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
+            // 继续上架商品
+            start ();
         }
 
         /// <summary>
@@ -99,8 +111,9 @@ namespace ShopAPI.Jobs {
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<GroundingJob> ().Build ();
             var trigger = TriggerBuilder.Create ()
+                .WithIdentity ("myTrigger", "group1")
                 .WithSimpleSchedule (m => {
-                    m.WithIntervalInMinutes (10).RepeatForever ();
+                    // m.WithIntervalInMinutes (10);
                 })
                 .Build ();
 

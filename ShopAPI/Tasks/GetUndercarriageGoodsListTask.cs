@@ -120,6 +120,9 @@ namespace ShopAPI.Tasks {
             } else {
                 return ret;
             }
+            
+            options.pageindex = "0";
+            options.pagesize = "100";
 
             await getGoodsList (options);
 
@@ -174,31 +177,13 @@ namespace ShopAPI.Tasks {
         public async Task<object> getGoodsList (GetTableOptionsModal options) {
             var ret = new { };
 
-            options.pagesize = pageSize + "";
-            options.pageindex = pageIndex + "";
-
-            WriteLine ($"开始获取第 {pageIndex} 页数据");
-
             try {
                 var res = await client.getTable<GoodsTableModal> (notUnderGoodsResid, options);
-
                 goodsList.AddRange (res.data);
-
-                var totalPage = (long) Math.Ceiling ((double) res.total / pageSize);
-
-                WriteLine ($"本页数量： {res.data.Count} 。总共 {res.total} 条数据。总页数：{totalPage}");
-                WriteLine ("==============================");
-
-                if (pageIndex < totalPage - 1) {
-                    pageIndex++;
-                    return await getGoodsList (options);
-                } else {
-                    return ret;
-                }
             } catch (System.Exception) {
                 return ret;
             }
-
+            return ret;
         }
 
         /// <summary>

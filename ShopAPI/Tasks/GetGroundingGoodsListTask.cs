@@ -118,6 +118,10 @@ namespace ShopAPI.Tasks {
             options.cmswhere = getCmswhere (conditionRecord);
             WriteLine ($"获取上架商品的 cmswhere:{options.cmswhere}");
 
+            // 只获取第一页的的 100 条数据
+            options.pageindex = "0";
+            options.pagesize = "100";
+
             // 获取上架商品
             await getGoodsList (options);
             return new { };
@@ -157,32 +161,14 @@ namespace ShopAPI.Tasks {
         /// <returns></returns>
         public async Task<object> getGoodsList (GetTableOptionsModal options) {
             var ret = new { };
-            options.pagesize = pageSize + "";
-            options.pageindex = pageIndex + "";
-
-            WriteLine ($"开始获取第 {pageIndex} 页数据");
-
             try {
                 var res = await client.getTable<GoodsTableModal> (nullGoodsResid, options);
                 goodsList.AddRange (res.data);
-
-                var totalPage = (long) Math.Ceiling ((double) res.total / pageSize);
-
-                WriteLine ($"本页数量： {res.data.Count} 。总共 {res.total} 条数据。总页数：{totalPage}");
-                WriteLine ("==============================");
-
-                if (pageIndex < totalPage - 1) {
-                    pageIndex++;
-                    return await getGoodsList (options);
-                } else {
-                    return ret;
-                }
-
             } catch (System.Exception e) {
                 WriteLine (e.Message);
                 return ret;
             }
-
+            return ret;
         }
 
         /// <summary>

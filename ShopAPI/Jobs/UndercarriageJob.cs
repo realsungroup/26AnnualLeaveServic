@@ -50,11 +50,25 @@ namespace ShopAPI.Jobs {
             WriteLine ("下架商品数量：" + goodsList.Count);
 
             // 下架商品
-            await undercarriageGoods (goodsList);
+            if (goodsList.Count != 0) {
+                await undercarriageGoods (goodsList);
+            } else {
+                // 等 10 分钟后再下架商品
+                System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);
+                t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+                t.AutoReset = false;
+                t.Enabled = true;
+            }
 
             ret.Add ("下架的商品数量：", goodsList.Count);
 
             return ret;
+        }
+
+        // 倒计时事件
+        public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
+            // 继续上架商品
+            start ();
         }
 
         /// <summary>
