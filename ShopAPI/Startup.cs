@@ -32,6 +32,17 @@ namespace ShopAPI {
             LoginRealsunJob.start ();
 
             await SyncGoodsJob.init ();
+
+            System.Timers.Timer t = new System.Timers.Timer (10 * 1000);
+            t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+            t.AutoReset = false;
+            t.Enabled = true;
+        }
+
+        public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
+            // 上下架商品
+            GroundingJob.start ();
+            UndercarriageJob.start ();
         }
 
         public IConfiguration Configuration { get; }
