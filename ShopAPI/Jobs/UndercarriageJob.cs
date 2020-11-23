@@ -27,6 +27,30 @@ namespace ShopAPI.Jobs {
             await start ();
         }
 
+        private static int prevGoodsCount = -1;
+
+        /// <summary>
+        /// 是否需要下架
+        /// 为什么需要这样判断？
+        /// 因为有一次获取到可以下架的商品数量为 1，但将这条商品进行下架后，下次获取商品，还是能够获取到这条商品，所以就导致不断的去获取要下架的商品和不断的下架，导致后台 cpu 100%卡死。所以加了一个判断，来避免这种情况
+        /// </summary>
+        /// <param name="goodsCount">商品数量</param>
+        /// <returns></returns>
+        private static bool isGrounding (int goodsCount) {
+            // 没有需要下架的商品
+            if (goodsCount == 0) {
+                return false;
+            }
+
+            // 上一次上架的商品等于这次上架的商品 且
+            // 商品数量少于每次获取的 100 条商品
+            if (prevGoodsCount == goodsCount && goodsCount < 100) {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// 开始执行任务
         /// </summary>
@@ -49,9 +73,12 @@ namespace ShopAPI.Jobs {
             WriteLine ("开始下架商品：");
             WriteLine ("下架商品数量：" + goodsList.Count);
 
+            var canGrounding = isGrounding (goodsList.Count);
+
             // 下架商品
-            if (goodsList.Count != 0) {
+            if (canGrounding) {
                 await undercarriageGoods (goodsList);
+                prevGoodsCount = goodsList.Count;
                 // 等 1 毫秒后再下架商品
                 System.Timers.Timer t = new System.Timers.Timer (1);
                 t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
