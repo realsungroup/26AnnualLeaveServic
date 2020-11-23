@@ -113,8 +113,6 @@ namespace ShopAPI.Jobs {
 
             var list = List2TwoDimensionList<GroundingTableModal> (goodsList, 20);
 
-            WriteLine ("list.Count:" + list.Count);
-
             var ret = new List<object> ();
             var index = 1;
             foreach (var itemList in list) {
