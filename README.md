@@ -22,3 +22,17 @@ bash ./scripts/publish.sh
 ```shell
 cd /var/www && rm -rf shop-api/* && mv shop-api.tgz shop-api && cd shop-api && tar -zxvf shop-api.tgz && sudo systemctl restart kestrel-shop-api.service
 ```
+
+## 服务重启和停止命令
+
+1. 重启
+
+```shell
+sudo systemctl restart kestrel-shop-api.service
+```
+
+2. 停止
+
+```shell
+sudo systemctl stop kestrel-shop-api.service
+```
