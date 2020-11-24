@@ -36,7 +36,7 @@ namespace ShopAPI.Controllers {
                 _debug = false;
             }
 
-            var res = await SyncGoodsJob.start (query.materialID, _debug);
+            var res = await SyncJDGoodsJob.start (query.materialID, _debug);
             return Ok(new { res = res });
         }
     }

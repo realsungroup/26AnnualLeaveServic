@@ -29,8 +29,8 @@ namespace ShopAPI {
 
         public async void init () {
             WriteLine ($"come on");
-            // await LoginRealsunJob.init ();
-            // LoginRealsunJob.start ();
+            await LoginRealsunJob.init ();
+            LoginRealsunJob.start ();
 
             // await SyncGoodsJob.init ();
 

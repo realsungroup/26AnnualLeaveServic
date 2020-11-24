@@ -73,32 +73,32 @@ namespace ShopAPI.Tasks {
          public async Task<List<GoodsTableModal>> run () {
             var commercialTenantSetRes = await getCommercialTenantSet ();
             List<NeedSyncJDGoodsModal> list = new List<NeedSyncJDGoodsModal> ();
-            // foreach (var item in commercialTenantSetRes.data) {
-            //     var ret = getCommercialTenantGoodsList (item);
-            //     list.Add (ret);
-            // }
+            foreach (var item in commercialTenantSetRes.data) {
+                var ret = getCommercialTenantGoodsList (item);
+                list.Add (ret);
+            }
 
                 WriteLine("list"+list);
             var records = new List<GoodsTableModal> ();
-            // foreach (var item in list) {
-            //     var conditionRecord = item.conditionRecord;
-            //     var bussinessID = conditionRecord.business_ID;
-            //     foreach (var materialItem in item.materialList) {
-            //         // 选品库商品
-            //         // if (materialItem.isSelection) {
-            //         //     foreach (var favoritesItem in materialItem.favoritesList) {
-            //         //         var validGoods = favoritesItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
-            //         //         var newRecords = DataCovertTask.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID, favoritesItem.favoritesTitle);
-            //         //         records.AddRange (newRecords);
-            //         //     }
-            //         // } else {
-            //             // 非选品库商品
-            //             var validGoods = materialItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
-            //             var newRecords = DataCovertTask.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID);
-            //             records.AddRange (newRecords);
-            //         // }
-            //     }
-            // }
+            foreach (var item in list) {
+                var conditionRecord = item.conditionRecord;
+                var bussinessID = conditionRecord.business_ID;
+                foreach (var materialItem in item.materialList) {
+                    // 选品库商品
+                    // if (materialItem.isSelection) {
+                    //     foreach (var favoritesItem in materialItem.favoritesList) {
+                    //         var validGoods = favoritesItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
+                    //         var newRecords = DataCovertTask.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID, favoritesItem.favoritesTitle);
+                    //         records.AddRange (newRecords);
+                    //     }
+                    // } else {
+                        // 非选品库商品
+                        var validGoods = materialItem.goodsList.Where (x => isValidGoods (x, conditionRecord)).ToList ();
+                        var newRecords = DataCovertTask.taobaoGoodsList2realsunGoodsList (validGoods, bussinessID, materialItem.material_ID);
+                        records.AddRange (newRecords);
+                    // }
+                }
+            }
 
             // WriteLine (" 3.需要同步的商品数量：" + records);
 
