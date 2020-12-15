@@ -60,8 +60,6 @@ namespace ShopAPI.Jobs {
                 try {
                     // 同步商品
                     await client.AddRecords<object> (goodsResid, itemList);
-                    // 商品上架
-                    await GroundingJob.start ();
                 } catch (System.Exception) { }
                 index++;
             }
