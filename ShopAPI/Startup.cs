@@ -32,17 +32,17 @@ namespace ShopAPI {
             await LoginRealsunJob.init ();
             LoginRealsunJob.start ();
 
-            // await SyncGoodsJob.init ();
+            // 初始化同步商品任务
+            await SyncGoodsJob.init ();
 
+            // 上下架
+            System.Timers.Timer t = new System.Timers.Timer (10 * 1000);
+            t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+            t.AutoReset = false;
+            t.Enabled = true;
 
-            // System.Timers.Timer t = new System.Timers.Timer (10 * 1000);
-            // t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
-            // t.AutoReset = false;
-            // t.Enabled = true;
-
-        //测试京东同步
-            await SyncJDGoodsJob.init ();
-
+            // 测试京东同步
+            // await SyncJDGoodsJob.init ();
         }
 
         public static void timeout (object source, System.Timers.ElapsedEventArgs e) {

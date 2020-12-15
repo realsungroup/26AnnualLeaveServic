@@ -56,6 +56,7 @@ namespace ShopAPI.Jobs {
         /// </summary>
         /// <returns></returns>
         public static async Task<object> start (bool debug = false) {
+            isRun = true;
             var ret = new Hashtable ();
 
             var task = new GetGroundingGoodsListTask ();
@@ -84,21 +85,28 @@ namespace ShopAPI.Jobs {
                 t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
+                isRun = false;
             } else {
                 // 等 10 分钟后再上架商品
                 System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);
                 t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
+                isRun = false;
             }
 
             return ret;
         }
 
+        // 是否正在运行上架的任务
+        public static bool isRun = false;
+
         // 倒计时事件
         public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
             // 继续上架商品
-            start ();
+            if (!isRun) {
+                start ();
+            }
         }
 
         /// <summary>

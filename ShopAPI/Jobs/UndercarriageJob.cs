@@ -56,6 +56,7 @@ namespace ShopAPI.Jobs {
         /// </summary>
         /// <returns></returns>
         public static async Task<object> start () {
+            isRun = true;
             var ret = new Hashtable ();
 
             var task = new GetUndercarriageGoodsListTask ();
@@ -84,12 +85,14 @@ namespace ShopAPI.Jobs {
                 t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
+                isRun = false;
             } else {
                 // 等 10 分钟后再下架商品
                 System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);
                 t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
+                isRun = false;
             }
 
             ret.Add ("下架的商品数量：", goodsList.Count);
@@ -97,10 +100,15 @@ namespace ShopAPI.Jobs {
             return ret;
         }
 
+        // 是否正在运行上架的任务
+        public static bool isRun = false;
+
         // 倒计时事件
         public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
             // 继续上架商品
-            start ();
+            if (!isRun) {
+                start ();
+            }
         }
 
         /// <summary>
