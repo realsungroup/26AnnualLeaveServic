@@ -56,6 +56,7 @@ namespace ShopAPI.Jobs {
         /// </summary>
         /// <returns></returns>
         public static async Task<object> start (bool debug = false) {
+            WriteLine ("============执行上架商品任务============");
             isRun = true;
             var ret = new Hashtable ();
 
