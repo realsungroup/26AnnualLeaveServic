@@ -20,9 +20,12 @@ using Top.Api.Response;
 
 namespace ShopAPI.Tasks {
     /// <summary>
-    /// 获取需要同步的商品
+    /// 获取需要同步的商品（淘宝）
     /// </summary>
     public class GetNeedSyncGoodsListTask {
+        
+        // 淘宝商家编号
+        public string businessID = "657653987082";
 
         public GetNeedSyncGoodsListTask () { }
         public GetNeedSyncGoodsListTask (string materialID, bool debug = false) {
@@ -71,8 +74,13 @@ namespace ShopAPI.Tasks {
         /// <returns></returns>
         public async Task<List<GoodsTableModal>> run () {
             var commercialTenantSetRes = await getCommercialTenantSet ();
+            
+            // 筛选出淘宝商户
+            var listData =
+                commercialTenantSetRes.data.Where(record => record.business_ID == businessID).ToList();
+            
             List<NeedSyncGoodsModal> list = new List<NeedSyncGoodsModal> ();
-            foreach (var item in commercialTenantSetRes.data) {
+            foreach (var item in listData) {
                 var ret = getCommercialTenantGoodsList (item);
                 list.Add (ret);
             }
