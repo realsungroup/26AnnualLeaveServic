@@ -19,7 +19,6 @@ using Top.Api.Response;
 
 namespace ShopAPI.Jobs {
     public class SyncJDGoodsJob : IJob {
-
         public async Task Execute (IJobExecutionContext context) {
             await start ();
         }
@@ -28,11 +27,10 @@ namespace ShopAPI.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start (string materialID = null, bool debug = false) {
-            WriteLine ($"SyncGoodsJob init2");
+        public static async Task<object> start (string materialID = null) {
             var ret = new Hashtable ();
 
-            var task = new GetNeedSyncJDGoodsListTask (materialID, debug);
+            var task = new GetNeedSyncJDGoodsListTask (materialID);
             
             var needSycnGoodsList = await task.run ();
 
