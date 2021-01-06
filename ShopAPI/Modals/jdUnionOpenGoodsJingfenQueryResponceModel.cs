@@ -30,6 +30,7 @@ namespace ShopAPI.Modals
 
         public class JFGoodsResp
         {
+            public string clickURL { get; set; }
             public CategoryInfo categoryInfo { get; set; }
 
             public class CategoryInfo
@@ -174,6 +175,8 @@ namespace ShopAPI.Modals
 
             public class DocumentInfo
             {
+                public string document { get; set; }
+                public string discount { get; set; }
             }
 
             public BookInfo bookInfo { get; set; }

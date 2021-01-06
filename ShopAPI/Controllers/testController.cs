@@ -17,6 +17,7 @@ using System.Web;
 using ShopAPI.Http;
 using static ShopAPI.Constant;
 using ShopAPI.Modals;
+using ShopAPI.Http;
 
 namespace ShopAPI.Controllers
 {
@@ -34,24 +35,11 @@ namespace ShopAPI.Controllers
         [HttpGet]
         public async Task<OkObjectResult> test()
         {
-            var now = DateTime.Now;
-
-            var method = "jd.union.open.goods.jingfen.query";
-            var accessToken = "";
-            var v = "1.0";
-
-            var buyParamJson360 = "{\"goodsReq\":{\"eliteId\":22}}";
-
-
-            var client = new JDClient(now, jdAppKey, jdAppSecret, method, accessToken, buyParamJson360, v);
-
-            var res = await client.execute<JdUnionOpenGoodsJingfenQueryResponceModel>();
-            // var res = await client.execute<object>();
-
-            var queryResult =
-                JsonConvert.DeserializeObject<QueryResult>(res.jd_union_open_goods_jingfen_query_responce.queryResult);
-            
-            return Ok(queryResult);
+            SyncJDGoodsJob.start();
+          
+            return Ok(new
+            {
+            });
         }
     }
 }

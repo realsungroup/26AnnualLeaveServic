@@ -1,10 +1,12 @@
 using System;
 
-namespace ShopAPI.Modals {
+namespace ShopAPI.Modals
+{
     /// <summary>
     ///  商品表 Modal
     /// </summary>
-    public class GoodsTableModal {
+    public class GoodsTableModal
+    {
         public string goods_id { get; set; }
         public string goods_name { get; set; }
         public string goods_img { get; set; }
@@ -47,8 +49,24 @@ namespace ShopAPI.Modals {
         public string coupon_click_url { get; set; }
         public string zk_final_price { get; set; }
 
+
+        /// <summary>
+        /// 京东商品特有的字段
+        /// </summary>
+        public long comments { get; set; }
+
+        public double goodCommentsShare { get; set; }
+        public int deliveryType { get; set; }
+
+        public string goods_category { get; set; }
+        public string goods_categoryname1 { get; set; }
+        public string goods_category2 { get; set; }
+        public string goods_categoryname2 { get; set; }
+        public string goods_category3 { get; set; }
+        public string goods_categoryname3 { get; set; }
+
+
         public long _id { get; set; }
         public string _state { get; set; }
     }
-
 }

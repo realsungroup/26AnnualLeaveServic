@@ -12,8 +12,8 @@ using static ShopAPI.Constant;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.AspNetCore.Routing;
 using ShopAPI.Modals;
-using Top.Api.Response;
 
 namespace ShopAPI.Tasks
 {
@@ -48,14 +48,7 @@ namespace ShopAPI.Tasks
 
         public class MaterialListItemModal : MaterialRecordModal
         {
-            // 是否是选品库商品（如果是，则取 favoritesList，否则直接取 goodsList）
-            public bool isSelection { get; set; }
-
-            // isSelection 为 false 时，goodsList 才有值
-            public List<TbkDgOptimusMaterialResponse.MapDataDomain> goodsList { get; set; }
-
-            // isSelection 为 true 时，favoritesList 才有值
-            public List<FavoritesListItemModal> favoritesList { get; set; }
+            public List<object> goodsList { get; set; }
         }
 
         public class NeedSyncJDGoodsModal
@@ -77,54 +70,49 @@ namespace ShopAPI.Tasks
         /// 运行任务
         /// </summary>
         /// <returns></returns>
-        public async Task<List<GoodsTableModal>> run()
+        // public async Task<List<GoodsTableModal>> run()
+        public async Task<object> run()
         {
             var commercialTenantSetRes = await getCommercialTenantSet();
-
             // 筛选出京东商户
             var listData =
                 commercialTenantSetRes.data.Where(record => record.business_ID == businessID).ToList();
             List<NeedSyncJDGoodsModal> list = new List<NeedSyncJDGoodsModal>();
-            foreach (var item in listData)
-            {
-                var ret = getCommercialTenantGoodsList(item);
-                list.Add(ret);
-            }
+
+            await getCommercialTenantGoodsList(listData[0]);
 
             WriteLine("list" + list);
-            var records = new List<GoodsTableModal>();
-            foreach (var item in list)
-            {
-                var conditionRecord = item.conditionRecord;
-                var bussinessID = conditionRecord.business_ID;
-                foreach (var materialItem in item.materialList)
-                {
-                    var validGoods = materialItem.goodsList.Where(x => isValidGoods(x, conditionRecord)).ToList();
-                    var newRecords =
-                        DataCovertTask.taobaoGoodsList2realsunGoodsList(validGoods, bussinessID,
-                            materialItem.material_ID);
-                    records.AddRange(newRecords);
-                }
-            }
+            // var records = new List<GoodsTableModal>();
+            // foreach (var item in list)
+            // {
+            //     var conditionRecord = item.conditionRecord;
+            //     var bussinessID = conditionRecord.business_ID;
+            //     foreach (var materialItem in item.materialList)
+            //     {
+            //         var validGoods = materialItem.goodsList.Where(x => isValidGoods(x, conditionRecord)).ToList();
+            //         var newRecords =
+            //             DataCovertTask.taobaoGoodsList2realsunGoodsList(validGoods, bussinessID,
+            //                 materialItem.material_ID);
+            //         records.AddRange(newRecords);
+            //     }
+            // }
 
             // WriteLine (" 3.需要同步的商品数量：" + records);
 
-            return records;
+            // return records;
+            return null;
         }
+
 
         /// <summary>
         /// 获取商户的所有商品
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        public NeedSyncJDGoodsModal getCommercialTenantGoodsList(CommercialTenantSetModal record)
+        public async Task<object> getCommercialTenantGoodsList(CommercialTenantSetModal record)
         {
             WriteLine("=============================================");
             WriteLine("开始获取商户的商品，商户编号：" + record.business_ID);
-
-            var NeedSyncJDGoodsModal = new NeedSyncJDGoodsModal();
-            NeedSyncJDGoodsModal.materialList = new List<MaterialListItemModal>();
-            NeedSyncJDGoodsModal.conditionRecord = record;
 
             // 获取物料ID
             var materialIDRecords = record.subdata;
@@ -137,7 +125,7 @@ namespace ShopAPI.Tasks
 
             if (materialIDRecords == null)
             {
-                return NeedSyncJDGoodsModal;
+                return null;
             }
 
             foreach (var materialIDRecord in materialIDRecords)
@@ -146,58 +134,12 @@ namespace ShopAPI.Tasks
                 if (materialIDRecord.is_valid == "Y")
                 {
                     WriteLine(" 1.物料ID：" + materialIDRecord.material_ID);
-
-                    var materialItem = new MaterialListItemModal();
-                    materialItem.material_ID = materialIDRecord.material_ID;
-                    //  非选品库
-                    if (materialIDRecord.is_selection != "Y")
-                    {
-                        materialItem.isSelection = false;
-
-                        // 实时热销商品只取前 n 个
-                        object count = null;
-                        if (materialIDRecord.is_hot_sell == "Y")
-                        {
-                            if (materialIDRecord.hot_sell_count != null)
-                            {
-                                count = materialIDRecord.hot_sell_count;
-                            }
-                        }
-
-                        var goodsList = getNormalGoodsList(materialIDRecord);
-
-                        if (materialIDRecord.is_hot_sell == "Y")
-                        {
-                            if (count != null)
-                            {
-                                if (goodsList.Count >= (int) count)
-                                {
-                                    materialItem.goodsList = goodsList.GetRange(0, (int) count);
-                                }
-                                else
-                                {
-                                    materialItem.goodsList = goodsList;
-                                }
-                            }
-                            else
-                            {
-                                // count 没有的话，则不同步实时热销榜的数据
-                                materialItem.goodsList = new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-                            }
-                        }
-                        else
-                        {
-                            materialItem.goodsList = goodsList;
-                        }
-
-                        WriteLine(" 2.商品数量：" + materialItem.goodsList.Count);
-                    }
-
-                    NeedSyncJDGoodsModal.materialList.Add(materialItem);
+                    await getAndSyncGoodsList(materialIDRecord, record);
+                    return null;
                 }
             }
 
-            return NeedSyncJDGoodsModal;
+            return null;
         }
 
         /// <summary>
@@ -370,91 +312,28 @@ namespace ShopAPI.Tasks
             return false;
         }
 
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _1_inValid_佣金比例 =
-            new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _2_inValid_优惠券数量 =
-            new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _3_inValid_优惠券结束时间 =
-            new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _4_inValid_是否品牌精选 =
-            new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _5_inValid_价格 =
-            new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> _6_inValid_优惠券金额 =
-            new List<TbkDgOptimusMaterialResponse.MapDataDomain>();
-
         /// <summary>
         /// 是否是有效的商品
         /// </summary>
         /// <param name="goods"></param>
         /// <param name="conditionRecord"></param>
         /// <returns></returns>
-        public bool isValidGoods(TbkDgOptimusMaterialResponse.MapDataDomain goods,
+        public bool isValidGoods(GoodsTableModal goods,
             CommercialTenantSetModal conditionRecord)
         {
-            if (!isCommissionRateValid(goods.CommissionRate, conditionRecord.commission_rate))
+            if (!isCommissionRateValid(goods.commission_rate, conditionRecord.commission_rate))
             {
-                if (debug)
-                {
-                    _1_inValid_佣金比例.Add(goods);
-                }
-
                 return false;
             }
 
-            ;
-            if (!isCouponRemainCountValid(goods.CouponRemainCount, conditionRecord.coupon_remain_count))
+            // if (!isCouponEndDayValid(goods.CouponEndTime, conditionRecord.coupon_end_day))
+            // {
+            //     return false;
+            // }
+
+            if (!isSalePriceValid(goods.goods_price.ToString(), conditionRecord.sale_price_down,
+                conditionRecord.sale_price_up))
             {
-                if (debug)
-                {
-                    _2_inValid_优惠券数量.Add(goods);
-                }
-
-                return false;
-            }
-
-            if (!isCouponEndDayValid(goods.CouponEndTime, conditionRecord.coupon_end_day))
-            {
-                if (debug)
-                {
-                    _3_inValid_优惠券结束时间.Add(goods);
-                }
-
-                return false;
-            }
-
-            if (!isSuperiorBrand(goods.SuperiorBrand, conditionRecord.superior_brand))
-            {
-                if (debug)
-                {
-                    _4_inValid_是否品牌精选.Add(goods);
-                }
-
-                return false;
-            }
-
-            if (!isSalePriceValid(goods.ZkFinalPrice, conditionRecord.sale_price_down, conditionRecord.sale_price_up))
-            {
-                if (debug)
-                {
-                    _5_inValid_价格.Add(goods);
-                }
-
-                return false;
-            }
-
-            if (!isCouponAmountValid(goods.CouponAmount, conditionRecord.coupon_amount))
-            {
-                if (debug)
-                {
-                    _6_inValid_优惠券金额.Add(goods);
-                }
-
                 return false;
             }
 
@@ -487,46 +366,100 @@ namespace ShopAPI.Tasks
             return dtDateTime;
         }
 
-        /// <summary>
-        /// 获取非选品物料的商品
-        /// </summary>
-        /// <param name="record"></param>
-        /// <returns></returns>
-        public List<TbkDgOptimusMaterialResponse.MapDataDomain> getNormalGoodsList(MaterialRecordModal record)
+
+        public async Task<List<GoodsTableModal>> getOnePageGoodsList(long materialID,
+            CommercialTenantSetModal conditionRecord, int pageIndex, int pageSize)
         {
-            var getGoodsTask = new GetGoodsTask();
+            var validGoodsList = new List<GoodsTableModal>();
 
-            var materialID = Convert.ToInt64(record.material_ID);
+            // 获取到商品
+            var queryResult = await JDHttp.GetJDGoodsList(Convert.ToInt32(materialID), pageIndex, pageSize);
 
-            getGoodsTask.getOneMaterialGoodsList(materialID);
+            var result = Math.Ceiling(Convert.ToDouble(queryResult.totalCount) / Convert.ToDouble(pageSize));
+            totalPages = (int) result;
 
-            return getGoodsTask.goodsList;
-        }
-
-        /// <summary>
-        /// 获取选品物料的商品
-        /// </summary>
-        /// <param name="record"></param>
-        /// <returns></returns>
-        public List<FavoritesListItemModal> getSelectionGoodsList(MaterialRecordModal record)
-        {
-            var goodsList = new List<FavoritesListItemModal>();
-
-            var materialIDList = record.material_ID.Split(",");
-
-            if (materialIDList.Length != 2)
+            // 获取推广链接
+            if (queryResult != null && queryResult.data.Count != 0)
             {
-                return goodsList;
+                var index = 1;
+                foreach (var goodsItem in queryResult.data)
+                {
+                    var realsunGoods = DataCovertTask.JDGoods2realsunGoods(goodsItem);
+                    realsunGoods._id = index++;
+                    if (goodsItem.materialUrl != null && isValidGoods(realsunGoods, conditionRecord))
+                    {
+                        var getResult = await JDHttp.GetPromotionLink(goodsItem.materialUrl);
+
+                        if (getResult != null && getResult.data != null && getResult.data.clickURL != null)
+                        {
+                            realsunGoods.coupon_click_url = getResult.data.clickURL;
+                        }
+
+                        validGoodsList.Add(realsunGoods);
+                    }
+                }
             }
 
-            var selectionMaterialID = Convert.ToInt64(materialIDList[0]);
-            var goodsMaterialID = Convert.ToInt64(materialIDList[1]);
-
-            var getSelectionGoodsTask = new GetSelectionGoodsTask(selectionMaterialID, goodsMaterialID);
-            getSelectionGoodsTask.start();
-
-            return getSelectionGoodsTask.favoritesList;
+            // 转换成商品表的记录
+            return validGoodsList;
         }
+
+
+        private int pageIndex = 1;
+        private int pageSize = 20;
+        private int totalPages = 0;
+
+        /// <summary>
+        /// 获取京东的商品并且同步
+        /// </summary>
+        /// <param name="record"></param>
+        /// <returns></returns>
+        public async Task<object> getAndSyncGoodsList(MaterialRecordModal record,
+            CommercialTenantSetModal conditionRecord)
+        {
+            var materialID = Convert.ToInt64(record.material_ID);
+
+            WriteLine("pageIndex:" + pageIndex);
+
+            // 获取到了能够同步到商品表的商品记录
+            var goodsList = await getOnePageGoodsList(materialID, conditionRecord, pageIndex, pageSize);
+
+            pageIndex++;
+            // 将商品添加到 realsun 平台的商品表
+            WriteLine("同步的商品数量：" + goodsList.Count);
+            await addGoodsToRealsun(goodsList);
+
+            if (pageIndex < totalPages)
+            {
+                return await getAndSyncGoodsList(record, conditionRecord);
+            }
+
+            return new { };
+        }
+
+        /// <summary>
+        /// 添加商品到 realsun 平台
+        /// </summary>
+        /// <param name="goodsList"></param>
+        /// <returns></returns>
+        public static async Task<object> addGoodsToRealsun(List<GoodsTableModal> goodsList)
+        {
+            var client = new LzRequest(realsunBaseURL);
+            client.setHeaders(new {Accept = "application/json", accessToken = realsunAccessToken});
+            try
+            {
+                // 同步商品
+                WriteLine($"开始同步京东商品，数量：{goodsList}");
+                await client.AddRecords<object>(goodsResid, goodsList);
+            }
+            catch (System.Exception e)
+            {
+                WriteLine("同步商品出错：" + e.Message);
+            }
+
+            return new { };
+        }
+
 
         /// <summary>
         /// 获取商户设置表记录

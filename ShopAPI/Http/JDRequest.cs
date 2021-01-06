@@ -13,6 +13,9 @@ using static System.Console;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json;
+using ShopAPI.Modals;
+using static ShopAPI.Constant;
+
 
 namespace ShopAPI.Http
 {
@@ -103,7 +106,82 @@ namespace ShopAPI.Http
         }
     }
 
-    public class GetJDGoodsList()
+
+    public class JDHttp
     {
+        /// <summary>
+        /// 获取京东商品
+        /// </summary>
+        /// <param name="eliteId"></param>
+        /// <returns></returns>
+        public static async Task<QueryResult> GetJDGoodsList(int eliteId, int pageIndex = 1, int pageSize = 20)
+        {
+            var pid = "4100094152";
+
+            var now = DateTime.Now;
+
+            var method = "jd.union.open.goods.jingfen.query";
+            var accessToken = "";
+            var v = "1.0";
+
+            var buyParam = new
+            {
+                goodsReq = new
+                {
+                    pid,
+                    eliteId,
+                    pageIndex,
+                    pageSize
+                }
+            };
+            var buyParamJson360 = JsonConvert.SerializeObject(buyParam);
+
+            var client = new JDClient(now, jdAppKey, jdAppSecret, method, accessToken, buyParamJson360, v);
+
+            var res = await client.execute<JdUnionOpenGoodsJingfenQueryResponceModel>();
+
+            var queryResult =
+                JsonConvert.DeserializeObject<QueryResult>(res.jd_union_open_goods_jingfen_query_responce.queryResult);
+
+            return queryResult;
+        }
+
+        /// <summary>
+        /// 获取推广链接
+        /// https://union.jd.com/openplatform/api/10421
+        /// </summary>
+        /// <param name="materialId"></param>
+        /// <returns></returns>
+        public static async Task<JDUnionOpenPromotionCommonGetResponceModel.GetResult> GetPromotionLink(
+            string materialId)
+        {
+            var siteId = "4100094152";
+
+            var now = DateTime.Now;
+
+            var method = "jd.union.open.promotion.common.get";
+            var accessToken = "";
+            var v = "1.0";
+
+            var buyParam = new
+            {
+                promotionCodeReq = new
+                {
+                    materialId,
+                    siteId
+                }
+            };
+            var buyParamJson360 = JsonConvert.SerializeObject(buyParam);
+
+            var client = new JDClient(now, jdAppKey, jdAppSecret, method, accessToken, buyParamJson360, v);
+
+            var res = await client.execute<JDUnionOpenPromotionCommonGetResponceModel>();
+
+            var getResult =
+                JsonConvert.DeserializeObject<JDUnionOpenPromotionCommonGetResponceModel.GetResult>(
+                    res.jd_union_open_promotion_common_get_responce.getResult);
+
+            return getResult;
+        }
     }
 }
