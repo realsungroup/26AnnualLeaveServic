@@ -18,18 +18,18 @@ using ShopAPI.Modals;
 namespace ShopAPI.Tasks
 {
     /// <summary>
-    /// 获取需要同步的商品
+    /// 同步京东商品到 realsun 平台
     /// </summary>
-    public class GetNeedSyncJDGoodsListTask
+    public class SyncJDGoodsListTask
     {
         // 京东商户id
         public string businessID = "659529153820";
 
-        public GetNeedSyncJDGoodsListTask()
+        public SyncJDGoodsListTask()
         {
         }
 
-        public GetNeedSyncJDGoodsListTask(string materialID, bool debug = false)
+        public SyncJDGoodsListTask(string materialID, bool debug = false)
         {
             this.materialID = materialID;
             this.debug = debug;
@@ -80,38 +80,18 @@ namespace ShopAPI.Tasks
             List<NeedSyncJDGoodsModal> list = new List<NeedSyncJDGoodsModal>();
 
             await getCommercialTenantGoodsList(listData[0]);
-
-            WriteLine("list" + list);
-            // var records = new List<GoodsTableModal>();
-            // foreach (var item in list)
-            // {
-            //     var conditionRecord = item.conditionRecord;
-            //     var bussinessID = conditionRecord.business_ID;
-            //     foreach (var materialItem in item.materialList)
-            //     {
-            //         var validGoods = materialItem.goodsList.Where(x => isValidGoods(x, conditionRecord)).ToList();
-            //         var newRecords =
-            //             DataCovertTask.taobaoGoodsList2realsunGoodsList(validGoods, bussinessID,
-            //                 materialItem.material_ID);
-            //         records.AddRange(newRecords);
-            //     }
-            // }
-
-            // WriteLine (" 3.需要同步的商品数量：" + records);
-
-            // return records;
             return null;
         }
 
 
         /// <summary>
-        /// 获取商户的所有商品
+        /// 同步京东商品
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
         public async Task<object> getCommercialTenantGoodsList(CommercialTenantSetModal record)
         {
-            WriteLine("=============================================");
+            WriteLine("=============================================同步京东商品");
             WriteLine("开始获取商户的商品，商户编号：" + record.business_ID);
 
             // 获取物料ID
@@ -384,7 +364,7 @@ namespace ShopAPI.Tasks
                 var index = 1;
                 foreach (var goodsItem in queryResult.data)
                 {
-                    var realsunGoods = DataCovertTask.JDGoods2realsunGoods(goodsItem);
+                    var realsunGoods = DataCovertTask.JDGoods2realsunGoods(goodsItem, conditionRecord.business_ID);
                     realsunGoods._id = index++;
                     if (goodsItem.materialUrl != null && isValidGoods(realsunGoods, conditionRecord))
                     {
@@ -449,7 +429,7 @@ namespace ShopAPI.Tasks
             try
             {
                 // 同步商品
-                WriteLine($"开始同步京东商品，数量：{goodsList}");
+                WriteLine($"开始同步京东商品，数量：{goodsList.Count}");
                 await client.AddRecords<object>(goodsResid, goodsList);
             }
             catch (System.Exception e)

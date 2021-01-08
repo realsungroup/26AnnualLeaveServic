@@ -7,16 +7,16 @@ namespace ShopAPI.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class ExecuteUndercarriageJobController : ControllerBase
+    public class ExecuteUndercarriageJDJobController : ControllerBase
     {
         /// <summary>
-        /// 执行淘宝商品下架任务
+        /// 执行京东商品下架任务
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<OkObjectResult> executeUndercarriageJob()
+        public async Task<OkObjectResult> executeUndercarriageJDJob()
         {
-            var res = await UndercarriageJob.start();
+            var res = await UndercarriageJDJob.start();
             return Ok(res);
         }
     }

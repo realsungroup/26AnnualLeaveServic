@@ -205,107 +205,6 @@ namespace ShopAPI.Tasks
             return ret;
         }
 
-
-        /// <summary>
-        /// 京东商品记录转换为 realsun 平台商品记录
-        /// </summary>
-        /// <param name="taobaoGoodsList">淘宝商品记录</param>
-        /// <param name="materialID">物料id</param>
-        /// <param name="favoritesTitle">当商品为选品库商品时，才会有 favoritesTitle</param>
-        /// <returns></returns>
-        public static List<GoodsTableModal> JDGoodsList2realsunGoodsList(List<QueryResult.JFGoodsResp> goodsList)
-        {
-            var ret = new List<GoodsTableModal>();
-            var i = 1;
-            foreach (var item in goodsList)
-            {
-                string white_image = "";
-                string goods_photos = "";
-                if (item.imageInfo != null)
-                {
-                    white_image = item.imageInfo.whiteImage;
-
-                    if (item.imageInfo.imageList.Count != 0)
-                    {
-                        foreach (var urlInfo in item.imageInfo.imageList)
-                        {
-                            if (urlInfo != null)
-                            {
-                                if (goods_photos.Length > 0)
-                                {
-                                    goods_photos = $"{goods_photos};{urlInfo.url}";
-                                }
-                                else
-                                {
-                                    goods_photos = $"{urlInfo.url}";
-                                }
-                            }
-                        }
-                    }
-                }
-
-                float goods_price = 0;
-                if (item.priceInfo != null)
-                {
-                    goods_price = (float) item.priceInfo.price;
-                }
-
-                string goods_dec = "";
-                if (item.documentInfo != null)
-                {
-                    goods_dec = item.documentInfo.document;
-                }
-
-                string commission_rate = "";
-                if (item.commissionInfo != null)
-                {
-                    commission_rate = item.commissionInfo.commissionShare.ToString("F2");
-                }
-
-                string coupon_end_time = "";
-                long coupon_amount = 0;
-                if (item.couponInfo != null)
-                {
-                    if (item.couponInfo.couponList.Count != 0)
-                    {
-                        coupon_end_time = item.couponInfo.couponList[0].getEndTime.ToString();
-                        coupon_amount = (long) item.couponInfo.couponList[0].discount;
-                    }
-                }
-
-                var goodsItem = new GoodsTableModal
-                {
-                    _id = i++,
-                    _state = "editoradd",
-                    item_id = item.skuId,
-                    goods_name = item.skuName,
-                    white_image = white_image,
-                    goods_photos = goods_photos,
-                    goods_img = white_image,
-                    goods_price = goods_price,
-                    goods_dec = goods_dec,
-                    comments = item.comments,
-                    commission_rate = commission_rate,
-                    goodCommentsShare = item.goodCommentsShare,
-                    deliveryType = item.deliveryType,
-                    coupon_end_time = coupon_end_time,
-                    coupon_amount = coupon_amount,
-                    coupon_click_url = item.clickURL,
-                    goods_category = item.categoryInfo.cid1.ToString(),
-                    goods_categoryname1 = item.categoryInfo.cid1Name,
-                    goods_category2 = item.categoryInfo.cid2.ToString(),
-                    goods_categoryname2 = item.categoryInfo.cid2Name,
-                    goods_category3 = item.categoryInfo.cid3.ToString(),
-                    goods_categoryname3 = item.categoryInfo.cid3Name,
-                    material_id = item.resourceInfo.eliteId.ToString(),
-                    goods_origin = "jd"
-                };
-                ret.Add(goodsItem);
-            }
-
-            return ret;
-        }
-
         /// <summary>
         /// 京东商品单条记录转换为 realsun 平台商品记录
         /// </summary>
@@ -313,7 +212,7 @@ namespace ShopAPI.Tasks
         /// <param name="materialID">物料id</param>
         /// <param name="favoritesTitle">当商品为选品库商品时，才会有 favoritesTitle</param>
         /// <returns></returns>
-        public static GoodsTableModal JDGoods2realsunGoods(QueryResult.JFGoodsResp goods)
+        public static GoodsTableModal JDGoods2realsunGoods(QueryResult.JFGoodsResp goods, string bussinessID)
         {
             var item = goods;
 
@@ -395,7 +294,8 @@ namespace ShopAPI.Tasks
                 goods_category3 = item.categoryInfo.cid3.ToString(),
                 goods_categoryname3 = item.categoryInfo.cid3Name,
                 material_id = item.resourceInfo.eliteId.ToString(),
-                goods_origin = "jd"
+                goods_origin = "jd",
+                bussiness_ID = bussinessID
             };
             return goodsItem;
         }

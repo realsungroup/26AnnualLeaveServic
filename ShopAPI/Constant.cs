@@ -28,14 +28,22 @@ namespace ShopAPI
         // 淘宝 appSecret
         public static string appsecret = "90ca4b896bed288aeacaf4a4e7c129e3";
 
+        // 淘宝商家 id
+        public static string taobaoBusinessID = "657653987082";
+
+
         /// <summary>
         /// 京东相关
         /// </summary>
         // 京东 appKey
         public static string jdAppKey = "c64663d5060b81be4d7e9c55d71ee127";
+
         // 京东 appSecret
         public static string jdAppSecret = "2325399787254347a27a053d7aa18573";
-        
+
+        // 京东商家 id
+        public static string jdBusinessID = "659529153820";
+
 
         /// <summary>
         /// 表 resid

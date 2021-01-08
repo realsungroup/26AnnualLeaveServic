@@ -32,13 +32,9 @@ namespace ShopAPI.Jobs
         /// <returns></returns>
         public static async Task<object> start(string materialID = null)
         {
-            var ret = new Hashtable();
-
-            var task = new GetNeedSyncJDGoodsListTask(materialID);
-
-            var needSycnGoodsList = await task.run();
-
-            return needSycnGoodsList;
+            var task = new SyncJDGoodsListTask(materialID);
+            await task.run();
+            return new { };
         }
 
         /// <summary>

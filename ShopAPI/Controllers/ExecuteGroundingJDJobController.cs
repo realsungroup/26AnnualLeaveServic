@@ -17,22 +17,19 @@ using ShopAPI.Modals;
 
 namespace ShopAPI.Controllers
 {
-    /// <summary>
-    /// 执行同步京东商品的任务
-    /// </summary>
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class ExecuteSyncJDGoodsJobController : ControllerBase
+    public class ExecuteGroundingJDJobController : ControllerBase
     {
         /// <summary>
-        /// 执行同步京东商品的任务
+        /// 执行京东商品上架任务
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<OkObjectResult> executeSyncJDGoodsJob([FromQuery] SyncGoodsQueryModal query)
+        public async Task<OkObjectResult> executeGroundingJDJob()
         {
-            SyncJDGoodsJob.start();
-            return Ok(new { });
+            var res = await GroundingJDJob.start();
+            return Ok(res);
         }
     }
 }

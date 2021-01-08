@@ -1,28 +1,19 @@
-using System;
 using System.Collections;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
-using Quartz;
-using Quartz.Impl;
 using static System.Console;
 using ShopAPI.Http;
 using static ShopAPI.Constant;
 using System.Collections.Generic;
 using ShopAPI.Modals;
 using ShopAPI.Tasks;
-using Top.Api;
-using Top.Api.Request;
-using Top.Api.Response;
 using static ShopAPI.Utils;
 
 namespace ShopAPI.Jobs
 {
     /// <summary>
-    /// 淘宝商品上架任务
+    /// 京东商品上架任务
     /// </summary>
-    public class GroundingJob
+    public class GroundingJDJob
     {
         private static int prevGoodsCount = -1;
 
@@ -57,21 +48,19 @@ namespace ShopAPI.Jobs
         /// <returns></returns>
         public static async Task<object> start()
         {
-            WriteLine("============执行淘宝上架商品任务============");
+            WriteLine("============执行上架京东商品任务============");
             isRun = true;
             var ret = new Hashtable();
 
-            // 1. 获取
+            // 获取需要上架的京东商品
             var task = new GetGroundingGoodsListTask();
-            var res = await task.run("taobao");
+            var res = await task.run("jd");
 
             var goodsList = new List<GroundingTableModal>();
-            var undercarriageGoodsList = new List<GroundingTableModal>();
-
             foreach (var resItem in res)
             {
                 var shopID = resItem.shopID;
-                // 转换上架商品
+                // 将商品表的记录转换上架表的商品记录
                 var gResult = DataCovertTask.goodsTalbe2GroundingTable(resItem.goodsList, "Y", shopID);
                 goodsList.AddRange(gResult);
             }
@@ -125,7 +114,7 @@ namespace ShopAPI.Jobs
         /// <returns></returns>
         public static async Task<object> groundingGoods(List<GroundingTableModal> goodsList)
         {
-            WriteLine("开始上架淘宝商品：");
+            WriteLine("开始上架京东商品：");
             var client = new LzRequest(realsunBaseURL);
             client.setHeaders(new {Accept = "application/json", accessToken = realsunAccessToken});
 
@@ -135,7 +124,7 @@ namespace ShopAPI.Jobs
             var index = 1;
             foreach (var itemList in list)
             {
-                WriteLine($"{index} 正在上架的商品数量:" + itemList.Count);
+                WriteLine($"{index} 正在上架的京东商品数量:" + itemList.Count);
                 try
                 {
                     await client.AddRecords<object>(groundingResid, itemList);

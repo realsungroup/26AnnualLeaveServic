@@ -17,16 +17,13 @@ using Top.Api.Request;
 using Top.Api.Response;
 using static ShopAPI.Utils;
 
-namespace ShopAPI.Jobs {
+namespace ShopAPI.Jobs
+{
     /// <summary>
     /// 商品下架任务
     /// </summary>
-    public class UndercarriageJob : IJob {
-
-        public async Task Execute (IJobExecutionContext context) {
-            await start ();
-        }
-
+    public class UndercarriageJob
+    {
         private static int prevGoodsCount = -1;
 
         /// <summary>
@@ -36,15 +33,18 @@ namespace ShopAPI.Jobs {
         /// </summary>
         /// <param name="goodsCount">商品数量</param>
         /// <returns></returns>
-        private static bool isGrounding (int goodsCount) {
+        private static bool isGrounding(int goodsCount)
+        {
             // 没有需要下架的商品
-            if (goodsCount == 0) {
+            if (goodsCount == 0)
+            {
                 return false;
             }
 
             // 上一次上架的商品等于这次上架的商品 且
             // 商品数量少于每次获取的 100 条商品
-            if (prevGoodsCount == goodsCount && goodsCount < 100) {
+            if (prevGoodsCount == goodsCount && goodsCount < 100)
+            {
                 return false;
             }
 
@@ -55,47 +55,52 @@ namespace ShopAPI.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start () {
+        public static async Task<object> start()
+        {
             isRun = true;
-            var ret = new Hashtable ();
+            var ret = new Hashtable();
 
-            var task = new GetUndercarriageGoodsListTask ();
-            var res = await task.run ();
+            var task = new GetUndercarriageGoodsListTask();
+            var res = await task.run("taobao");
 
-            var goodsList = new List<GroundingTableModal> ();
+            var goodsList = new List<GroundingTableModal>();
 
-            foreach (var resItem in res) {
+            foreach (var resItem in res)
+            {
                 var shopID = resItem.shopID;
                 // 转换下架商品
-                var result = DataCovertTask.goodsTalbe2GroundingTable (resItem.goodsList, "N", shopID);
-                goodsList.AddRange (result);
+                var result = DataCovertTask.goodsTalbe2GroundingTable(resItem.goodsList, "N", shopID);
+                goodsList.AddRange(result);
             }
 
-            WriteLine ("开始下架商品：");
-            WriteLine ("下架商品数量：" + goodsList.Count);
+            WriteLine("开始下架淘宝商品：");
+            WriteLine("下架商品数量：" + goodsList.Count);
 
-            var canGrounding = isGrounding (goodsList.Count);
+            var canGrounding = isGrounding(goodsList.Count);
 
             // 下架商品
-            if (canGrounding) {
-                await undercarriageGoods (goodsList);
+            if (canGrounding)
+            {
+                await undercarriageGoods(goodsList);
                 prevGoodsCount = goodsList.Count;
                 // 等 1 毫秒后再下架商品
-                System.Timers.Timer t = new System.Timers.Timer (1);
-                t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+                System.Timers.Timer t = new System.Timers.Timer(1);
+                t.Elapsed += new System.Timers.ElapsedEventHandler(timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
                 isRun = false;
-            } else {
+            }
+            else
+            {
                 // 等 10 分钟后再下架商品
-                System.Timers.Timer t = new System.Timers.Timer (10 * 60 * 1000);
-                t.Elapsed += new System.Timers.ElapsedEventHandler (timeout);
+                System.Timers.Timer t = new System.Timers.Timer(10 * 60 * 1000);
+                t.Elapsed += new System.Timers.ElapsedEventHandler(timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
                 isRun = false;
             }
 
-            ret.Add ("下架的商品数量：", goodsList.Count);
+            ret.Add("下架的商品数量：", goodsList.Count);
 
             return ret;
         }
@@ -104,10 +109,12 @@ namespace ShopAPI.Jobs {
         public static bool isRun = false;
 
         // 倒计时事件
-        public static void timeout (object source, System.Timers.ElapsedEventArgs e) {
+        public static void timeout(object source, System.Timers.ElapsedEventArgs e)
+        {
             // 继续上架商品
-            if (!isRun) {
-                start ();
+            if (!isRun)
+            {
+                start();
             }
         }
 
@@ -116,46 +123,30 @@ namespace ShopAPI.Jobs {
         /// </summary>
         /// <param name="goodsList"></param>
         /// <returns></returns>
-        public static async Task<object> undercarriageGoods (List<GroundingTableModal> goodsList) {
-            WriteLine ("开始下架商品：");
+        public static async Task<object> undercarriageGoods(List<GroundingTableModal> goodsList)
+        {
+            WriteLine("开始下架商品：");
 
-            var client = new LzRequest (realsunBaseURL);
-            client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
+            var client = new LzRequest(realsunBaseURL);
+            client.setHeaders(new {Accept = "application/json", accessToken = realsunAccessToken});
 
-            var list = List2TwoDimensionList<GroundingTableModal> (goodsList, 20);
-            var ret = new List<object> ();
+            var list = List2TwoDimensionList<GroundingTableModal>(goodsList, 20);
+            var ret = new List<object>();
             var index = 1;
-            foreach (var itemList in list) {
-                WriteLine ($"{index} 正在下架的商品数量:" + itemList.Count);
-                try {
-                    await client.AddRecords<object> (groundingResid, itemList);
-                } catch (System.Exception) { }
-                index++;
+            foreach (var itemList in list)
+            {
+                WriteLine($"{index++} 正在下架的商品数量:" + itemList.Count);
+                try
+                {
+                    await client.AddRecords<object>(groundingResid, itemList);
+                }
+                catch (System.Exception ex)
+                {
+                    WriteLine("下架商品报错：" + ex.Message);
+                }
             }
+
             return ret;
-        }
-
-        /// <summary>
-        /// 初始化任务
-        /// </summary>
-        /// <returns></returns>
-        public static async Task<object> init () {
-            var schedulerFactory = new StdSchedulerFactory ();
-            var scheduler = await schedulerFactory.GetScheduler ();
-
-            await scheduler.Start ();
-            WriteLine ($"GroundingAndUndercarriageJob init");
-
-            // 创建作业和触发器
-            var jobDetail = JobBuilder.Create<UndercarriageJob> ().Build ();
-            var trigger = TriggerBuilder.Create ()
-                .WithSimpleSchedule (m => {
-                    m.WithIntervalInMinutes (10).RepeatForever ();
-                })
-                .Build ();
-
-            // 添加调度
-            return await scheduler.ScheduleJob (jobDetail, trigger);
         }
     }
 }

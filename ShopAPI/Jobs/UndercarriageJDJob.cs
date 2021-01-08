@@ -1,41 +1,32 @@
-using System;
 using System.Collections;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
-using Quartz;
-using Quartz.Impl;
 using static System.Console;
 using ShopAPI.Http;
 using static ShopAPI.Constant;
 using System.Collections.Generic;
 using ShopAPI.Modals;
 using ShopAPI.Tasks;
-using Top.Api;
-using Top.Api.Request;
-using Top.Api.Response;
 using static ShopAPI.Utils;
 
 namespace ShopAPI.Jobs
 {
     /// <summary>
-    /// 淘宝商品上架任务
+    /// 京东商品下架任务
     /// </summary>
-    public class GroundingJob
+    public class UndercarriageJDJob
     {
         private static int prevGoodsCount = -1;
 
         /// <summary>
-        /// 是否需要上架
+        /// 是否需要下架
         /// 为什么需要这样判断？
-        /// 因为有一次获取到可以上架的商品数量为 1，但将这条商品进行上架后，下次获取商品，还是能够获取到这条商品，所以就导致不断的去获取要上架的商品和不断的上架，导致后台 cpu 100%卡死。所以加了一个判断，来避免这种情况
+        /// 因为有一次获取到可以下架的商品数量为 1，但将这条商品进行下架后，下次获取商品，还是能够获取到这条商品，所以就导致不断的去获取要下架的商品和不断的下架，导致后台 cpu 100%卡死。所以加了一个判断，来避免这种情况
         /// </summary>
         /// <param name="goodsCount">商品数量</param>
         /// <returns></returns>
         private static bool isGrounding(int goodsCount)
         {
-            // 没有需要上架的商品
+            // 没有需要下架的商品
             if (goodsCount == 0)
             {
                 return false;
@@ -57,35 +48,33 @@ namespace ShopAPI.Jobs
         /// <returns></returns>
         public static async Task<object> start()
         {
-            WriteLine("============执行淘宝上架商品任务============");
             isRun = true;
             var ret = new Hashtable();
 
-            // 1. 获取
-            var task = new GetGroundingGoodsListTask();
-            var res = await task.run("taobao");
+            var task = new GetUndercarriageGoodsListTask();
+            var res = await task.run("jd");
 
             var goodsList = new List<GroundingTableModal>();
-            var undercarriageGoodsList = new List<GroundingTableModal>();
 
             foreach (var resItem in res)
             {
                 var shopID = resItem.shopID;
-                // 转换上架商品
-                var gResult = DataCovertTask.goodsTalbe2GroundingTable(resItem.goodsList, "Y", shopID);
-                goodsList.AddRange(gResult);
+                // 转换下架商品
+                var result = DataCovertTask.goodsTalbe2GroundingTable(resItem.goodsList, "N", shopID);
+                goodsList.AddRange(result);
             }
 
-            WriteLine("开始上架商品：");
-            WriteLine("上架商品数量：" + goodsList.Count);
+            WriteLine("开始下架京东商品：");
+            WriteLine("下架商品数量：" + goodsList.Count);
 
             var canGrounding = isGrounding(goodsList.Count);
-            // 上架商品
+
+            // 下架商品
             if (canGrounding)
             {
-                await groundingGoods(goodsList);
+                await undercarriageGoods(goodsList);
                 prevGoodsCount = goodsList.Count;
-                // 等 1 毫秒后再上架商品
+                // 等 1 毫秒后再下架商品
                 System.Timers.Timer t = new System.Timers.Timer(1);
                 t.Elapsed += new System.Timers.ElapsedEventHandler(timeout);
                 t.AutoReset = false;
@@ -94,13 +83,15 @@ namespace ShopAPI.Jobs
             }
             else
             {
-                // 等 10 分钟后再上架商品
+                // 等 10 分钟后再下架商品
                 System.Timers.Timer t = new System.Timers.Timer(10 * 60 * 1000);
                 t.Elapsed += new System.Timers.ElapsedEventHandler(timeout);
                 t.AutoReset = false;
                 t.Enabled = true;
                 isRun = false;
             }
+
+            ret.Add("下架的京东商品数量：", goodsList.Count);
 
             return ret;
         }
@@ -119,33 +110,31 @@ namespace ShopAPI.Jobs
         }
 
         /// <summary>
-        /// 上架商品
+        /// 下架商品
         /// </summary>
         /// <param name="goodsList"></param>
         /// <returns></returns>
-        public static async Task<object> groundingGoods(List<GroundingTableModal> goodsList)
+        public static async Task<object> undercarriageGoods(List<GroundingTableModal> goodsList)
         {
-            WriteLine("开始上架淘宝商品：");
+            WriteLine("开始下架京东商品：");
+
             var client = new LzRequest(realsunBaseURL);
             client.setHeaders(new {Accept = "application/json", accessToken = realsunAccessToken});
 
             var list = List2TwoDimensionList<GroundingTableModal>(goodsList, 20);
-
             var ret = new List<object>();
             var index = 1;
             foreach (var itemList in list)
             {
-                WriteLine($"{index} 正在上架的商品数量:" + itemList.Count);
+                WriteLine($"{index++} 正在下架的京东商品数量:" + itemList.Count);
                 try
                 {
                     await client.AddRecords<object>(groundingResid, itemList);
                 }
                 catch (System.Exception ex)
                 {
-                    WriteLine(ex.Message);
+                    WriteLine("下架京东商品报错：" + ex.Message);
                 }
-
-                index++;
             }
 
             return ret;

@@ -53,10 +53,10 @@ namespace ShopAPI.Modals
         /// <summary>
         /// 京东商品特有的字段
         /// </summary>
-        public long comments { get; set; }
+        public long? comments { get; set; }
 
-        public double goodCommentsShare { get; set; }
-        public int deliveryType { get; set; }
+        public double? goodCommentsShare { get; set; }
+        public int? deliveryType { get; set; }
 
         public string goods_category { get; set; }
         public string goods_categoryname1 { get; set; }
@@ -66,7 +66,7 @@ namespace ShopAPI.Modals
         public string goods_categoryname3 { get; set; }
 
 
-        public long _id { get; set; }
-        public string _state { get; set; }
+        public long? _id { get; set; }
+        public string? _state { get; set; }
     }
 }
