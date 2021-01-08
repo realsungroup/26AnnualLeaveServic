@@ -71,7 +71,6 @@ namespace ShopAPI.Tasks
             // 筛选出京东商户
             var listData =
                 commercialTenantSetRes.data.Where(record => record.business_ID == businessID).ToList();
-            List<NeedSyncJDGoodsModal> list = new List<NeedSyncJDGoodsModal>();
 
             await getCommercialTenantGoodsList(listData[0]);
             return null;
@@ -109,7 +108,6 @@ namespace ShopAPI.Tasks
                 {
                     WriteLine(" 1.物料ID：" + materialIDRecord.material_ID);
                     await getAndSyncGoodsList(materialIDRecord, record);
-                    return null;
                 }
             }
 
@@ -406,6 +404,11 @@ namespace ShopAPI.Tasks
             if (pageIndex < totalPages)
             {
                 return await getAndSyncGoodsList(record, conditionRecord);
+            }
+            else
+            {
+                pageIndex = 1;
+                totalPages = 0;
             }
 
             return new { };

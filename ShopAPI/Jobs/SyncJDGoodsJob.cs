@@ -50,14 +50,14 @@ namespace ShopAPI.Jobs
             var scheduler = await schedulerFactory.GetScheduler();
 
             await scheduler.Start();
-            WriteLine($"SyncGoodsJob3 init");
+            WriteLine($"SyncJDGoodsJob init");
 
             await start();
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<SyncJDGoodsJob>().Build();
 
             var trigger = TriggerBuilder.Create()
-                .WithSchedule(CronScheduleBuilder.DailyAtHourAndMinute(4, 0))
+                .WithSchedule(CronScheduleBuilder.DailyAtHourAndMinute(4, 1))
                 .Build();
 
             // 添加调度
