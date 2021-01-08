@@ -29,12 +29,6 @@ namespace ShopAPI.Tasks
         {
         }
 
-        public SyncJDGoodsListTask(string materialID, bool debug = false)
-        {
-            this.materialID = materialID;
-            this.debug = debug;
-            //  run();
-        }
 
         /// <summary>
         /// 请求的商品的物料ID，用于测试。如果为 null，则请求所有的物料ID的商品；如果有值，则只请求该物料ID的商品

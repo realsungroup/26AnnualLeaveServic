@@ -19,6 +19,9 @@ using Top.Api.Response;
 
 namespace ShopAPI.Jobs
 {
+    /// <summary>
+    /// 同步京东商品定时任务
+    /// </summary>
     public class SyncJDGoodsJob : IJob
     {
         public async Task Execute(IJobExecutionContext context)
@@ -30,9 +33,9 @@ namespace ShopAPI.Jobs
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start(string materialID = null)
+        public static async Task<object> start()
         {
-            var task = new SyncJDGoodsListTask(materialID);
+            var task = new SyncJDGoodsListTask();
             await task.run();
             return new { };
         }
