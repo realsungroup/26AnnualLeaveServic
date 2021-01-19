@@ -125,8 +125,8 @@ namespace ShopAPI.Tasks
                 return ret;
             }
 
-            options.pageindex = "0";
-            options.pagesize = "100";
+            options.pageIndex = "0";
+            options.pageSize = "100";
 
             await getGoodsList(options);
 

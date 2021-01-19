@@ -33,18 +33,18 @@ namespace ShopAPI
         public async void init()
         {
             WriteLine($"come on");
-            await LoginRealsunJob.start();
-            
-            // 定时任务
-            await SyncGoodsJob.init();
-            await SyncJDGoodsJob.init();
-            await LoginRealsunJob.init();
+           await LoginRealsunJob.start();
+           /*
+          // 定时任务
+          await SyncGoodsJob.init();
+          await SyncJDGoodsJob.init();
+          await LoginRealsunJob.init();
 
-            // 商品上下架
-            System.Timers.Timer t = new System.Timers.Timer(10 * 1000);
-            t.Elapsed += new System.Timers.ElapsedEventHandler(timeout);
-            t.AutoReset = false;
-            t.Enabled = true;
+          // 商品上下架
+          System.Timers.Timer t = new System.Timers.Timer(10 * 1000);
+          t.Elapsed += new System.Timers.ElapsedEventHandler(timeout);
+          t.AutoReset = false;
+          t.Enabled = true;*/
         }
 
         public static void timeout(object source, System.Timers.ElapsedEventArgs e)

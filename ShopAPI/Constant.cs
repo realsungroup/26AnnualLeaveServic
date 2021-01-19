@@ -8,17 +8,18 @@ namespace ShopAPI
         /// 后端相关
         /// </summary>
         // 后端 api 基地址
-        public static string realsunBaseURL = "http://kingofdinner.realsun.me:5201/";
-
+        public static string realsunBaseURL = "http://10.108.2.66:9091/";
+        public static string WXBaseURL = "http://kingofdinner.realsun.me:9091/";
+        
         // 后端 api 登录用户名称
-        public static string realsunUsername = "demo1";
+        public static string realsunUsername = "demo";
 
         // 后端 api 登录密码
-        public static string realsunPassword = "123456";
+        public static string realsunPassword = "1234@qwer";
 
         // 访问后端的 accessToken
         public static string realsunAccessToken = "";
-
+        public static string dateFormatString = "yyyy-MM-dd";
         /// <summary>
         /// 淘宝相关
         /// </summary>
@@ -68,5 +69,16 @@ namespace ShopAPI
 
         // 上架表
         public static string groundingResid = "650998291867";
+        
+        //员工年假季度账户表
+        public static string ygnjjdzhResid = "662169346288";
+        //员工年假季度账户表
+        public static string annualLeaveTradeResid = "662169346288";
+        
+        //21年后入职的员工
+        public static string newEmployeeResid = "663860903672";
+        
+        //员工社保信息
+        public static string socialSecurityResid = "662122466450";
     }
 }

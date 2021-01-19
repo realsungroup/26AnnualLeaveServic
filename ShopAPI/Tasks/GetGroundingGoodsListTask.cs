@@ -129,8 +129,8 @@ namespace ShopAPI.Tasks
             WriteLine($"获取上架商品的 cmswhere:{options.cmswhere}");
 
             // 只获取第一页的的 100 条数据
-            options.pageindex = "0";
-            options.pagesize = "100";
+            options.pageIndex = "0";
+            options.pageSize = "100";
 
             // 获取上架商品
             await getGoodsList(options);

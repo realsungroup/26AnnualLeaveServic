@@ -9,6 +9,7 @@ using Flurl;
 using Flurl.Http;
 using static System.Console;
 using System.Threading.Tasks;
+using FastJSON;
 using Newtonsoft.Json;
 
 namespace ShopAPI.Http {
@@ -27,8 +28,8 @@ namespace ShopAPI.Http {
         public string key { get; set; }
         public string cmscolumns { get; set; }
         public string getcolumninfo { get; set; }
-        public string pageindex { get; set; }
-        public string pagesize { get; set; }
+        public string pageIndex { get; set; }
+        public string pageSize { get; set; }
         public string subcmscolumns { get; set; }
     }
 
@@ -117,7 +118,6 @@ namespace ShopAPI.Http {
                     query.Add (name, value);
                 }
             }
-
             var res = await reqURL
                 .WithHeaders (headers)
                 .SetQueryParams (query)
