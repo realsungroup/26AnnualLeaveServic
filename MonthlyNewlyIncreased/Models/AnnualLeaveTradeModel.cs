@@ -1,11 +1,11 @@
 using System;
 
-namespace ShopAPI.Modals {
+namespace MonthlyNewlyIncreased.Models {
     /// <summary>
     /// 员工年假季度账户 Modal
     /// </summary>
     /// 
-    public class AnnualLeaveTradeModal {
+    public class AnnualLeaveTradeModel {
         //工号
         public string NumberID { get; set; }
         //类型

@@ -73,7 +73,7 @@ namespace ShopAPI
         //员工年假季度账户表
         public static string ygnjjdzhResid = "662169346288";
         //员工年假季度账户表
-        public static string annualLeaveTradeResid = "662169346288";
+        public static string annualLeaveTradeResid = "662169358054";
         
         //21年后入职的员工
         public static string newEmployeeResid = "663860903672";

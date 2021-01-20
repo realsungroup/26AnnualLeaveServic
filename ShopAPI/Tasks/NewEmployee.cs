@@ -12,17 +12,14 @@ using static System.Console;
 using ShopAPI.Modals;
 
 namespace ShopAPI.Tasks {
-    public class GetNewEmployee {
+    public class NewEmployee {
 
-        public GetNewEmployee()
+        public NewEmployee()
         {
             this.client = new LzRequest(realsunBaseURL);
             this.client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
-            this.wxclient = new LzRequest(WXBaseURL);
-            this.wxclient.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
         }
         private LzRequest client = null;
-        private LzRequest wxclient = null;
 
         /// <summary>
         /// 页码
@@ -100,33 +97,37 @@ namespace ShopAPI.Tasks {
                 var res = await this.client.getTable<EmployeeModal>(newEmployeeResid,option);
                 if (res.data.Count > 0)
                 {
+                    var data = res.data[0];
                     if (res.data[0].serviceAge != null)
                     {
                         var year = DateTime.Today.Year;
-                     //创建4条季度年假账户
-                     List<NjjdAccountModal> accounts = new List<NjjdAccountModal>();
-                     accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 1,_state = "added",_id = "1"});
-                     accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 2,_state = "added",_id = "2"});
-                     accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 3,_state = "added",_id = "3"});
-                     accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 4,_state = "added",_id = "4"});
-
-                     List<AnnualLeaveTradeModal> trades = new List<AnnualLeaveTradeModal>();
-                     trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = 0,Type = "入职分配",NumberID = id,Year = year,Quarter = 1,_state = "added",_id = "1"});
-                     trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = 0,Type = "入职分配",NumberID = id,Year = year,Quarter = 2,_state = "added",_id = "2"});
-                     trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = 0,Type = "入职分配",NumberID = id,Year = year,Quarter = 3,_state = "added",_id = "3"});
-                     trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = 0,Type = "入职分配",NumberID = id,Year = year,Quarter = 4,_state = "added",_id = "4"});
-                     try
-                     {
-                         await this.client.AddRecords<object>(ygnjjdzhResid, accounts);
-                         //增加4条年假交易记录，类型为‘入职分配’
-                         await this.client.AddRecords<object>(annualLeaveTradeResid, trades);
-                     }
-                     catch (Exception e)
-                     {
-                         WriteLine(e);
-                         throw;
-                     }
-                     
+                        var month = Convert.ToDateTime(data.enterDate).Month-1;
+                        var quarter = month / 3 + 1;
+                        var  quarterDays= this.getQuarterTradsDays((int)data.serviceAge, quarter,data.enterDate);
+                        
+                         List<NjjdAccountModal> accounts = new List<NjjdAccountModal>();
+                         accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 1,_state = "added",_id = "1"});
+                         accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 2,_state = "added",_id = "2"});
+                         accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 3,_state = "added",_id = "3"});
+                         accounts.Add(new NjjdAccountModal{numberID = id,year = year,quarter = 4,_state = "added",_id = "4"});
+                         List<AnnualLeaveTradeModal> trades = new List<AnnualLeaveTradeModal>();
+                         trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "入职分配",NumberID = id,Year = year,Quarter = 1,_state = "added",_id = "1"});
+                         trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "入职分配",NumberID = id,Year = year,Quarter = 2,_state = "added",_id = "2"});
+                         trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "入职分配",NumberID = id,Year = year,Quarter = 3,_state = "added",_id = "3"});
+                         trades.Add(new AnnualLeaveTradeModal{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "入职分配",NumberID = id,Year = year,Quarter = 4,_state = "added",_id = "4"});
+                         Console.WriteLine(JsonConvert.SerializeObject(trades));
+                         try
+                         {
+                             //创建4条季度年假账户
+                             await this.client.AddRecords<object>(ygnjjdzhResid, accounts);
+                             //增加4条年假交易记录，类型为‘入职分配’
+                             await this.client.AddRecords<object>(annualLeaveTradeResid, trades);
+                         }
+                         catch (Exception e)
+                         {
+                             WriteLine(e);
+                             throw;
+                         }
                     }
                 }                
             }
@@ -137,22 +138,58 @@ namespace ShopAPI.Tasks {
             }
             return ret;
         }
-
+        
         /// <summary>
         /// 根据入职日期获取各季度年假数
         /// <param name="workyears">员工社会工龄</param>
         /// <param name="currentQuarter">当前季度</param>
         /// </summary>
-        public float[] getQuarterTradsDays(int workyears,int currentQuarter, string joinDate)
+        public double[] getQuarterTradsDays(int workyears, int currentQuarter, string date)
         {
-            float count = 0;
-            if (workyears<=0)
-            {
-                count = 0;
-            }
+            double[] quarterDays = {0,0,0,0};
+            int startIndex = currentQuarter - 1;
+            //总可用天数
+            int totalDays = getConversionDays(workyears,date,true);
+            Console.WriteLine($"总年假天数:{totalDays}");
 
-            // int totalDays = getDaysByWorkyears(workyears,true);
-            return new float[]{count};
+            double leftDays = totalDays;
+            //每季度平均天数
+            float avg =(float) totalDays / (4 - startIndex);
+            Console.WriteLine($"平均每季度分配年假数{avg}");
+            while (startIndex<4)
+            {
+                //平均数的整数位
+                int integer = (int) avg;
+                //平均数的小数位
+                double _decimal = avg - (double) integer;
+                if (_decimal > 0.5)
+                {
+                    integer++;
+                    _decimal = 0;
+                }
+                else
+                {
+                    if (_decimal>0)
+                    {
+                        _decimal = 0.5;
+                    }
+                }
+                double day;
+                if (leftDays>avg)
+                {
+                     day= integer + _decimal;
+                }
+                else
+                {
+                    day = leftDays;
+                }
+                leftDays = leftDays - day;
+                Console.WriteLine($"q{startIndex+1}分配的年假数:{day}------------剩余可分配年假数:{leftDays}");
+                quarterDays[startIndex] = day;
+                startIndex++;
+            }
+            Console.WriteLine($"quarterDays:{JSON.ToJSON(quarterDays)}");
+            return quarterDays;
         }
 
         /// <summary>
@@ -160,13 +197,9 @@ namespace ShopAPI.Tasks {
         /// <param name="workyears">员工社会工龄</param>
         /// <param name="conversion">折算日期</param>
         /// </summary>
-        public int getConversionDays(int workyears, string conversion)
+        public int getConversionDays(int workyears, string conversionDate,bool isConversion=true)
         {
             int days = 0;
-            if (workyears < 1)
-            {
-                days= 0;
-            }
             if (workyears<10 && workyears>=1)
             {
                 days= 5;
@@ -180,17 +213,19 @@ namespace ShopAPI.Tasks {
                 days= 15;
             }
 
-            // var lastDay = DateTime("");
-            DateTime t1 = Convert.ToDateTime("2021-04-03");
-
+            if (!isConversion)
+            {
+                return days;
+            }
+            DateTime t1 = Convert.ToDateTime(conversionDate);
             int year = t1.Year;
             DateTime tbase = Convert.ToDateTime(string.Format("{0}-1-1",year));
-            Console.WriteLine(tbase);
-            Console.WriteLine(t1);
             TimeSpan ts = t1 - tbase;
-            int d = ts.Days+1;
-            Console.WriteLine(d);
-            return days;
+            int d = ts.Days;
+            int difference = 365 - d;
+            float percent = (float) difference / 365;
+            int daysConversion =(int) (percent * days);
+            return daysConversion;
         }
     }
 }
