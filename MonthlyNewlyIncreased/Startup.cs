@@ -31,6 +31,8 @@ namespace MonthlyNewlyIncreased
            await LoginRealsunJob.start();
            //await EntryAssignmentJob.init();
            await QuarterJob.init();
+           // await MonthlyIncreasedJob.init();
+            //await AnnualLeaveResidueResetJob.init();
            /*
             // 定时任务
             //月度新增

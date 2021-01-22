@@ -1,13 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace MonthlyNewlyIncreased.Modals {
+namespace MonthlyNewlyIncreased.Models
+{
     /// <summary>
-    /// 员工年假季度账户 Modal
+    ///员工年假季度账户 Modal
     /// </summary>
-    /// 
-    public class NjjdAccountModal {
-        //id
-        public string REC_ID { get; set; }
+    public class NjjdAccountModal
+    {
         //工号
         public string numberID { get; set; }
         //姓名
