@@ -31,6 +31,7 @@ namespace MonthlyNewlyIncreased
             WriteLine($"come on");
            await LoginRealsunJob.start();
            // await MonthlyIncreasedJob.init();
+            //await AnnualLeaveResidueResetJob.init();
            /*
           // 定时任务
           await SyncGoodsJob.init();

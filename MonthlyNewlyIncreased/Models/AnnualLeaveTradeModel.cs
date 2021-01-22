@@ -8,6 +8,8 @@ namespace MonthlyNewlyIncreased.Models {
     public class AnnualLeaveTradeModel {
         //工号
         public string NumberID { get; set; }
+        //姓名
+        public string Name { get; set; }
         //类型
         public string Type { get; set; }
         //年度
