@@ -20,6 +20,8 @@ namespace MonthlyNewlyIncreased
         // 访问后端的 accessToken
         public static string realsunAccessToken = "";
         public static string dateFormatString = "yyyy-MM-dd";
+        public static string datetimeFormatString = "yyyy-MM-dd HH:mm:ss";
+
         
         /// <summary>
         /// 表 resid
@@ -27,11 +29,26 @@ namespace MonthlyNewlyIncreased
         
         //员工年假季度账户表
         public static string ygnjjdzhResid = "662169346288";
-        //员工年假季度账户表
+        
+        //员工年假交易表
         public static string annualLeaveTradeResid = "662169358054";
         
-        //21年后入职的员工
-        public static string newEmployeeResid = "663860903672";
+        //21年后入职且在职的员工
+        public static string newEmployeeResid = "664466340655";
         
+        //员工社保信息
+        public static string  SocialSecurityInfoResid = "662122466450";
+        
+        //考勤月报
+        public static string  MonthReportResid = "311025002785";
+        
+        //任务详情
+        public static string  TaskDetailResid = "664543217154";
+        
+        //上年剩余
+        public static string  YearLeftResid = "662169383744";
+        
+        //上年剩余
+        public static string  QuarterConfigResid = "664645272364";
     }
 }

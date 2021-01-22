@@ -13,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MonthlyNewlyIncreased.Jobs;
-// using MonthlyNewlyIncreased.Jobs;
 using static System.Console;
 
 namespace MonthlyNewlyIncreased
@@ -30,12 +29,15 @@ namespace MonthlyNewlyIncreased
         {
             WriteLine($"come on");
            await LoginRealsunJob.start();
-           // await MonthlyIncreasedJob.init();
+           //await EntryAssignmentJob.init();
+           await QuarterJob.init();
            /*
-          // 定时任务
-          await SyncGoodsJob.init();
-          await SyncJDGoodsJob.init();
-          await LoginRealsunJob.init();
+            // 定时任务
+            //月度新增
+            await MonthlyIncreasedJob.init();
+            //同步社保信息
+            await SyncSocialSecurityMonthsJob.init();
+            await LoginRealsunJob.init();
           */
         }
         

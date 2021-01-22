@@ -7,15 +7,12 @@ using System.Threading.Tasks;
 using Quartz;
 using Quartz.Impl;
 using static System.Console;
-using MonthlyNewlyIncreased.Http;
 using static MonthlyNewlyIncreased.Constant;
-using System.Collections.Generic;
-using MonthlyNewlyIncreased.Models;
 using MonthlyNewlyIncreased.Tasks;
-using static MonthlyNewlyIncreased.Utils;
+
 
 namespace MonthlyNewlyIncreased.Jobs {
-    public class MonthlyIncreasedJob : IJob {
+    public class EntryAssignmentJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
             await start ();
@@ -27,17 +24,14 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start () {
             var ret = new Hashtable ();
-            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
-            var today = DateTime.Today.ToString("MM-dd");
-            var monthlyIncreased = new MonthlyIncreasedTask();
-            await  monthlyIncreased.GetNewEmployeeList();
-            foreach (var item in monthlyIncreased.employeeList)
+            WriteLine($"开始执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
+            var newEmployee = new NewEmployeeTask();
+            await  newEmployee.GetNewEmployeeList();
+            foreach (var item in newEmployee.employeeList)
             {
-                await monthlyIncreased.Distribution(item);
+                await newEmployee.Distribution(item);
             }
-            AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
-            WriteLine($"结束执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
+            WriteLine($"结束执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
             return ret;
         }
         
@@ -53,7 +47,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             WriteLine ($"EntryAssignmentJob init");
 
             // 创建作业和触发器
-            var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
+            var jobDetail = JobBuilder.Create<EntryAssignmentJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
                 .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 15))

@@ -12,10 +12,11 @@ using static MonthlyNewlyIncreased.Constant;
 using System.Collections.Generic;
 using MonthlyNewlyIncreased.Models;
 using MonthlyNewlyIncreased.Tasks;
+using Newtonsoft.Json;
 using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs {
-    public class MonthlyIncreasedJob : IJob {
+    public class QuarterJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
             await start ();
@@ -27,17 +28,31 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start () {
             var ret = new Hashtable ();
-            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
-            var today = DateTime.Today.ToString("MM-dd");
-            var monthlyIncreased = new MonthlyIncreasedTask();
-            await  monthlyIncreased.GetNewEmployeeList();
-            foreach (var item in monthlyIncreased.employeeList)
+            var client = new LzRequest(realsunBaseURL);
+            client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
+            try
             {
-                await monthlyIncreased.Distribution(item);
+                var res =await client.getTable<QuarterConfigModel>(QuarterConfigResid);
+                var today = DateTime.Today.ToString("MM-dd");
+                foreach (var config in res.data)
+                {
+                    var date = Convert.ToDateTime(config.runDate).ToString("MM-dd");
+                    if (date == today)
+                    {
+                        WriteLine(config.quarter);
+                        var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
+                        WriteLine($"开始执行季度结算{DateTime.Now.ToString(datetimeFormatString)}");
+                        var task = new QuarterTask();
+                        task.taskStartTime = DateTime.Now.ToString(datetimeFormatString);
+                        await task.Run(DateTime.Today.Year, config.quarter);
+                    }
+                }
             }
-            AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
-            WriteLine($"结束执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
+            catch (Exception e)
+            {
+                WriteLine(e);
+                throw;
+            }
             return ret;
         }
         
@@ -50,15 +65,12 @@ namespace MonthlyNewlyIncreased.Jobs {
             var scheduler = await schedulerFactory.GetScheduler ();
 
             await scheduler.Start ();
-            WriteLine ($"EntryAssignmentJob init");
-
+            WriteLine ($"QuarterJob init");
             // 创建作业和触发器
-            var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
-
+            var jobDetail = JobBuilder.Create<QuarterJob> ().Build ();
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 15))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (16, 18))
                 .Build ();
-
             // 添加调度
             return await scheduler.ScheduleJob (jobDetail, trigger);
         }

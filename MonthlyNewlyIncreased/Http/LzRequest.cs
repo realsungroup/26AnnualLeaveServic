@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 // using FastJSON;
 using Newtonsoft.Json;
 
-namespace ShopAPI.Http {
+namespace MonthlyNewlyIncreased.Http {
     public class HttpCommonReponseModals {
         // public 
     }

@@ -1,17 +1,19 @@
 using System;
+
 using static MonthlyNewlyIncreased.Constant;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using MonthlyNewlyIncreased.Http;
 using static System.Console;
+using MonthlyNewlyIncreased.Modals;
 using MonthlyNewlyIncreased.Models;
 using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Tasks {
-    public class MonthlyIncreasedTask {
+    public class NewEmployeeTask {
 
-        public MonthlyIncreasedTask()
+        public NewEmployeeTask()
         {
             this.client = new LzRequest(realsunBaseURL);
             this.client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
@@ -46,18 +48,26 @@ namespace MonthlyNewlyIncreased.Tasks {
         public List<EmployeeModel> employeeList = new List<EmployeeModel> ();
 
         /// <summary>
-        /// 获取入职日期为今天并且社会工龄等于0或9或19的新员工
+        /// 获取7天内入职的员工
         /// </summary>
         public async Task<object> GetNewEmployeeList () {
             var ret = new { };
-            var today = DateTime.Today.ToString("MM-dd");
             var option = new GetTableOptionsModal{};
             option.pageSize = pageSize;
             option.pageIndex = _pageNo;
-            option.cmswhere = $"enterDate like '%{today}' and serviceAge in ('0', '9' '19')";
+            option.cmswhere = $"enterDate between '{DateTime.Today.AddDays(-7).ToString(dateFormatString)}' and enterDate <= '{DateTime.Today.ToString(dateFormatString)}'";
             try {
                 var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
-                employeeList.AddRange(res.data);
+                foreach (var item in res.data)
+                {
+                    var option1 = new GetTableOptionsModal{};
+                    option1.cmswhere = $"numberID = '{item.jobId}' year = '{item.enterDate.Substring(0,4)}'";
+                    var result = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
+                    if (result.data.Count == 0)
+                    {
+                        employeeList.Add(item);
+                    }
+                }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
                     await GetNewEmployeeList();
@@ -72,62 +82,66 @@ namespace MonthlyNewlyIncreased.Tasks {
         }
 
         /// <summary>
-        /// 给员工分配年假
-        /// <param name="employee">员工</param>
+        /// 给新员工分配年假
+        /// <param name="id">员工工号</param>
         /// </summary>
         public async Task<object> Distribution(EmployeeModel employee)
         {
             var ret = new { };
-            if (employee.serviceAge != null)
+            try
             {
-                var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-                var year = DateTime.Today.Year;
-                var quarter = GetQuarterByDate(employee.enterDate);
-                var quarterDays= this.getQuarterTradsDays(quarter,employee.enterDate);
-                List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
-                if (1 >= quarter)
+                if (employee.serviceAge != null)
                 {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 1,_state = "added",_id = "1"});
+                    var year = DateTime.Today.Year;
+                    var quarter = GetQuarterByDate(employee.enterDate);
+                    var quarterDays= this.getQuarterTradsDays((int)employee.serviceAge, quarter,employee.enterDate);
+                    var jobid = employee.jobId;
+                    
+                    List<NjjdAccountModal> accounts = new List<NjjdAccountModal>();
+                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 1,_state = "added",_id = "1"});
+                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 2,_state = "added",_id = "2"});
+                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 3,_state = "added",_id = "3"});
+                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 4,_state = "added",_id = "4"});
+                    List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
+                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 1,_state = "added",_id = "1"});
+                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 2,_state = "added",_id = "2"});
+                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 3,_state = "added",_id = "3"});
+                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 4,_state = "added",_id = "4"});
+                    Console.WriteLine(JsonConvert.SerializeObject(trades));
+                    try
+                    {
+                        //创建4条季度年假账户
+                        await this.client.AddRecords<object>(ygnjjdzhResid, accounts);
+                        //增加4条年假交易记录，类型为‘入职分配’
+                        await this.client.AddRecords<object>(annualLeaveTradeResid, trades);
+                    }
+                    catch (Exception e)
+                    {
+                        WriteLine(e);
+                        //AddTaskDetail()
+                    }
                 }
-                if (2 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 2,_state = "added",_id = "2"});
-                }
-                if (3 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 3,_state = "added",_id = "3"});
-                }
-                if (4 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 4,_state = "added",_id = "4"});
-                }
-                try
-                {
-                    //增加4条年假交易记录，类型为‘月度新增’
-                    await client.AddRecords<object>(annualLeaveTradeResid, trades);
-                }
-                catch (Exception e)
-                {
-                    AddTaskDetail("月度新增",taskStartTime, DateTime.Now.ToString(datetimeFormatString),e.Message,employee.jobId);
-                    throw;
-                }
+            }
+            catch (Exception e)
+            {
+                WriteLine(e);
+                return ret;
             }
             return ret;
         }
         
         /// <summary>
         /// 根据入职日期获取各季度年假数
+        /// <param name="workyears">员工社会工龄</param>
         /// <param name="currentQuarter">当前季度</param>
-        /// <param name="date">日期</param>
         /// </summary>
-        public double[] getQuarterTradsDays(int currentQuarter, string date)
+        public double[] getQuarterTradsDays(int workyears, int currentQuarter, string date)
         {
             double[] quarterDays = {0,0,0,0};
             int startIndex = currentQuarter - 1;
             //总可用天数
-            int totalDays = getConversionDays(date);
+            int totalDays = getConversionDays(workyears,date);
             Console.WriteLine($"总年假天数:{totalDays}");
-
             double leftDays = totalDays;
             //每季度平均天数
             float avg =(float) totalDays / (4 - startIndex);
@@ -169,11 +183,29 @@ namespace MonthlyNewlyIncreased.Tasks {
 
         /// <summary>
         /// 根据社龄和折算日期获取折算后的年假天数
-        /// <param name="conversionDate">折算日期</param>
+        /// <param name="workyears">员工社会工龄</param>
+        /// <param name="conversion">折算日期</param>
         /// </summary>
-        public int getConversionDays(string conversionDate)
+        public int getConversionDays(int workyears, string conversionDate,bool isConversion=true)
         {
-            int days = 5;
+            int days = 0;
+            if (workyears<10 && workyears>=1)
+            {
+                days= 5;
+            }
+            if (workyears<20 && workyears>=10)
+            {
+                days= 10;
+            }
+            if (workyears>=20)
+            {
+                days= 15;
+            }
+
+            if (!isConversion)
+            {
+                return days;
+            }
             DateTime t1 = Convert.ToDateTime(conversionDate);
             int year = t1.Year;
             DateTime tbase = Convert.ToDateTime(string.Format("{0}-1-1",year));

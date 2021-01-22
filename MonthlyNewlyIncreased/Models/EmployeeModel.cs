@@ -6,16 +6,19 @@ namespace MonthlyNewlyIncreased.Models {
     /// </summary>
     /// 
     public class EmployeeModel {
+        //记录编号
+        public string? REC_ID  { get; set; }
         //工号
         public string jobId { get; set; }
-        //编号
-        public string personId { get; set; }
-        //姓名
-        public string name { get; set; }
-
-        //社会工龄
-        public int? serviceAge { get; set; }
         //入职日期
         public string enterDate { get; set; }
+        //社会工龄
+        public int? serviceAge { get; set; }
+        //社保月数
+        public int? totalMonth { get; set; }
+        //
+        public string? _state { get; set; }
+        //
+        public int? _id{ get; set; }
     }
 }

@@ -12,10 +12,9 @@ using static MonthlyNewlyIncreased.Constant;
 using System.Collections.Generic;
 using MonthlyNewlyIncreased.Models;
 using MonthlyNewlyIncreased.Tasks;
-using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs {
-    public class MonthlyIncreasedJob : IJob {
+    public class SyncSocialSecurityMonthsJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
             await start ();
@@ -27,17 +26,10 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start () {
             var ret = new Hashtable ();
-            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
-            var today = DateTime.Today.ToString("MM-dd");
-            var monthlyIncreased = new MonthlyIncreasedTask();
-            await  monthlyIncreased.GetNewEmployeeList();
-            foreach (var item in monthlyIncreased.employeeList)
-            {
-                await monthlyIncreased.Distribution(item);
-            }
-            AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
-            WriteLine($"结束执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
+            WriteLine($"开始执行社保同步{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+            var monthlyIncreasedTask = new SyncSocialSecurityMonthsTask();
+            await  monthlyIncreasedTask.GetNewEmployeeList();
+            WriteLine($"结束执行社保同步{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
             return ret;
         }
         
@@ -50,10 +42,10 @@ namespace MonthlyNewlyIncreased.Jobs {
             var scheduler = await schedulerFactory.GetScheduler ();
 
             await scheduler.Start ();
-            WriteLine ($"EntryAssignmentJob init");
+            WriteLine ($"社保同步 init");
 
             // 创建作业和触发器
-            var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
+            var jobDetail = JobBuilder.Create<SyncSocialSecurityMonthsJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
                 .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 15))

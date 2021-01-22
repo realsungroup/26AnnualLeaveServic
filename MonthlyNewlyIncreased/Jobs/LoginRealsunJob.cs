@@ -7,7 +7,7 @@ using Flurl;
 using static MonthlyNewlyIncreased.Constant;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ShopAPI.Http;
+using MonthlyNewlyIncreased.Http;
 
 namespace MonthlyNewlyIncreased.Jobs {
     /// <summary>
