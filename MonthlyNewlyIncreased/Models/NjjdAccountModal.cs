@@ -10,6 +10,7 @@ namespace MonthlyNewlyIncreased.Models
     /// </summary>
     public class NjjdAccountModal
     {
+        public string? REC_ID { get; set; }
         //工号
         public string numberID { get; set; }
         //姓名
@@ -25,7 +26,7 @@ namespace MonthlyNewlyIncreased.Models
         //上季剩余余额
         public double sjsy { get; set; }
         
-        public string? isLock { get; set;}
+        public string? locked { get; set;}
         //
         public string? _state { get; set; }
         //
