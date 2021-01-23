@@ -33,15 +33,15 @@ namespace MonthlyNewlyIncreased.Controllers
             [FromQuery]int quarter
         )
         {
-            if (Convert.ToBoolean(numberID) )
+            if (numberID == null)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有numberID参数"});
             }
-            if (Convert.ToBoolean(year) )
+            if (year == 0)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有year参数"});
             }
-            if (Convert.ToBoolean(quarter) )
+            if (quarter == 0)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有quarter参数"});
             }
@@ -49,7 +49,7 @@ namespace MonthlyNewlyIncreased.Controllers
             var client = new LzRequest(realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
             var option = new GetTableOptionsModal();
-            option.cmswhere = $"year = '{year}' and quarter = '{quarter}'";
+            option.cmswhere = $"numberID = '{numberID}' and year = '{year}' and quarter = '{quarter}'";
             var res = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option);
             if (res.data.Count > 0)
             {
@@ -60,8 +60,12 @@ namespace MonthlyNewlyIncreased.Controllers
                 await task.QuarterRollOut(year, quarter, numberID);
                 //季度转入
                 await task.QuarterRollIn(year, quarter, numberID);
+                return Ok(new ActionResponseModel{error = 0,message = ""});
             }
-            return Ok(new ActionResponseModel{error = 0,message = ""});
+            else
+            {
+                return Ok(new ActionResponseModel{error = -1,message = "没有年假季度账户"});
+            }
         }
         
         /// <summary>

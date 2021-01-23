@@ -103,87 +103,101 @@ namespace MonthlyNewlyIncreased.Tasks {
             var year = account.year;
             var quarter = account.quarter;
             var number = account.numberID;
-            try
+            var isExist = await IsTradeExist("季度使用", year, quarter, number);
+            if (!isExist)
             {
-                var sum = account.snsy + account.sjsy + account.djfp;
-                var days = await GetLeaveDays(quarter,number,year+"");
-                Console.WriteLine($"待扣年假数：{days}");
-                //三个账户和是否大于或等于待扣除年假数
-                if (sum >= days)
+                Console.WriteLine("----------开始季度使用---------------");
+                try
                 {
-                    if (days > 0)
+                    var sum = account.snsy + account.sjsy + account.djfp;
+                    var days = await GetLeaveDays(quarter, number, year + "");
+                    Console.WriteLine($"待扣年假数：{days}");
+                    //三个账户和是否大于或等于待扣除年假数
+                    if (sum >= days)
                     {
-                        //待扣除的年假数
-                        var waitDeductionDays = days;
-                        //本次交易的上年剩余额度
-                        double tradeSNSY = 0;
-                        //本次交易的上季剩余额度
-                        double tradeSJSY = 0;
-                        //本次交易的当季剩余额度
-                        double tradeDJFP = 0;
-
-                        // 上年剩余不够用
-                        if (account.snsy < waitDeductionDays)
+                        if (days > 0)
                         {
-                            tradeSNSY = account.snsy;
-                            waitDeductionDays = waitDeductionDays - account.snsy;
-                            // 上季剩余不够用
-                            if (account.sjsy < waitDeductionDays)
+                            //待扣除的年假数
+                            var waitDeductionDays = days;
+                            //本次交易的上年剩余额度
+                            double tradeSNSY = 0;
+                            //本次交易的上季剩余额度
+                            double tradeSJSY = 0;
+                            //本次交易的当季剩余额度
+                            double tradeDJFP = 0;
+
+                            // 上年剩余不够用
+                            if (account.snsy < waitDeductionDays)
                             {
-                                tradeSJSY = account.sjsy;
-                                waitDeductionDays = waitDeductionDays - account.sjsy;
-                                //当季分配不够用
-                                if (account.djfp < waitDeductionDays)
+                                tradeSNSY = account.snsy;
+                                waitDeductionDays = waitDeductionDays - account.snsy;
+                                // 上季剩余不够用
+                                if (account.sjsy < waitDeductionDays)
                                 {
-                                    tradeDJFP = account.djfp;
+                                    tradeSJSY = account.sjsy;
+                                    waitDeductionDays = waitDeductionDays - account.sjsy;
+                                    //当季分配不够用
+                                    if (account.djfp < waitDeductionDays)
+                                    {
+                                        tradeDJFP = account.djfp;
+                                    }
+                                    else
+                                    {
+                                        tradeDJFP = waitDeductionDays;
+                                    }
                                 }
                                 else
                                 {
-                                    tradeDJFP = waitDeductionDays;
+                                    tradeSJSY = waitDeductionDays;
                                 }
                             }
                             else
                             {
-                                tradeSJSY = waitDeductionDays;
+                                tradeSNSY = waitDeductionDays;
                             }
+
+                            List<AnnualLeaveTradeModel> list = new List<AnnualLeaveTradeModel>();
+                            var trade = new AnnualLeaveTradeModel
+                            {
+                                Type = "季度使用",
+                                Year = year,
+                                Quarter = quarter,
+                                snsytrans = tradeSNSY,
+                                sjsytrans = tradeSJSY,
+                                djfptrans = tradeDJFP,
+                                NumberID = number,
+                                _state = "added",
+                                _id = "1"
+                            };
+                            list.Add(trade);
+                            Console.WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
+                            Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
+                            await client.AddRecords<object>(annualLeaveTradeResid, list);
                         }
-                        else
-                        {
-                            tradeSNSY = waitDeductionDays;
-                        }
-                        List<AnnualLeaveTradeModel> list = new List<AnnualLeaveTradeModel>();
-                        var trade = new AnnualLeaveTradeModel
-                        {
-                            Type = "季度使用",
-                            Year = year,
-                            Quarter = quarter,
-                            snsytrans = tradeSNSY,
-                            sjsytrans = tradeSJSY,
-                            djfptrans = tradeDJFP,
-                            NumberID = number,
-                            _state = "added",
-                            _id = "1"
-                        };
-                        list.Add(trade);
-                        Console.WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
-                        Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
-                        //await this.client.AddRecords<object>(annualLeaveTradeResid, list);
+                    }
+                    else
+                    {
+                        string endTime = DateTime.Now.ToString(datetimeFormatString);
+                        Console.WriteLine("当前季度账户总和{sum}小于季度请的年假数{days}。");
+                        //往任务详情表增加一条错误信息，错误信息为当前季度账户总和小于季度清的年假数
+                        AddTaskDetail("季度使用", startTime, endTime,
+                            $"当前季度账户总和{sum}小于季度请的年假数{days}。年假季度账户信息：{JsonConvert.SerializeObject(account)}", number);
                     }
                 }
-                else
+                catch (Exception e)
                 {
                     string endTime = DateTime.Now.ToString(datetimeFormatString);
-                    Console.WriteLine("当前季度账户总和{sum}小于季度请的年假数{days}。");
-                    //往任务详情表增加一条错误信息，错误信息为当前季度账户总和小于季度清的年假数
-                    AddTaskDetail("季度使用",startTime,endTime,
-                        $"当前季度账户总和{sum}小于季度请的年假数{days}。年假季度账户信息：{JsonConvert.SerializeObject(account)}",number);
+                    AddTaskDetail("季度使用", startTime, endTime, $"{e.Message}。{year}第{quarter}季度", number);
+                    throw;
                 }
+                Console.WriteLine("----------结束季度使用---------------");
             }
-            catch (Exception e)
+            else
             {
+                Console.WriteLine("季度使用已存在");
                 string endTime = DateTime.Now.ToString(datetimeFormatString);
-                AddTaskDetail("季度使用",startTime,endTime,$"{e.Message}。{year}第{quarter}季度",number);
-                throw;
+                AddTaskDetail("季度使用", startTime, endTime,
+                    $"季度使用已存在。", number);
             }
             return new { };
         }
@@ -244,6 +258,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         public async Task<object> QuarterRollOut(int year, int quarter, string number)
         {
             string startTime = DateTime.Now.ToString(datetimeFormatString);
+            Console.WriteLine("----------开始季度转出---------------");
             try
             {
                 var option = new GetTableOptionsModal{};
@@ -271,7 +286,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                         list.Add(trade);
                         Console.WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
                         Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
-                        //await client.AddRecords<object>(annualLeaveTradeResid, list);
+                        await client.AddRecords<object>(annualLeaveTradeResid, list);
                         //锁定季度账户
                         List<ModifyNjjdAccountModel> modifyList = new List<ModifyNjjdAccountModel>();
                         modifyList.Add(new ModifyNjjdAccountModel
@@ -281,7 +296,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                             _state = "modified",
                             _id = "1"
                         });
-                        //await client.AddRecords<object>(ygnjjdzhResid, modifyList);
+                        await client.AddRecords<object>(ygnjjdzhResid, modifyList);
                     }
                 } else
                 {
@@ -297,6 +312,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 AddTaskDetail("季度转出",startTime,endTime,$"{e.Message}。{year}第{quarter}季度",number);
                 throw;
             }
+            Console.WriteLine("----------结束季度转出---------------");
             return new { };
         }
         
@@ -311,18 +327,18 @@ namespace MonthlyNewlyIncreased.Tasks {
         public async Task<object> QuarterRollIn(int year, int quarter, string number)
         {
             string startTime = DateTime.Now.ToString(datetimeFormatString);
+            Console.WriteLine("----------开始季度转入---------------");
             try
             {
-                var isExist = await IsTradeExist("季度转入", year, quarter, number);
-                if (!isExist)
+                var result = await client.getTable<AnnualLeaveTradeModel>(annualLeaveTradeResid,
+                    new GetTableOptionsModal
+                    {
+                        cmswhere = $"Type = '季度转出' and Year = '{year}' and Quarter = '{quarter}' and NumberID = '{number}'"
+                    });
+                if (quarter != 4)
                 {
-                    var result =
-                        await client.getTable<AnnualLeaveTradeModel>(annualLeaveTradeResid,
-                            new GetTableOptionsModal
-                            {
-                                cmswhere = $"Type = '季度转出' and Year = '{year}' and Quarter = '{quarter}' and NumberID = '{number}'"
-                            });
-                    if (quarter != 4)
+                    var isExist = await IsTradeExist("季度转入", year,quarter+1, number);
+                    if (!isExist)
                     {
                         if (result.data.Count > 0)
                         {
@@ -339,20 +355,35 @@ namespace MonthlyNewlyIncreased.Tasks {
                                 _state = "added",
                                 _id = "1"
                             };
+                            Console.WriteLine($"季度转出数据：{JsonConvert.SerializeObject(data)}");
                             Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
                             List<AnnualLeaveTradeModel> list = new List<AnnualLeaveTradeModel>();
                             list.Add(trade);
-                            //await this.client.AddRecords<object>(annualLeaveTradeResid, list);   
+                            //await client.AddRecords<object>(annualLeaveTradeResid, list);   
                         }
                         else
                         {
+                            WriteLine("没有本季度的转出交易记录");
                             string endTime = DateTime.Now.ToString(datetimeFormatString);
-                            AddTaskDetail("季度转入",startTime,endTime,$"没有本季度的转出交易记录。{year}第{quarter}季度",number);
+                            AddTaskDetail("季度转入", startTime, endTime, $"没有本季度的转出交易记录。{year}第{quarter}季度", number);
                         }
-                    }
-                    else
+                    }else
                     {
-                        if (result.data.Count > 0)
+                        WriteLine("已经存在一条转入交易记录");
+                        string endTime = DateTime.Now.ToString(datetimeFormatString);
+                        AddTaskDetail("季度转入",startTime,endTime,$"已经存在一条转入交易记录。{year}第{quarter}季度",number);
+                    }
+                }
+                else
+                {
+                    if (result.data.Count > 0)
+                    {
+                        var yearleft = await client.getTable<AnnualLeaveTradeModel>(YearLeftResid,
+                            new GetTableOptionsModal
+                            {
+                                cmswhere = $"Quarter = '{year+1}' and NumberID = '{number}'"
+                            });
+                        if (yearleft.data.Count==0)
                         {
                             var trade = result.data[0];
                             //第四季度
@@ -367,19 +398,20 @@ namespace MonthlyNewlyIncreased.Tasks {
                             };
                             yearLeftList.Add(yearLeftData);
                             //往年假上年剩余明细表增加一条记录
-                            //await client.AddRecords<object>(YearLeftResid, yearLeftList);
-                        }else
-                        {
-                            Console.WriteLine("没有本季度的转出交易记录");
-                            string endTime = DateTime.Now.ToString(datetimeFormatString);
-                            AddTaskDetail("季度转入",startTime,endTime,$"没有本季度的转出交易记录。{year}第{quarter}季度",number);
+                            await client.AddRecords<object>(YearLeftResid, yearLeftList);
                         }
+                        else
+                        {
+                            WriteLine("已经存在一条上年剩余记录");
+                            string endTime = DateTime.Now.ToString(datetimeFormatString);
+                            AddTaskDetail("季度转入",startTime,endTime,$"已经存在一条上年剩余记录。",number);
+                        }
+                    }else
+                    {
+                        WriteLine("没有本季度的转出交易记录");
+                        string endTime = DateTime.Now.ToString(datetimeFormatString);
+                        AddTaskDetail("季度转入",startTime,endTime,$"没有本季度的转出交易记录。{year}第{quarter}季度",number);
                     }
-                }
-                else
-                {
-                    string endTime = DateTime.Now.ToString(datetimeFormatString);
-                    AddTaskDetail("季度转入",startTime,endTime,$"已经存在一条转入交易记录。{year}第{quarter}季度",number);
                 }
             }
             catch (Exception e)
@@ -388,6 +420,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 AddTaskDetail("季度转入",startTime,endTime,$"{e.Message}。{year}第{quarter}季度",number);
                 throw;
             }
+            Console.WriteLine("----------结束季度转入---------------");
             return new { };
         }
     }

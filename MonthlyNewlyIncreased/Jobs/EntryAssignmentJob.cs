@@ -26,11 +26,8 @@ namespace MonthlyNewlyIncreased.Jobs {
             var ret = new Hashtable ();
             WriteLine($"开始执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
             var newEmployee = new NewEmployeeTask();
-            await  newEmployee.GetNewEmployeeList();
-            foreach (var item in newEmployee.employeeList)
-            {
-                await newEmployee.Distribution(item);
-            }
+            var cmswhere = $"enterDate between '{DateTime.Today.AddDays(-7).ToString(dateFormatString)}' and '{DateTime.Today.ToString(dateFormatString)}'";
+            await newEmployee.Run(cmswhere);
             WriteLine($"结束执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
             return ret;
         }

@@ -12,6 +12,8 @@ namespace MonthlyNewlyIncreased.Models {
         public string jobId { get; set; }
         //入职日期
         public string enterDate { get; set; }
+        //入职天
+        public string dayNum { get; set; }
         //社会工龄
         public int? serviceAge { get; set; }
         //社保月数

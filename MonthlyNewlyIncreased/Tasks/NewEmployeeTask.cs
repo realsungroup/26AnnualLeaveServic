@@ -48,29 +48,28 @@ namespace MonthlyNewlyIncreased.Tasks {
         public List<EmployeeModel> employeeList = new List<EmployeeModel> ();
 
         /// <summary>
-        /// 获取7天内入职的员工
         /// </summary>
-        public async Task<object> GetNewEmployeeList () {
+        public async Task<object> Run (string cmswhere) {
             var ret = new { };
             var option = new GetTableOptionsModal{};
             option.pageSize = pageSize;
             option.pageIndex = _pageNo;
-            option.cmswhere = $"enterDate between '{DateTime.Today.AddDays(-7).ToString(dateFormatString)}' and enterDate <= '{DateTime.Today.ToString(dateFormatString)}'";
+            option.cmswhere = cmswhere;
             try {
                 var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
                 foreach (var item in res.data)
                 {
                     var option1 = new GetTableOptionsModal{};
-                    option1.cmswhere = $"numberID = '{item.jobId}' year = '{item.enterDate.Substring(0,4)}'";
+                    option1.cmswhere = $"numberID = '{item.jobId}' and year = '{item.enterDate.Substring(0,4)}'";
                     var result = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
                     if (result.data.Count == 0)
                     {
-                        employeeList.Add(item);
+                        await Distribution(item);
                     }
                 }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
-                    await GetNewEmployeeList();
+                    await Run(cmswhere);
                 } else {
                     WriteLine ("  over...");
                 }
@@ -88,11 +87,12 @@ namespace MonthlyNewlyIncreased.Tasks {
         public async Task<object> Distribution(EmployeeModel employee)
         {
             var ret = new { };
+            string startTime = DateTime.Now.ToString(datetimeFormatString);
             try
             {
-                if (employee.serviceAge != null)
+                if (employee.totalMonth != null)
                 {
-                    var year = DateTime.Today.Year;
+                    var year = Convert.ToDateTime(employee.enterDate).Year;
                     var quarter = GetQuarterByDate(employee.enterDate);
                     var quarterDays= this.getQuarterTradsDays((int)employee.serviceAge, quarter,employee.enterDate);
                     var jobid = employee.jobId;
@@ -107,19 +107,17 @@ namespace MonthlyNewlyIncreased.Tasks {
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 2,_state = "added",_id = "2"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 3,_state = "added",_id = "3"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 4,_state = "added",_id = "4"});
-                    Console.WriteLine(JsonConvert.SerializeObject(trades));
-                    try
-                    {
-                        //创建4条季度年假账户
-                        await this.client.AddRecords<object>(ygnjjdzhResid, accounts);
-                        //增加4条年假交易记录，类型为‘入职分配’
-                        await this.client.AddRecords<object>(annualLeaveTradeResid, trades);
-                    }
-                    catch (Exception e)
-                    {
-                        WriteLine(e);
-                        //AddTaskDetail()
-                    }
+                    //创建4条季度年假账户
+                    await this.client.AddRecords<object>(ygnjjdzhResid, accounts);
+                    //增加4条年假交易记录，类型为‘入职分配’
+                    await this.client.AddRecords<object>(annualLeaveTradeResid, trades);
+                    string endTime = DateTime.Now.ToString(datetimeFormatString);
+                }
+                else
+                {
+                    string endTime = DateTime.Now.ToString(datetimeFormatString);
+                    AddTaskDetail("季度使用",startTime,endTime,
+                        $"工号{employee.jobId}没有社保月数",employee.jobId);
                 }
             }
             catch (Exception e)

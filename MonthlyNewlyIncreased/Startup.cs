@@ -30,7 +30,7 @@ namespace MonthlyNewlyIncreased
             WriteLine($"come on");
            await LoginRealsunJob.start();
            //await EntryAssignmentJob.init();
-           await QuarterJob.init();
+           //await QuarterJob.init();
            // await MonthlyIncreasedJob.init();
             //await AnnualLeaveResidueResetJob.init();
            /*
@@ -78,6 +78,13 @@ namespace MonthlyNewlyIncreased
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors(options =>
+            {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+                //options.AllowCredentials();
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -92,7 +99,7 @@ namespace MonthlyNewlyIncreased
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseSwagger();
-
+            
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); });
         }
     }
