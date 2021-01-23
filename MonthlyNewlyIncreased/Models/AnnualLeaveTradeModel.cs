@@ -15,7 +15,7 @@ namespace MonthlyNewlyIncreased.Models {
         //年度
         public int Year { get; set; }
         //季度
-        public int Quarter { get; set; }
+        public int? Quarter { get; set; }
         //上年剩余交易
         public double snsytrans { get; set; }
         //上季剩余交易

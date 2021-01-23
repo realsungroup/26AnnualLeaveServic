@@ -11,10 +11,10 @@ namespace MonthlyNewlyIncreased.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class DemoController : ControllerBase
+    public class AnnualLeaveResidueResetController : ControllerBase
     {
         [HttpGet]
-        public async Task<OkObjectResult> Test(
+        public async Task<OkObjectResult> AnnualLeaveResidueReset(
             [FromQuery] int year,
             [FromQuery] string[] numberIDs
             )

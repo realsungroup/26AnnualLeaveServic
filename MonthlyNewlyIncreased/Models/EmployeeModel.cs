@@ -20,5 +20,7 @@ namespace MonthlyNewlyIncreased.Models {
         public string? _state { get; set; }
         //
         public int? _id{ get; set; }
+        //姓名
+        public string name { get; set; }
     }
 }

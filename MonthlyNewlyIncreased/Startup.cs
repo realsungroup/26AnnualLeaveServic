@@ -31,18 +31,19 @@ namespace MonthlyNewlyIncreased
            await LoginRealsunJob.start();
            //await EntryAssignmentJob.init();
            await QuarterJob.init();
-           // await MonthlyIncreasedJob.init();
+            // await MonthlyIncreasedJob.init();
             //await AnnualLeaveResidueResetJob.init();
-           /*
-            // 定时任务
-            //月度新增
-            await MonthlyIncreasedJob.init();
-            //同步社保信息
-            await SyncSocialSecurityMonthsJob.init();
-            await LoginRealsunJob.init();
-          */
+            //await CreateYearBeginningAndIntoLastYearJob.init();
+            /*
+             // 定时任务
+             //月度新增
+             await MonthlyIncreasedJob.init();
+             //同步社保信息
+             await SyncSocialSecurityMonthsJob.init();
+             await LoginRealsunJob.init();
+           */
         }
-        
+
 
         public IConfiguration Configuration { get; }
 
