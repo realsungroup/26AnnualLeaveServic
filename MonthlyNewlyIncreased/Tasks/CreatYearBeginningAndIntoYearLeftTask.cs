@@ -56,7 +56,7 @@ namespace MonthlyNewlyIncreased.Tasks
                 njjdAccountModals.Add(CreateNjjdAccountModal(item.jobId, item.name, year, 3, _id)); _id++;
                 njjdAccountModals.Add(CreateNjjdAccountModal(item.jobId, item.name, year, 4, _id)); _id++;
             }
-            //await this.client.AddRecords<object>(ygnjjdzhResid, njjdAccountModals);
+            await this.client.AddRecords<object>(ygnjjdzhResid, njjdAccountModals);
             return new { };
         }
         
@@ -171,7 +171,7 @@ namespace MonthlyNewlyIncreased.Tasks
                    });
                 _id++;
             }
-            //await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
+            await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
             return new { };
         }
         /// <summary>
@@ -315,7 +315,7 @@ namespace MonthlyNewlyIncreased.Tasks
                     );
                 _id++;
             }
-            //await this.client.AddRecords<object>( annualLeaveTradeResid, annualLeaveTradeModels);
+        await this.client.AddRecords<object>( annualLeaveTradeResid, annualLeaveTradeModels);
             return new { };
         }
 

@@ -36,7 +36,7 @@ namespace MonthlyNewlyIncreased.Tasks
             string sqlCondition = (numberIDs == null || numberIDs.Length == 0) ? string.Empty : $" and numberID in ({string.Join(',', numberIDs)})";
             option.pageSize = pageSize;
             option.pageIndex = pageNo;
-            option.cmswhere = numberIDs == null ? $"Quarter=2 and  Year={year}{sqlCondition} ": $"Quarter=2 and  Year={year}{sqlCondition}";
+            option.cmswhere = numberIDs == null ? $"Quarter=2 and  Year={year}{sqlCondition} " : $"Quarter=2 and  Year={year}{sqlCondition}";
 
             var rsp = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid, option);
             bool existNextPage = HasNextPage<NjjdAccountModal>(rsp, pageNo);
@@ -60,11 +60,12 @@ namespace MonthlyNewlyIncreased.Tasks
             else
                 return null;
         }
-       
+
         public async Task<object> AddResidueReset(List<NjjdAccountModal> njjdAccountModals)
         {
             var ret = new { };
             var annualLeaveTradeModels = new List<AnnualLeaveTradeModel>();
+            int _id = 0;
             foreach (var item in njjdAccountModals)
             {
                 annualLeaveTradeModels.Add(new AnnualLeaveTradeModel
@@ -77,10 +78,12 @@ namespace MonthlyNewlyIncreased.Tasks
                     snsytrans = item.snsy,
                     sjsytrans = item.sjsy,
                     djfptrans = item.djfp,
-                    _state = "added"
+                    _state = "added",
+                    _id = _id.ToString()
                 });
+                _id++;
             }
-            //await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
+            await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
             return ret;
         }
         /// <summary>
@@ -112,7 +115,7 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             return await BatchResidueReset(year, numberIDs, _pageNo);
         }
-       
+
         /// <summary>
         /// 是否还有下一页数据
         /// </summary>
