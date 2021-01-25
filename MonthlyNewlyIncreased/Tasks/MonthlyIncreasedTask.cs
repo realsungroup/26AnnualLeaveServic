@@ -72,11 +72,11 @@ namespace MonthlyNewlyIncreased.Tasks {
             option.pageIndex = _pageNo;
             if (today == "28")
             {
-                option.cmswhere = $"dayNum >= '%{today}'";
+                option.cmswhere = $"dayNum >= '{today}'";
             }
             else
             {
-                option.cmswhere = $"dayNum = '%{today}'";
+                option.cmswhere = $"dayNum = '{today}'";
             }
             try {
                 var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);

@@ -79,15 +79,15 @@ namespace MonthlyNewlyIncreased.Controllers
             [FromQuery]int quarter
         )
         {
-            if (Convert.ToBoolean(numberID) )
+            if ( numberID == null)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有numberID参数"});
             }
-            if (Convert.ToBoolean(year) )
+            if (year == 0 )
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有year参数"});
             }
-            if (Convert.ToBoolean(quarter) )
+            if (quarter== 0)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有quarter参数"});
             }
@@ -116,15 +116,15 @@ namespace MonthlyNewlyIncreased.Controllers
             [FromQuery]int quarter
         )
         {
-            if (Convert.ToBoolean(numberID) )
+            if ( numberID == null)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有numberID参数"});
             }
-            if (Convert.ToBoolean(year) )
+            if (year == 0 )
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有year参数"});
             }
-            if (Convert.ToBoolean(quarter) )
+            if (quarter== 0)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有quarter参数"});
             }
@@ -144,15 +144,15 @@ namespace MonthlyNewlyIncreased.Controllers
             [FromQuery]int quarter
         )
         {
-            if (Convert.ToBoolean(numberID) )
+            if ( numberID == null)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有numberID参数"});
             }
-            if (Convert.ToBoolean(year) )
+            if (year == 0 )
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有year参数"});
             }
-            if (Convert.ToBoolean(quarter) )
+            if (quarter== 0)
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有quarter参数"});
             }
@@ -175,6 +175,14 @@ namespace MonthlyNewlyIncreased.Controllers
             [FromQuery]int quarter
         )
         {
+            if (year == 0)
+            {
+                return Ok(new ActionResponseModel{error = -1,message = "没有year参数"});
+            }
+            if (quarter == 0)
+            {
+                return Ok(new ActionResponseModel{error = -1,message = "没有quarter参数"});
+            }
             var task = new QuarterTask();
             task.taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             task.Run(year, quarter);

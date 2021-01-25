@@ -36,7 +36,7 @@ namespace MonthlyNewlyIncreased.Tasks
             string sqlCondition = (numberIDs == null || numberIDs.Length == 0) ? string.Empty : $" and numberID in ({string.Join(',', numberIDs)})";
             option.pageSize = pageSize;
             option.pageIndex = pageNo;
-            option.cmswhere = numberIDs == null ? $"Quarter=2 and  Year={year}{sqlCondition} ": $"Quarter=2 and  Year={year}{sqlCondition}";
+            option.cmswhere = $"Quarter=3 and  Year={year}{sqlCondition} ";
 
             var rsp = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid, option);
             bool existNextPage = HasNextPage<NjjdAccountModal>(rsp, pageNo);
@@ -52,7 +52,7 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             var option = new GetTableOptionsModal { };
             option.pageSize = pageSize;
-            option.cmswhere = $"Quarter=2 and  Year={year} and numberID={numberID}";
+            option.cmswhere = $"Quarter=3 and  Year={year} and numberID={numberID}";
 
             var res = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid, option);
             if (res.data != null && res.data.Count > 0)
@@ -65,6 +65,7 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             var ret = new { };
             var annualLeaveTradeModels = new List<AnnualLeaveTradeModel>();
+            int id = 0;
             foreach (var item in njjdAccountModals)
             {
                 annualLeaveTradeModels.Add(new AnnualLeaveTradeModel
@@ -77,7 +78,8 @@ namespace MonthlyNewlyIncreased.Tasks
                     snsytrans = item.snsy,
                     sjsytrans = item.sjsy,
                     djfptrans = item.djfp,
-                    _state = "added"
+                    _state = "added",
+                    _id = $"{id}"
                 });
             }
             //await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
