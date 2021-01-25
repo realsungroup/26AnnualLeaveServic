@@ -46,27 +46,60 @@ namespace MonthlyNewlyIncreased.Tasks {
         public List<EmployeeModel> employeeList = new List<EmployeeModel> ();
 
         /// <summary>
-        /// 获取入职日期为今天并且社会工龄等于0或9或19的新员工
+        /// 员工社保天数加1
         /// </summary>
-        public async Task<object> GetNewEmployeeList () {
+        public async Task<object> IncreaseSocialSecurityMonthly(EmployeeModel employee)
+        {
+            var list = new List<ModifyEmployeeModel>();
+            list.Add(new ModifyEmployeeModel
+            {
+                REC_ID = employee.REC_ID,
+                totalMonth = employee.totalMonth + 1,
+                _id = 1,
+                _state = "modified"
+            });
+            await client.AddRecords<object>(newEmployeeResid,list);
+            return new{};
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public async Task<object> Run (string today, int year,string date) {
             var ret = new { };
-            var today = DateTime.Today.ToString("MM-dd");
             var option = new GetTableOptionsModal{};
             option.pageSize = pageSize;
             option.pageIndex = _pageNo;
-            option.cmswhere = $"enterDate like '%{today}' and serviceAge in ('0', '9' '19')";
+            if (today == "28")
+            {
+                option.cmswhere = $"dayNum >= '%{today}'";
+            }
+            else
+            {
+                option.cmswhere = $"dayNum = '%{today}'";
+            }
             try {
                 var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
-                employeeList.AddRange(res.data);
+                foreach (var item in res.data)
+                {
+                    await IncreaseSocialSecurityMonthly(item);
+                    if (item.totalMonth!= null)
+                    {
+                        var total = item.totalMonth + 1;
+                        if (total == 12 || total == 120 || total == 240)
+                        {
+                            await Distribution(item,year,date);
+                        }
+                    }
+                }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
-                    await GetNewEmployeeList();
+                    await Run(today,year,date);
                 } else {
-                    WriteLine ("  over...");
+                    WriteLine ("over...");
                 }
             } catch (System.Exception exception) {
                 Console.WriteLine($"error：{exception}");
-                return ret;
             }
             return ret;
         }
@@ -75,42 +108,38 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// 给员工分配年假
         /// <param name="employee">员工</param>
         /// </summary>
-        public async Task<object> Distribution(EmployeeModel employee)
+        public async Task<object> Distribution(EmployeeModel employee,int year,string date)
         {
             var ret = new { };
-            if (employee.serviceAge != null)
+            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
+            var quarter = GetQuarterByDate(date);
+            var quarterDays= getQuarterTradsDays(quarter,date);
+            List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
+            if (1 >= quarter)
             {
-                var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-                var year = DateTime.Today.Year;
-                var quarter = GetQuarterByDate(employee.enterDate);
-                var quarterDays= this.getQuarterTradsDays(quarter,employee.enterDate);
-                List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
-                if (1 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 1,_state = "added",_id = "1"});
-                }
-                if (2 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 2,_state = "added",_id = "2"});
-                }
-                if (3 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 3,_state = "added",_id = "3"});
-                }
-                if (4 >= quarter)
-                {
-                    trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 4,_state = "added",_id = "4"});
-                }
-                try
-                {
-                    //增加4条年假交易记录，类型为‘月度新增’
-                    await client.AddRecords<object>(annualLeaveTradeResid, trades);
-                }
-                catch (Exception e)
-                {
-                    AddTaskDetail("月度新增",taskStartTime, DateTime.Now.ToString(datetimeFormatString),e.Message,employee.jobId);
-                    throw;
-                }
+                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 1,_state = "added",_id = "1"});
+            }
+            if (2 >= quarter)
+            {
+                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 2,_state = "added",_id = "2"});
+            }
+            if (3 >= quarter)
+            {
+                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 3,_state = "added",_id = "3"});
+            }
+            if (4 >= quarter)
+            {
+                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 4,_state = "added",_id = "4"});
+            }
+            try
+            {
+                //增加4条年假交易记录，类型为‘月度新增’
+                await client.AddRecords<object>(annualLeaveTradeResid, trades);
+            }
+            catch (Exception e)
+            {
+                AddTaskDetail("月度新增",taskStartTime, DateTime.Now.ToString(datetimeFormatString),e.Message,employee.jobId);
+                throw;
             }
             return ret;
         }

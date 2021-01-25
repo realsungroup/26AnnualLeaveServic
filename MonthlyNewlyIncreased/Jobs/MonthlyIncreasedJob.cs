@@ -18,7 +18,13 @@ namespace MonthlyNewlyIncreased.Jobs {
     public class MonthlyIncreasedJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
-            await start ();
+            if (DateTime.Today.Day > 28)
+            {
+            }
+            else
+            {
+                await start ();
+            }
         }
 
         /// <summary>
@@ -26,19 +32,15 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// </summary>
         /// <returns></returns>
         public static async Task<object> start () {
-            var ret = new Hashtable ();
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             WriteLine($"开始执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
-            var today = DateTime.Today.ToString("MM-dd");
             var monthlyIncreased = new MonthlyIncreasedTask();
-            await  monthlyIncreased.GetNewEmployeeList();
-            foreach (var item in monthlyIncreased.employeeList)
-            {
-                await monthlyIncreased.Distribution(item);
-            }
+            var year = DateTime.Today.Year;
+            var date = DateTime.Today.ToString(dateFormatString);
+            await monthlyIncreased.Run(DateTime.Today.ToString("dd"),year,date);
             AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
             WriteLine($"结束执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
-            return ret;
+            return new {};
         }
         
         /// <summary>

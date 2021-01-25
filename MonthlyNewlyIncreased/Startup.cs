@@ -30,20 +30,19 @@ namespace MonthlyNewlyIncreased
             WriteLine($"come on");
            await LoginRealsunJob.start();
            //await EntryAssignmentJob.init();
-           await QuarterJob.init();
-            // await MonthlyIncreasedJob.init();
+           //await QuarterJob.init();
+           // await MonthlyIncreasedJob.init();
             //await AnnualLeaveResidueResetJob.init();
-            //await CreateYearBeginningAndIntoLastYearJob.init();
-            /*
-             // 定时任务
-             //月度新增
-             await MonthlyIncreasedJob.init();
-             //同步社保信息
-             await SyncSocialSecurityMonthsJob.init();
-             await LoginRealsunJob.init();
-           */
+           /*
+            // 定时任务
+            //月度新增
+            await MonthlyIncreasedJob.init();
+            //同步社保信息
+            await SyncSocialSecurityMonthsJob.init();
+            await LoginRealsunJob.init();
+          */
         }
-
+        
 
         public IConfiguration Configuration { get; }
 
@@ -79,6 +78,13 @@ namespace MonthlyNewlyIncreased
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors(options =>
+            {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+                //options.AllowCredentials();
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -93,7 +99,7 @@ namespace MonthlyNewlyIncreased
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseSwagger();
-
+            
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); });
         }
     }

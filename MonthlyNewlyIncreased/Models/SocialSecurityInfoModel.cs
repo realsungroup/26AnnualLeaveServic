@@ -10,6 +10,6 @@ namespace MonthlyNewlyIncreased.Models {
         public string C3_664296546211 { get; set; }
         
         //参保月数
-        public int C3_662122615028 { get; set; }
+        public int? C3_662122615028 { get; set; }
     }
 }

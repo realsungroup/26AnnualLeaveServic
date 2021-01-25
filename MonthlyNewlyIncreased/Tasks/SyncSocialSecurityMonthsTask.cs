@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using MonthlyNewlyIncreased.Http;
 using static System.Console;
 using MonthlyNewlyIncreased.Models;
+using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Tasks {
     public class SyncSocialSecurityMonthsTask {
@@ -80,12 +81,13 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// </summary>
         public async Task<object> SyncMonths(EmployeeModel employee)
         {
+            var starttime = DateTime.Now.ToString(datetimeFormatString);
             var ret = new { };
             var option = new GetTableOptionsModal{};
             option.cmswhere = $"C3_664296546211 = '{employee.jobId}'";
             try
             {
-                var res = await this.wxclient.getTable<SocialSecurityInfoModel>(SocialSecurityInfoResid,option);
+                var res = await wxclient.getTable<SocialSecurityInfoModel>(SocialSecurityInfoResid,option);
                 if (res.data.Count>0)
                 {
                     var data = res.data[0];
@@ -97,7 +99,17 @@ namespace MonthlyNewlyIncreased.Tasks {
                         totalMonth = data.C3_662122615028,
                         _id =1,
                         _state = "modified"});
-                    await this.client.AddRecords<object>(newEmployeeResid, list);
+                    await client.AddRecords<object>(newEmployeeResid, list);
+                }
+                else
+                {
+                    WriteLine("同步社保信息出错：微信后台没有该员工");
+                    AddTaskDetail("同步社保信息",
+                        starttime,
+                        DateTime.Now.ToString(datetimeFormatString),
+                        "微信后台没有该员工",
+                        employee.jobId
+                        );
                 }
             }
             catch (Exception e)
