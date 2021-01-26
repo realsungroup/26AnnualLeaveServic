@@ -10,6 +10,7 @@ namespace MonthlyNewlyIncreased.Modals {
         public string REC_ID { get; set; }
         
         public string locked { get; set;}
+        public string SendBack { get; set;}
         //
         public string? _state { get; set; }
         //

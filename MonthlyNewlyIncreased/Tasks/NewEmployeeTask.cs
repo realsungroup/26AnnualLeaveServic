@@ -116,7 +116,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 else
                 {
                     string endTime = DateTime.Now.ToString(datetimeFormatString);
-                    AddTaskDetail("季度使用",startTime,endTime,
+                    AddTaskDetail("入职分配",startTime,endTime,
                         $"工号{employee.jobId}没有社保月数",employee.jobId);
                 }
             }

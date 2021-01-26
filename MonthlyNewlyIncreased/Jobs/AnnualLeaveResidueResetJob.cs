@@ -47,7 +47,7 @@ namespace MonthlyNewlyIncreased.Jobs
             var scheduler = await schedulerFactory.GetScheduler();
 
             await scheduler.Start();
-            WriteLine($"EntryAssignmentJob init");
+            WriteLine($"AnnualLeaveResidueResetJob init");
 
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<AnnualLeaveResidueResetJob>().Build();

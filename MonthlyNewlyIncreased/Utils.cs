@@ -93,8 +93,9 @@ namespace MonthlyNewlyIncreased {
         /// 往后台增加一条任务详情记录
         /// </summary>
         /// <param name="name">任务名称</param>
-        /// <param name="year">年</param>
-        /// <param name="quarter">季度</param>
+        /// <param name="starTime">开始时间</param>
+        /// <param name="endTime">结束时间</param>
+        /// <param name="error">错误信息</param>
         /// <param name="number">工号</param>
         /// <returns></returns>
         public static async Task<object> AddTaskDetail(string name,string starTime,string endTime,string error,string number)
@@ -125,9 +126,9 @@ namespace MonthlyNewlyIncreased {
         /// 往后台增加一条任务记录
         /// </summary>
         /// <param name="name">任务名称</param>
-        /// <param name="year">年</param>
-        /// <param name="quarter">季度</param>
-        /// <param name="number">工号</param>
+        /// <param name="starTime">开始时间</param>
+        /// <param name="endTime">结束时间</param>
+        /// <param name="error">错误信息</param>
         /// <returns></returns>
         public static async Task<object> AddTask(string name,string starTime,string endTime,string error)
         {

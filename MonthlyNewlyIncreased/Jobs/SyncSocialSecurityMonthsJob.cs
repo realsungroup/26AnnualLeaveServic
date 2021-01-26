@@ -12,6 +12,7 @@ using static MonthlyNewlyIncreased.Constant;
 using System.Collections.Generic;
 using MonthlyNewlyIncreased.Models;
 using MonthlyNewlyIncreased.Tasks;
+using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs {
     public class SyncSocialSecurityMonthsJob : IJob {
@@ -26,9 +27,11 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start () {
             var ret = new Hashtable ();
+            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             WriteLine($"开始执行社保同步{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
             var monthlyIncreasedTask = new SyncSocialSecurityMonthsTask();
             await  monthlyIncreasedTask.GetNewEmployeeList();
+            AddTask("同步社保月数",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
             WriteLine($"结束执行社保同步{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
             return ret;
         }

@@ -9,7 +9,7 @@ using Quartz.Impl;
 using static System.Console;
 using static MonthlyNewlyIncreased.Constant;
 using MonthlyNewlyIncreased.Tasks;
-
+using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs {
     public class EntryAssignmentJob : IJob {
@@ -24,11 +24,13 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start () {
             var ret = new Hashtable ();
+            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             WriteLine($"开始执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
             var newEmployee = new NewEmployeeTask();
             var cmswhere = $"enterDate between '{DateTime.Today.AddDays(-7).ToString(dateFormatString)}' and '{DateTime.Today.ToString(dateFormatString)}'";
             await newEmployee.Run(cmswhere);
             WriteLine($"结束执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
+            AddTask("入职分配",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
             return ret;
         }
         
