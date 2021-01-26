@@ -80,7 +80,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 option.cmswhere = $"dayNum = '{today}'";
             }
             try {
-                var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
+                var res = await client.getTable<EmployeeModel>(newEmployeeResid,option);
                 foreach (var item in res.data)
                 {
                     await IncreaseSocialSecurityMonthly(item);
@@ -89,15 +89,16 @@ namespace MonthlyNewlyIncreased.Tasks {
                         var total = item.totalMonth + 1;
                         if (total == 12 || total == 120 || total == 240)
                         {
-                            await Distribution(item,year,date);
+                            if (item.enterDate.Substring(0,7) != date.Substring(0,7))
+                            {
+                                await Distribution(item,year,date);
+                            }
                         }
                     }
                 }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
                     await Run(today,year,date);
-                } else {
-                    WriteLine ("over...");
                 }
             } catch (System.Exception exception) {
                 Console.WriteLine($"error：{exception}");

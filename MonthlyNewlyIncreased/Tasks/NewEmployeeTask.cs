@@ -125,7 +125,8 @@ namespace MonthlyNewlyIncreased.Tasks {
             }
             catch (Exception e)
             {
-                return e;
+                Console.WriteLine(e);
+                throw;
             }
         }
         
