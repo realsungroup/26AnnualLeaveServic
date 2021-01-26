@@ -55,6 +55,7 @@ namespace MonthlyNewlyIncreased.Tasks {
             {
                 REC_ID = employee.REC_ID,
                 totalMonth = employee.totalMonth + 1,
+                monthAddTrigger = "Y" ,
                 _id = 1,
                 _state = "modified"
             });
@@ -133,6 +134,7 @@ namespace MonthlyNewlyIncreased.Tasks {
             }
             try
             {
+                await IncreaseSocialSecurityMonthly(employee);
                 //增加4条年假交易记录，类型为‘月度新增’
                 await client.AddRecords<object>(annualLeaveTradeResid, trades);
             }

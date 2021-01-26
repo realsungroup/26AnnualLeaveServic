@@ -76,13 +76,13 @@ namespace MonthlyNewlyIncreased.Tasks
                     Year = item.year,
                     Quarter = item.quarter,
                     snsytrans = item.snsy,
-                    sjsytrans = item.sjsy,
-                    djfptrans = item.djfp,
+                    sjsytrans = 0,
+                    djfptrans = 0,
                     _state = "added",
                     _id = $"{id}"
                 });
             }
-            //await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
+            await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
             return ret;
         }
         /// <summary>

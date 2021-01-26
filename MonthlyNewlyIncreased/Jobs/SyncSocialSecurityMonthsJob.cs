@@ -51,7 +51,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<SyncSocialSecurityMonthsJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 15))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (1, 15))
                 .Build ();
 
             // 添加调度

@@ -9,7 +9,7 @@ using MonthlyNewlyIncreased.Tasks;
 
 namespace MonthlyNewlyIncreased.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AnnualLeaveResidueResetController : ControllerBase
     {

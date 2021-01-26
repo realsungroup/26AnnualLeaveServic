@@ -108,10 +108,12 @@ namespace MonthlyNewlyIncreased.Tasks {
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 3,_state = "added",_id = "3"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 4,_state = "added",_id = "4"});
                     //创建4条季度年假账户
-                    await this.client.AddRecords<object>(ygnjjdzhResid, accounts);
-                    //增加4条年假交易记录，类型为‘入职分配’
-                    await this.client.AddRecords<object>(annualLeaveTradeResid, trades);
-                    string endTime = DateTime.Now.ToString(datetimeFormatString);
+                    var resp = await client.AddRecords<ResponseModel<NjjdAccountModal>>(ygnjjdzhResid, accounts);
+                    if (resp.Error == 0)
+                    {
+                        //增加4条年假交易记录，类型为‘入职分配’
+                        await client.AddRecords<object>(annualLeaveTradeResid, trades);
+                    }
                 }
                 else
                 {
@@ -119,13 +121,12 @@ namespace MonthlyNewlyIncreased.Tasks {
                     AddTaskDetail("入职分配",startTime,endTime,
                         $"工号{employee.jobId}没有社保月数",employee.jobId);
                 }
+                return ret;
             }
             catch (Exception e)
             {
-                WriteLine(e);
-                return ret;
+                return e;
             }
-            return ret;
         }
         
         /// <summary>

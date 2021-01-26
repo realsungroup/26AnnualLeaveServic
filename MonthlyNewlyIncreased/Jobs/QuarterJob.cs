@@ -40,7 +40,6 @@ namespace MonthlyNewlyIncreased.Jobs {
                     if (date == today)
                     {
                         WriteLine(config.quarter);
-                        var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
                         WriteLine($"开始执行季度结算{DateTime.Now.ToString(datetimeFormatString)}");
                         var task = new QuarterTask();
                         task.taskStartTime = DateTime.Now.ToString(datetimeFormatString);
@@ -69,7 +68,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<QuarterJob> ().Build ();
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (16, 18))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (17, 30))
                 .Build ();
             // 添加调度
             return await scheduler.ScheduleJob (jobDetail, trigger);
