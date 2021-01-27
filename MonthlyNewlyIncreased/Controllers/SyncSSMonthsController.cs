@@ -54,7 +54,7 @@ namespace MonthlyNewlyIncreased.Controllers
                 }
                 else
                 {
-                    return Ok(new ActionResponseModel{error = -1,message = "没有该员工"});
+                    return Ok(new ActionResponseModel{error = -1,message = "微信后台没有该员工"});
                 }
             }
             catch (Exception e)

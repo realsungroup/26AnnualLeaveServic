@@ -78,9 +78,10 @@ namespace MonthlyNewlyIncreased.Tasks
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 2, 2));
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 3, 3));
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 4, 4));
-            var rsp = await this.client.AddRecords<object>(ygnjjdzhResid, njjdAccountModals);
+            await this.client.AddRecords<object>(ygnjjdzhResid, njjdAccountModals);
             return new { };
         }
+        
         /// <summary>
         /// 年假季度账户表中是否已存在记录
         /// </summary>
@@ -124,7 +125,7 @@ namespace MonthlyNewlyIncreased.Tasks
                 {
                     await CreateYearBeginning(item, year);  //年初创建               
                     await DoQuarterAssignForEmployee(item, year, employeeResid == newEmployeeResid);  //季度分配               
-                    await IntoYearLeft(item); //上年转入
+                    await IntoYearLeft(item,year); //上年转入
                 }
             }
             pageNo = (Convert.ToInt16(pageNo) + 1).ToString();
@@ -141,7 +142,7 @@ namespace MonthlyNewlyIncreased.Tasks
             {
                 await CreateYearBeginning(rsp.Employee, year);  //年初创建               
                 await DoQuarterAssignForEmployee(rsp.Employee, year, rsp.IsNewEmployee);  //季度分配               
-                await IntoYearLeft(rsp.Employee); //上年转入                
+                await IntoYearLeft(rsp.Employee,year); //上年转入                
             }
             else
             {
@@ -312,15 +313,14 @@ namespace MonthlyNewlyIncreased.Tasks
         private int GetTotalAnnualLeaveForOldEmployee(int serviceAge, string enterDate)
         {
             var enter = DateTime.Parse(enterDate);
-            var diffYear = DateTime.Now.Year - enter.Year; //相差年份数
-            var workYears = 0; //在公司服务的第几年     
-            if (diffYear == 0) //入职还没跨年
+            var workYears = DateTime.Now.Year - enter.Year; //相差年份数
+            if (workYears == 0) //入职还没跨年
             {
                 workYears = 0; //第一年
             }
             else
             {
-                workYears = enter.Month >= 7 ? diffYear - 1 : diffYear; //第几年是从0开始的。当年7月份及以后入职的，到下一年的1月1日仍算第1年反之算第2年
+                workYears = enter.Month >= 7 ? workYears - 1 : workYears; //第几年是从0开始的，所以要减1。当年7月份及以后入职的，到下一年的1月1日仍算第1年反之算第2年
             }
 
             int totalDays = 0;
@@ -419,11 +419,11 @@ namespace MonthlyNewlyIncreased.Tasks
         /// </summary>
         /// <param name="employeeModels"></param>
         /// <returns></returns>
-        private async Task<object> IntoYearLeft(EmployeeModel employeeModel)
+        private async Task<object> IntoYearLeft(EmployeeModel employeeModel, int year)
         {
-            var yearLeftModels = GetYearLeft(employeeModel);
-            if (yearLeftModels != null && yearLeftModels.Result.Count > 0)
-                await InsertForAnnualLeaveTrade(yearLeftModels.Result[0]);
+            var yearLeftModels = await GetYearLeft(employeeModel,year);
+            if (yearLeftModels != null && yearLeftModels.Count > 0)
+                await InsertForAnnualLeaveTrade(yearLeftModels[0]);
             return new { };
         }
         /// <summary>
@@ -431,10 +431,10 @@ namespace MonthlyNewlyIncreased.Tasks
         /// </summary>
         /// <param name="employeeModels">被查询的员工</param>
         /// <returns></returns>
-        private async Task<List<YearLeftModel>> GetYearLeft(EmployeeModel employeeModel)
+        private async Task<List<YearLeftModel>> GetYearLeft(EmployeeModel employeeModel,int year)
         {
             var option = new GetTableOptionsModal { };
-            option.cmswhere = $"NumberID ={employeeModel.jobId}";
+            option.cmswhere = $"NumberID ={employeeModel.jobId} and Quarter = '{year}'";
             var rsp = await this.client.getTable<YearLeftModel>(YearLeftResid, option);
             return rsp.data;
         }
