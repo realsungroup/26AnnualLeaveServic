@@ -153,6 +153,28 @@ namespace MonthlyNewlyIncreased {
                 throw;
             }
         }
+        
+        public static int GetQuarterByMonth(int month)
+        {
+            int quarter = 1;
+            if (month<=3)
+            {
+                quarter = 1;
+            }  
+            if (month >= 4 && month <= 6)
+            {
+                quarter = 2;
+            }
+            if (month >= 7 && month <= 9)
+            {
+                quarter = 3;
+            }
+            if (month >= 10 && month <= 12)
+            {
+                quarter = 4;
+            }
+            return quarter;
+        }
     }
 
 }

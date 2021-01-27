@@ -55,16 +55,19 @@ namespace MonthlyNewlyIncreased.Controllers
             {
                 var account = res.data[0];
                 //季度使用
-                await task.QuarterUse(account);
-                //季度转出
-                await task.QuarterRollOut(year, quarter, numberID);
-                //季度转入
-                await task.QuarterRollIn(year, quarter, numberID);
+                bool success = await task.QuarterUse(account);
+                if (success)
+                {
+                    //季度转出
+                    await task.QuarterRollOut(year, quarter, numberID);
+                    //季度转入
+                    await task.QuarterRollIn(year, quarter, numberID);
+                }
                 return Ok(new ActionResponseModel{error = 0,message = ""});
             }
             else
             {
-                return Ok(new ActionResponseModel{error = -1,message = "没有年假季度账户"});
+                return Ok(new ActionResponseModel{error = -1, message = "没有年假季度账户"});
             }
         }
         

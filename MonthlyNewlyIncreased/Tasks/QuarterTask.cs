@@ -60,21 +60,17 @@ namespace MonthlyNewlyIncreased.Tasks {
                 var res = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid,option);
                 foreach (var item in res.data)
                 {
-                    try
+                    WriteLine($"----------开始结算--------,工号{item.numberID}---{DateTime.Now.ToString(datetimeFormatString)}");
+                    //季度使用
+                    bool success = await QuarterUse(item);
+                    if (success)
                     {
-                        Console.WriteLine($"----------开始结算--------,工号{item.numberID}---{DateTime.Now.ToString(datetimeFormatString)}");
-                        //季度使用
-                        await QuarterUse(item);
                         //季度转出
                         await QuarterRollOut(year, quarter, item.numberID);
                         //季度转入
                         await QuarterRollIn(year, quarter, item.numberID);
-                        Console.WriteLine($"----------结束结算---------,工号{item.numberID}{DateTime.Now.ToString(datetimeFormatString)}");
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
+                    WriteLine($"----------结束结算---------,工号{item.numberID}{DateTime.Now.ToString(datetimeFormatString)}");
                 }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
@@ -82,11 +78,11 @@ namespace MonthlyNewlyIncreased.Tasks {
                 }
                 else
                 {
-                    Console.WriteLine($"结算完成：{DateTime.Now.ToString(datetimeFormatString)}");
+                    WriteLine($"结算完成：{DateTime.Now.ToString(datetimeFormatString)}");
                     AddTask("季度结算", taskStartTime, DateTime.Now.ToString(datetimeFormatString), "");
                 }
             } catch (System.Exception exception) {
-                Console.WriteLine($"error：{exception}");
+                WriteLine($"error：{exception}");
                 return ret;
             }
             return ret;
@@ -97,7 +93,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         ///
         /// 共3个请求
         /// </summary>
-        public async Task<object> QuarterUse(NjjdAccountModal account)
+        public async Task<bool> QuarterUse(NjjdAccountModal account)
         {
             string startTime = DateTime.Now.ToString(datetimeFormatString);
             var year = account.year;
@@ -106,7 +102,7 @@ namespace MonthlyNewlyIncreased.Tasks {
             var isExist = await IsTradeExist("季度使用", year, quarter, number);
             if (!isExist)
             {
-                Console.WriteLine("----------开始季度使用---------------");
+                WriteLine("----------开始季度使用---------------");
                 try
                 {
                     var sum = account.snsy + account.sjsy + account.djfp;
@@ -157,26 +153,27 @@ namespace MonthlyNewlyIncreased.Tasks {
                         _id = "1"
                     };
                     list.Add(trade);
-                    Console.WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
-                    Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
+                    WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
+                    WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
                     await client.AddRecords<object>(annualLeaveTradeResid, list);
+                    WriteLine("----------结束季度使用---------------");
+                    return true;
                 }
                 catch (Exception e)
                 {
                     string endTime = DateTime.Now.ToString(datetimeFormatString);
                     AddTaskDetail("季度使用", startTime, endTime, $"{e.Message}。{year}第{quarter}季度", number);
-                    throw;
+                    return false;
                 }
-                Console.WriteLine("----------结束季度使用---------------");
             }
             else
             {
-                Console.WriteLine("季度使用已存在");
+                WriteLine("季度使用已存在");
                 string endTime = DateTime.Now.ToString(datetimeFormatString);
                 AddTaskDetail("季度使用", startTime, endTime,
                     $"季度使用已存在。", number);
+                return true;
             }
-            return new { };
         }
         /// <summary>
         /// 获取员工某年某季度请的年假天数
@@ -235,10 +232,10 @@ namespace MonthlyNewlyIncreased.Tasks {
         public async Task<object> QuarterRollOut(int year, int quarter, string number)
         {
             string startTime = DateTime.Now.ToString(datetimeFormatString);
-            Console.WriteLine("----------开始季度转出---------------");
+            WriteLine("----------开始季度转出---------------");
             try
             {
-                var isExist = await IsTradeExist("季度转入", year,quarter, number);
+                var isExist = await IsTradeExist("季度转出", year,quarter, number);
                 if (!isExist)
                 {
                     var option = new GetTableOptionsModal{};
@@ -261,8 +258,8 @@ namespace MonthlyNewlyIncreased.Tasks {
                             };
                         List<AnnualLeaveTradeModel> list = new List<AnnualLeaveTradeModel>();
                         list.Add(trade);
-                        Console.WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
-                        Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
+                        WriteLine($"季度年假账户数据：{JsonConvert.SerializeObject(account)}");
+                        WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
                         await client.AddRecords<object>(annualLeaveTradeResid, list);
                         //锁定季度账户
                         List<ModifyNjjdAccountModel> modifyList = new List<ModifyNjjdAccountModel>();
@@ -295,7 +292,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 AddTaskDetail("季度转出",startTime,endTime,$"{e.Message}。{year}第{quarter}季度",number);
                 throw;
             }
-            Console.WriteLine("----------结束季度转出---------------");
+            WriteLine("----------结束季度转出---------------");
             return new { };
         }
         
@@ -310,7 +307,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         public async Task<object> QuarterRollIn(int year, int quarter, string number)
         {
             string startTime = DateTime.Now.ToString(datetimeFormatString);
-            Console.WriteLine("----------开始季度转入---------------");
+            WriteLine("----------开始季度转入---------------");
             try
             {
                 var result = await client.getTable<AnnualLeaveTradeModel>(annualLeaveTradeResid,
@@ -331,15 +328,15 @@ namespace MonthlyNewlyIncreased.Tasks {
                                 Type = "季度转入",
                                 Year = year,
                                 Quarter = quarter + 1,
-                                snsytrans = data.snsytrans,
-                                sjsytrans = data.sjsytrans,
-                                djfptrans = data.djfptrans,
+                                snsytrans = quarter == 2 ? 0 : data.snsytrans,
+                                sjsytrans = data.sjsytrans + data.djfptrans,
+                                djfptrans = 0,
                                 NumberID = number,
                                 _state = "added",
                                 _id = "1"
                             };
-                            Console.WriteLine($"季度转出数据：{JsonConvert.SerializeObject(data)}");
-                            Console.WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
+                            WriteLine($"季度转出数据：{JsonConvert.SerializeObject(data)}");
+                            WriteLine($"交易数据：{JsonConvert.SerializeObject(trade)}");
                             List<AnnualLeaveTradeModel> list = new List<AnnualLeaveTradeModel>();
                             list.Add(trade);
                             await client.AddRecords<object>(annualLeaveTradeResid, list);   
@@ -403,7 +400,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 AddTaskDetail("季度转入",startTime,endTime,$"{e.Message}。{year}第{quarter}季度",number);
                 throw;
             }
-            Console.WriteLine("----------结束季度转入---------------");
+            WriteLine("----------结束季度转入---------------");
             return new { };
         }
     }
