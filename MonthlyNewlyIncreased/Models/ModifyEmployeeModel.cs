@@ -10,6 +10,7 @@ namespace MonthlyNewlyIncreased.Models {
         public string REC_ID  { get; set; }
         //社保月数
         public int? totalMonth { get; set; }
+        public string monthAddTrigger { get; set; }
         //
         public string? _state { get; set; }
         //

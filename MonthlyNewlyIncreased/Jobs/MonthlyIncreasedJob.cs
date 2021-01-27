@@ -52,7 +52,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var scheduler = await schedulerFactory.GetScheduler ();
 
             await scheduler.Start ();
-            WriteLine ($"EntryAssignmentJob init");
+            WriteLine ($"MonthlyIncreasedJob init");
 
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
