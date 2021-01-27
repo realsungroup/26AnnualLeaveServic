@@ -42,6 +42,28 @@ namespace MonthlyNewlyIncreased.Tasks
             bool existNextPage = HasNextPage<EmployeeModel>(rsp, pageNo);
             return new { rsp.data, existNextPage };
         }
+        public async Task<dynamic> GetEmployee(string numberID)
+        {
+            var option = new GetTableOptionsModal { };
+            option.pageSize = pageSize;
+            option.cmswhere = $"jobId ={numberID}";
+
+            var rsp = await this.client.getTable<EmployeeModel>(oldEmployeeResid, option);
+            if (rsp.data != null && rsp.data.Count > 0) //查询老员工
+            {
+                return new { Employee = rsp.data[0], IsNewEmployee = false };
+            }
+            else //查询新员工
+            {
+                var newRsp = await this.client.getTable<EmployeeModel>(newEmployeeResid, option);
+                if (newRsp.data != null && newRsp.data.Count > 0)
+                {
+                    return new { Employee = newRsp.data[0], IsNewEmployee = true };
+                }
+            }
+
+            return new { Employee = string.Empty, IsNewEmployee = true };
+        }
         /// <summary>
         /// 给员工进行年初创建(员工年假季度账户表)
         /// </summary>
@@ -50,7 +72,7 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <returns></returns>
         private async Task<object> CreateYearBeginning(EmployeeModel employeeModel, int year)
         {
-            var njjdAccountModals = new List<NjjdAccountModal>();           
+            var njjdAccountModals = new List<NjjdAccountModal>();
             string startTime = DateTime.Now.ToString(datetimeFormatString);
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 1, 1));
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 2, 2));
@@ -58,16 +80,49 @@ namespace MonthlyNewlyIncreased.Tasks
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 4, 4));
             foreach (var item in njjdAccountModals)
             {
-                var rsp = await this.client.AddRecords<object>(ygnjjdzhResid, new List<NjjdAccountModal>() { item });
-                var JRsp = (JObject)rsp;
-                if (JRsp["Error"].ToObject<int>() == -1)
+                if (!await IsExistInYgnjjdzh(item.year, item.quarter, item.numberID)) //还未存在时年初创建
                 {
-                    await AddTaskDetail("年初创建", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), employeeModel.jobId);
+                    var rsp = await this.client.AddRecords<object>(ygnjjdzhResid, new List<NjjdAccountModal>() { item });
+                    var JRsp = (JObject)rsp;
+                    if (JRsp["Error"].ToObject<int>() == -1)
+                    {
+                        await AddTaskDetail("年初创建", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), employeeModel.jobId);
+                    }
+                }
+                else
+                {
+                    await AddTaskDetail("年初创建", startTime, DateTime.Now.ToString(datetimeFormatString), $"{year}年{item.quarter}季度{item.numberID}工号的员工在季度账户表中已存在", item.numberID);
                 }
             }
             return new { };
         }
-
+        /// <summary>
+        /// 年假季度账户表中是否已存在记录
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="quarter"></param>
+        /// <param name="numberID"></param>
+        /// <returns></returns>
+        private async Task<bool> IsExistInYgnjjdzh(int year, int quarter, string numberID)
+        {
+            var client = new LzRequest(realsunBaseURL);
+            client.setHeaders(new { Accept = "application/json", accessToken = realsunAccessToken });
+            try
+            {
+                var result =
+                    await client.getTable<AnnualLeaveTradeModel>(ygnjjdzhResid,
+                        new GetTableOptionsModal
+                        {
+                            cmswhere = $"Year = '{year}' and Quarter = '{quarter}' and NumberID = '{numberID}'"
+                        });
+                return result.data != null && result.data.Count > 0;
+            }
+            catch (Exception)
+            {
+                await AddTaskDetail("年初创建", DateTime.Now.ToString(datetimeFormatString), DateTime.Now.ToString(datetimeFormatString), $"{year}年{quarter}季度{numberID}工号的员工在季度账户表中查询失败", numberID);
+                return false;
+            }
+        }
         /// <summary>
         /// 年初创建+季度分配+上年转入
         /// </summary>
@@ -92,22 +147,37 @@ namespace MonthlyNewlyIncreased.Tasks
                 await CreatYearBeginningAndIntoYearLeft(year, employeeResid, pageNo);
             return new { };
         }
+        private async Task<object> CreateYearBeginningAndIntoYearLeftForNumberID(int year, string numberID)
+        {
+            var rsp = await GetEmployee(numberID);
+            var startTime = DateTime.Now.ToString(datetimeFormatString);
+
+            if (!(rsp.Employee is string))
+            {
+                await CreateYearBeginning(rsp.Employee, year);  //年初创建               
+                await DoQuarterAssignForEmployee(rsp.Employee, year, rsp.IsNewEmployee);  //季度分配               
+                await IntoYearLeft(rsp.Employee); //上年转入                
+            }
+            else
+            {
+                await AddTaskDetail("年初创建", startTime, DateTime.Now.ToString(datetimeFormatString), $"{year}年{numberID}工号的员工不存在", numberID);
+            }
+            return new { };
+        }
         /// <summary>
         /// 执行员工的季度分配
         /// </summary>
         /// <param name="employeeModels"></param>
         /// <param name="year"></param>
-        /// <param name="isNewEmplopee">是否为新员工</param>
+        /// <param name="isNewEmployee">是否为新员工</param>
         /// <returns></returns>
-        private async Task<object> DoQuarterAssignForEmployee(EmployeeModel employeeModel, int year, bool isNewEmplopee)
+        private async Task<object> DoQuarterAssignForEmployee(EmployeeModel employeeModel, int year, bool isNewEmployee)
         {
             var annualLeaveTradeModels = new List<AnnualLeaveTradeModel>(); //年假交易
             int _id = 0;
             string startTime = DateTime.Now.ToString(datetimeFormatString);
-            //foreach (var item in employeeModels)
-            //{
             var annualLeaves = new double[] { }; //季度年假分配天数
-            if (isNewEmplopee) //新员工季度分配天数
+            if (isNewEmployee) //新员工季度分配天数
                 annualLeaves = GetQuarterAssignDays(GetTotalAnnualLeaveForNewEmployee(employeeModel.serviceAge ?? 0));
             else //老员工季度分配天数
                 annualLeaves = GetQuarterAssignDays(GetTotalAnnualLeaveForOldEmployee(employeeModel.serviceAge ?? 0, employeeModel.enterDate));
@@ -162,7 +232,7 @@ namespace MonthlyNewlyIncreased.Tasks
                    _state = "added",
                    _id = _id.ToString()
                });
-            _id++;            
+            _id++;
             foreach (var item in annualLeaveTradeModels)
             {
                 var isExist = await IsTradeExist("年初创建", year, item.Quarter ?? 1, employeeModel.jobId);
@@ -172,12 +242,12 @@ namespace MonthlyNewlyIncreased.Tasks
                     var JRsp = (JObject)rsp;
                     if (JRsp["Error"].ToObject<int>() == -1)
                     {
-                        await AddTaskDetail("季度分配", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), employeeModel.jobId);
+                        await AddTaskDetail("年初创建(季度分配)", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), employeeModel.jobId);
                     }
                 }
                 else //已存在季度分配
                 {
-                    await AddTaskDetail("季度分配", startTime, DateTime.Now.ToString(datetimeFormatString), $"{year}年{item.Quarter}季度{employeeModel.jobId}工号的员工已季度分配过", employeeModel.jobId);
+                    await AddTaskDetail("年初创建(季度分配)", startTime, DateTime.Now.ToString(datetimeFormatString), $"{year}年{item.Quarter}季度{employeeModel.jobId}工号的员工已季度分配过", employeeModel.jobId);
                 }
             }
             return new { };
@@ -337,8 +407,22 @@ namespace MonthlyNewlyIncreased.Tasks
         }
         public async Task<object> Start(int year)
         {
-            string[] employeeResids = { newEmployeeResid };
+            string[] employeeResids = { newEmployeeResid, oldEmployeeResid };
             await CreatYearBeginningAndIntoYearLeft(year, employeeResids);
+            return new { };
+        }
+        /// <summary>
+        /// 给指定员工进行年初创建+上年转入
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="numberIDs"></param>
+        /// <returns></returns>
+        public async Task<object> Start(int year, params string[] numberIDs)
+        {
+            foreach (var item in numberIDs)
+            {
+                await CreateYearBeginningAndIntoYearLeftForNumberID(year, item);
+            }
             return new { };
         }
         /// <summary>
@@ -360,7 +444,7 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <returns></returns>
         private async Task<List<YearLeftModel>> GetYearLeft(EmployeeModel employeeModel)
         {
-            var option = new GetTableOptionsModal { };          
+            var option = new GetTableOptionsModal { };
             option.cmswhere = $"NumberID ={employeeModel.jobId}";
             var rsp = await this.client.getTable<YearLeftModel>(YearLeftResid, option);
             return rsp.data;
@@ -371,10 +455,10 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <param name="yearLeftModels"></param>
         /// <returns></returns>
         private async Task<object> InsertForAnnualLeaveTrade(YearLeftModel yearLeftModel)
-        {            
+        {
             int _id = 0;
             var startTime = DateTime.Now.ToString(datetimeFormatString);
-            
+
             var annualLeaveTradeModel = new AnnualLeaveTradeModel()
             {
                 NumberID = yearLeftModel.NumberID,
@@ -387,8 +471,8 @@ namespace MonthlyNewlyIncreased.Tasks
                 _id = _id.ToString()
             };
 
-           
-            if (IsTradeExist("上年转入", annualLeaveTradeModel.Year, annualLeaveTradeModel.Quarter ?? 1, annualLeaveTradeModel.NumberID).Result == false)
+
+            if (!IsTradeExist("上年转入", annualLeaveTradeModel.Year, annualLeaveTradeModel.Quarter ?? 1, annualLeaveTradeModel.NumberID).Result)
             {
                 var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel> { annualLeaveTradeModel });
                 var JRsp = (JObject)rsp;

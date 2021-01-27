@@ -18,7 +18,8 @@ namespace MonthlyNewlyIncreased.Controllers
     {
         [HttpGet]
         public async Task<OkObjectResult> CreatYearBeginningAndIntoYearLeft(
-           [FromQuery] int year
+           [FromQuery] int year,
+             [FromQuery] string[] numberIDs
            )
         {
             var creatYearBeginningAndIntoYearLeftTask = new CreatYearBeginningAndIntoYearLeftTask();
@@ -26,9 +27,13 @@ namespace MonthlyNewlyIncreased.Controllers
             {
                 return Ok(new ActionResponseModel { error = -1, message = "年份错误" });
             }
+            else if (numberIDs == null || numberIDs.Length < 1)
+            {
+                return Ok(new ActionResponseModel { error = -1, message = "员工工号不能为空" });
+            }
             else
             {
-                var rsp = await creatYearBeginningAndIntoYearLeftTask.Start(year);               
+                var rsp = await creatYearBeginningAndIntoYearLeftTask.Start(year, numberIDs);
                 return Ok(new ActionResponseModel { error = 0, message = "年初创建和上年转入执行成功" });
             }
         }

@@ -35,7 +35,9 @@ namespace MonthlyNewlyIncreased
         
         //21年后入职且在职的员工
         public static string newEmployeeResid = "664466340655";
-        
+        //20年及之前入职且在职的员工
+        public static string oldEmployeeResid = "664466391252";
+
         //员工社保信息
         public static string  SocialSecurityInfoResid = "662122466450";
         
