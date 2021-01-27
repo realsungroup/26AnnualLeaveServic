@@ -78,22 +78,7 @@ namespace MonthlyNewlyIncreased.Tasks
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 2, 2));
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 3, 3));
             njjdAccountModals.Add(CreateNjjdAccountModal(employeeModel.jobId, year, 4, 4));
-            foreach (var item in njjdAccountModals)
-            {
-                if (!await IsExistInYgnjjdzh(item.year, item.quarter, item.numberID)) //还未存在时年初创建
-                {
-                    var rsp = await this.client.AddRecords<object>(ygnjjdzhResid, new List<NjjdAccountModal>() { item });
-                    var JRsp = (JObject)rsp;
-                    if (JRsp["Error"].ToObject<int>() == -1)
-                    {
-                        await AddTaskDetail("年初创建", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), employeeModel.jobId);
-                    }
-                }
-                else
-                {
-                    await AddTaskDetail("年初创建", startTime, DateTime.Now.ToString(datetimeFormatString), $"{year}年{item.quarter}季度{item.numberID}工号的员工在季度账户表中已存在", item.numberID);
-                }
-            }
+            var rsp = await this.client.AddRecords<object>(ygnjjdzhResid, njjdAccountModals);
             return new { };
         }
         /// <summary>
@@ -240,7 +225,7 @@ namespace MonthlyNewlyIncreased.Tasks
                 {
                     var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel>() { item });
                     var JRsp = (JObject)rsp;
-                    if (JRsp["Error"].ToObject<int>() == -1)
+                    if (JRsp["Error"].ToObject<int>() != 0)
                     {
                         await AddTaskDetail("年初创建(季度分配)", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), employeeModel.jobId);
                     }
@@ -330,9 +315,13 @@ namespace MonthlyNewlyIncreased.Tasks
             var diffYear = DateTime.Now.Year - enter.Year; //相差年份数
             var workYears = 0; //在公司服务的第几年     
             if (diffYear == 0) //入职还没跨年
+            {
                 workYears = 0; //第一年
+            }
             else
-                workYears = (diffYear + (enter.Month < 7 ? 1 : 0)) - 1; //第几年是从0开始的，所以要减1。当年7月份及以后入职的，到下一年的1月1日仍算第1年反之算第2年
+            {
+                workYears = enter.Month >= 7 ? diffYear - 1 : diffYear; //第几年是从0开始的。当年7月份及以后入职的，到下一年的1月1日仍算第1年反之算第2年
+            }
 
             int totalDays = 0;
             if (serviceAge < 10)
@@ -476,7 +465,7 @@ namespace MonthlyNewlyIncreased.Tasks
             {
                 var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel> { annualLeaveTradeModel });
                 var JRsp = (JObject)rsp;
-                if (JRsp["Error"].ToObject<int>() == -1)
+                if (JRsp["Error"].ToObject<int>() != 0)
                 {
                     await AddTaskDetail("上年转入", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), annualLeaveTradeModel.NumberID);
                 }

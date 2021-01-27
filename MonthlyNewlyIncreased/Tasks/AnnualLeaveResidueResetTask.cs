@@ -90,7 +90,7 @@ namespace MonthlyNewlyIncreased.Tasks
             {
                 var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel>() { item });
                 var JRsp = (JObject)rsp;
-                if (JRsp["Error"].ToObject<int>() == -1)
+                if (JRsp["Error"].ToObject<int>() != 0)
                 {
                     await AddTaskDetail("剩余清零", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), item.NumberID);
                 }
