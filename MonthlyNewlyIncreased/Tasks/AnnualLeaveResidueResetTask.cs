@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using static MonthlyNewlyIncreased.Constant;
 using static System.Console;
+using static MonthlyNewlyIncreased.Utils;
+using Newtonsoft.Json.Linq;
 
 namespace MonthlyNewlyIncreased.Tasks
 {
@@ -60,12 +62,13 @@ namespace MonthlyNewlyIncreased.Tasks
             else
                 return null;
         }
-       
+
         public async Task<object> AddResidueReset(List<NjjdAccountModal> njjdAccountModals)
         {
             var ret = new { };
             var annualLeaveTradeModels = new List<AnnualLeaveTradeModel>();
             int id = 0;
+            var startTime = DateTime.Now.ToString(datetimeFormatString);
             foreach (var item in njjdAccountModals)
             {
                 annualLeaveTradeModels.Add(new AnnualLeaveTradeModel
@@ -76,13 +79,22 @@ namespace MonthlyNewlyIncreased.Tasks
                     Year = item.year,
                     Quarter = item.quarter,
                     snsytrans = item.snsy,
-                    sjsytrans = item.sjsy,
-                    djfptrans = item.djfp,
+                    sjsytrans = 0,
+                    djfptrans = 0,
                     _state = "added",
                     _id = $"{id}"
                 });
+                id++;
             }
-            //await this.client.AddRecords<object>(annualLeaveTradeResid, annualLeaveTradeModels);
+            foreach (var item in annualLeaveTradeModels)
+            {
+                var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel>() { item });
+                var JRsp = (JObject)rsp;
+                if (JRsp["Error"].ToObject<int>() == -1)
+                {
+                    await AddTaskDetail("剩余清零", startTime, DateTime.Now.ToString(datetimeFormatString), JRsp["message"].ToString(), item.NumberID);
+                }
+            }
             return ret;
         }
         /// <summary>
@@ -114,7 +126,7 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             return await BatchResidueReset(year, numberIDs, _pageNo);
         }
-       
+
         /// <summary>
         /// 是否还有下一页数据
         /// </summary>
