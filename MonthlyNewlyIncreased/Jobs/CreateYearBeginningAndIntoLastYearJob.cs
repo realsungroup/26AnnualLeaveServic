@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static System.Console;
+using static MonthlyNewlyIncreased.Constant;
+using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs
 {
@@ -28,11 +30,13 @@ namespace MonthlyNewlyIncreased.Jobs
             var ret = new Hashtable();
             if (DateTime.Now.Month == 1) //每年1月1日执行
             {
+                var startTime = DateTime.Now.ToString(datetimeFormatString);
                 WriteLine("开始执行年初创建和上年转入");
                 var today = DateTime.Today.ToString("MM-dd");
                 var creatYearBeginningAndIntoYearLeft = new CreatYearBeginningAndIntoYearLeftTask();
                 await creatYearBeginningAndIntoYearLeft.Start(DateTime.Now.Year);
                 WriteLine($"结束执行年初创建和上年转入{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+                await AddTask("年初创建和上年转入", startTime, DateTime.Now.ToString(datetimeFormatString), "");
             }
             return ret;
         }

@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static System.Console;
+using static MonthlyNewlyIncreased.Constant;
+using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs
 {
@@ -28,11 +30,13 @@ namespace MonthlyNewlyIncreased.Jobs
             var ret = new Hashtable();
             if (DateTime.Now.Month == 7) //每年七月执行
             {
+                var startTime = DateTime.Now.ToString(datetimeFormatString);
                 WriteLine("开始执行剩余清零");
                 var today = DateTime.Today.ToString("MM-dd");
                 var annualLeaveResidueReset = new AnnualLeaveResidueResetTask();
                 await annualLeaveResidueReset.Start(DateTime.Now.Year);
                 WriteLine($"结束执行剩余清零{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+                await AddTask("剩余清零", startTime, DateTime.Now.ToString(datetimeFormatString), "");
             }
             return ret;
         }

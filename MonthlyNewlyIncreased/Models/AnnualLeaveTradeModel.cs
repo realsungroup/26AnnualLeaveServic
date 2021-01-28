@@ -17,11 +17,11 @@ namespace MonthlyNewlyIncreased.Models {
         //季度
         public int? Quarter { get; set; }
         //上年剩余交易
-        public double snsytrans { get; set; }
+        public double? snsytrans { get; set; }
         //上季剩余交易
-        public double sjsytrans { get; set; }
+        public double? sjsytrans { get; set; }
         //当季分配交易
-        public double djfptrans { get; set; }
+        public double? djfptrans { get; set; }
 
         //
         public string? _state { get; set; }
