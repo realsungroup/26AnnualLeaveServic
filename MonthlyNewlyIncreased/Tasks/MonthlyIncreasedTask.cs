@@ -164,12 +164,12 @@ namespace MonthlyNewlyIncreased.Tasks {
             int startIndex = currentQuarter - 1;
             //总可用天数
             int totalDays = getConversionDays(date);
-            Console.WriteLine($"总年假天数:{totalDays}");
+            //WriteLine($"总年假天数:{totalDays}");
 
             double leftDays = totalDays;
             //每季度平均天数
             float avg =(float) totalDays / (4 - startIndex);
-            Console.WriteLine($"平均每季度分配年假数{avg}");
+            //WriteLine($"平均每季度分配年假数{avg}");
             while (startIndex<4)
             {
                 //平均数的整数位
@@ -198,7 +198,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     day = leftDays;
                 }
                 leftDays = leftDays - day;
-                Console.WriteLine($"q{startIndex+1}分配的年假数:{day}------------剩余可分配年假数:{leftDays}");
+                //WriteLine($"q{startIndex+1}分配的年假数:{day}------------剩余可分配年假数:{leftDays}");
                 quarterDays[startIndex] = day;
                 startIndex++;
             }

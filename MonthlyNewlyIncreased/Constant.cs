@@ -8,14 +8,14 @@ namespace MonthlyNewlyIncreased
         /// 后端相关
         /// </summary>
         // 后端 api 基地址
-        public static string realsunBaseURL = "http://10.108.2.66:7001/";
+        public static string realsunBaseURL = "http://10.108.2.66:9091/";
         public static string WXBaseURL = "http://kingofdinner.realsun.me:9091/";
         
         // 后端 api 登录用户名称
         public static string realsunUsername = "demo";
 
         // 后端 api 登录密码
-        public static string realsunPassword = "abcd@1234";
+        public static string realsunPassword = "1234@qwer";
 
         // 访问后端的 accessToken
         public static string realsunAccessToken = "";
