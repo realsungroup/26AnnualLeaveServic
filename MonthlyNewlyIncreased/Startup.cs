@@ -39,6 +39,8 @@ namespace MonthlyNewlyIncreased
             await AnnualLeaveResidueResetJob.init();
             //社保信息同步定时任务
             await SyncSocialSecurityMonthsJob.init();
+            //年初创建定时任务
+            await CreateYearBeginningAndIntoLastYearJob.init();
             await LoginRealsunJob.init();
         }
         

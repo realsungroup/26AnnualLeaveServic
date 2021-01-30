@@ -108,7 +108,7 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             var ret = new { };
             var rsp = await GetNjjdAccountList(year, pageno, numberIDs);
-            if (rsp.data != null) AddResidueReset(rsp.data);
+            if (rsp.data != null) await AddResidueReset(rsp.data);
             if (rsp.existNextPage)
             {
                 pageno = (Convert.ToInt16(pageno) + 1).ToString();

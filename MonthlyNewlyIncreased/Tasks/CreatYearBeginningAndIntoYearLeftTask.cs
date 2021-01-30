@@ -461,7 +461,7 @@ namespace MonthlyNewlyIncreased.Tasks
             };
 
 
-            if (!IsTradeExist("上年转入", annualLeaveTradeModel.Year, annualLeaveTradeModel.Quarter ?? 1, annualLeaveTradeModel.NumberID).Result)
+            if (!await IsTradeExist("上年转入", annualLeaveTradeModel.Year, annualLeaveTradeModel.Quarter ?? 1, annualLeaveTradeModel.NumberID))
             {
                 var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel> { annualLeaveTradeModel });
                 var JRsp = (JObject)rsp;

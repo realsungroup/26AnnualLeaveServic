@@ -46,7 +46,8 @@ namespace MonthlyNewlyIncreased
         
         //任务详情
         public static string  TaskDetailResid = "664543217154";
-        
+        //任务
+        public static string  TaskResid = "664542578818";
         //上年剩余
         public static string  YearLeftResid = "662169383744";
         

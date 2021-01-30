@@ -144,7 +144,7 @@ namespace MonthlyNewlyIncreased {
                     error = error,
                     _id =1,
                     _state = "added"});
-                await client.AddRecords<object>(TaskDetailResid,list);
+                await client.AddRecords<object>(TaskResid,list);
                 return new {};
             }
             catch (Exception e)

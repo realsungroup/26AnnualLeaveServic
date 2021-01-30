@@ -27,11 +27,16 @@ namespace MonthlyNewlyIncreased.Controllers
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有date参数"});
             }
-            var newEmployeeTask = new NewEmployeeTask();
-            var datetime = Convert.ToDateTime(date);
-            var cmswhere = $"enterDate between '{datetime.AddDays(-7).ToString(dateFormatString)}' and '{date}'";
-            newEmployeeTask.Run(cmswhere);
-            return Ok(new ActionResponseModel{error = 0,message = "任务已启动"});
+
+            try
+            {
+                EntryAssignmentJob.start(Convert.ToDateTime(date));
+                return Ok(new ActionResponseModel{error = 0,message = "任务已启动"});
+            }
+            catch (Exception e)
+            {
+                return Ok(new ActionResponseModel{error = -1,message = e.Message});
+            }
         }
         
         /// <summary>

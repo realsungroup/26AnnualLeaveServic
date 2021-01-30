@@ -83,9 +83,10 @@ namespace MonthlyNewlyIncreased.Tasks {
                 var res = await client.getTable<EmployeeModel>(newEmployeeResid,option);
                 foreach (var item in res.data)
                 {
-                    await IncreaseSocialSecurityMonthly(item);
+                    var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
                     if (item.totalMonth!= null)
                     {
+                        await IncreaseSocialSecurityMonthly(item);
                         var total = item.totalMonth + 1;
                         if (total == 12 || total == 120 || total == 240)
                         {
@@ -95,13 +96,18 @@ namespace MonthlyNewlyIncreased.Tasks {
                             }
                         }
                     }
+                    else
+                    {
+                        WriteLine($"{item.jobId}没有社保月数");
+                        AddTaskDetail("月度新增",taskStartTime, DateTime.Now.ToString(datetimeFormatString),"没有社保月数",item.jobId);
+                    }
                 }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
                     await Run(today,year,date);
                 }
-            } catch (System.Exception exception) {
-                Console.WriteLine($"error：{exception}");
+            } catch (Exception exception) {
+                WriteLine($"error：{exception}");
             }
             return ret;
         }

@@ -57,7 +57,7 @@ namespace MonthlyNewlyIncreased.Jobs
             var jobDetail = JobBuilder.Create<AnnualLeaveResidueResetJob>().Build();
 
             var trigger = TriggerBuilder.Create()
-                .WithSchedule(CronScheduleBuilder.MonthlyOnDayAndHourAndMinute(1, 0, 0))
+                .WithSchedule(CronScheduleBuilder.MonthlyOnDayAndHourAndMinute(1, 0, 45))
                 .Build();
 
             // 添加调度

@@ -27,18 +27,22 @@ namespace MonthlyNewlyIncreased.Controllers
             {
                 return Ok(new ActionResponseModel{error = -1,message = "没有date参数"});
             }
-            var datetime = Convert.ToDateTime(date);
-            if (datetime.Day > 28)
+            try
             {
-                return Ok(new ActionResponseModel{error = -1,message = "请传入1-28号的日期，因为大于28号的会在28号统一进行结算。"});
+                var datetime = Convert.ToDateTime(date);
+                if (datetime.Day > 28)
+                {
+                    return Ok(new ActionResponseModel{error = -1,message = "请传入1-28号的日期，因为大于28号的会在28号统一进行结算。"});
+                }
+                else
+                {
+                    MonthlyIncreasedJob.start(datetime);
+                    return Ok(new ActionResponseModel{error = 0,message = "任务已启动"});
+                }
             }
-            else
-            {
-                var today = datetime.ToString("dd");
-                var year = datetime.Year;
-                var monthlyIncreasedTask = new MonthlyIncreasedTask();
-                monthlyIncreasedTask.Run(today,year,date);
-                return Ok(new ActionResponseModel{error = 0,message = "任务已启动"});
+            catch (Exception e)
+            {                
+                return Ok(new ActionResponseModel{error = -1,message = e.Message});
             }
         }
         
