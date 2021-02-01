@@ -68,7 +68,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<QuarterJob> ().Build ();
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (17, 30))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (19, 30))
                 .Build ();
             // 添加调度
             return await scheduler.ScheduleJob (jobDetail, trigger);

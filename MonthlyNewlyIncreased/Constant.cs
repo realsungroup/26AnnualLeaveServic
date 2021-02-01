@@ -8,14 +8,14 @@ namespace MonthlyNewlyIncreased
         /// 后端相关
         /// </summary>
         // 后端 api 基地址
-        public static string realsunBaseURL = "http://10.108.2.66:7001/";
+        public static string realsunBaseURL = "http://10.108.2.66:9091/";
         public static string WXBaseURL = "http://kingofdinner.realsun.me:9091/";
         
         // 后端 api 登录用户名称
         public static string realsunUsername = "demo";
 
         // 后端 api 登录密码
-        public static string realsunPassword = "abcd@1234";
+        public static string realsunPassword = "1234@qwer";
 
         // 访问后端的 accessToken
         public static string realsunAccessToken = "";
@@ -46,7 +46,8 @@ namespace MonthlyNewlyIncreased
         
         //任务详情
         public static string  TaskDetailResid = "664543217154";
-        
+        //任务
+        public static string  TaskResid = "664542578818";
         //上年剩余
         public static string  YearLeftResid = "662169383744";
         

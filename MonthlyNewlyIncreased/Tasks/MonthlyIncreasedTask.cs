@@ -83,9 +83,10 @@ namespace MonthlyNewlyIncreased.Tasks {
                 var res = await client.getTable<EmployeeModel>(newEmployeeResid,option);
                 foreach (var item in res.data)
                 {
-                    await IncreaseSocialSecurityMonthly(item);
+                    var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
                     if (item.totalMonth!= null)
                     {
+                        await IncreaseSocialSecurityMonthly(item);
                         var total = item.totalMonth + 1;
                         if (total == 12 || total == 120 || total == 240)
                         {
@@ -95,13 +96,18 @@ namespace MonthlyNewlyIncreased.Tasks {
                             }
                         }
                     }
+                    else
+                    {
+                        WriteLine($"{item.jobId}没有社保月数");
+                        AddTaskDetail("月度新增",taskStartTime, DateTime.Now.ToString(datetimeFormatString),"没有社保月数",item.jobId);
+                    }
                 }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
                     await Run(today,year,date);
                 }
-            } catch (System.Exception exception) {
-                Console.WriteLine($"error：{exception}");
+            } catch (Exception exception) {
+                WriteLine($"error：{exception}");
             }
             return ret;
         }
@@ -158,12 +164,12 @@ namespace MonthlyNewlyIncreased.Tasks {
             int startIndex = currentQuarter - 1;
             //总可用天数
             int totalDays = getConversionDays(date);
-            Console.WriteLine($"总年假天数:{totalDays}");
+            //WriteLine($"总年假天数:{totalDays}");
 
             double leftDays = totalDays;
             //每季度平均天数
             float avg =(float) totalDays / (4 - startIndex);
-            Console.WriteLine($"平均每季度分配年假数{avg}");
+            //WriteLine($"平均每季度分配年假数{avg}");
             while (startIndex<4)
             {
                 //平均数的整数位
@@ -192,7 +198,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     day = leftDays;
                 }
                 leftDays = leftDays - day;
-                Console.WriteLine($"q{startIndex+1}分配的年假数:{day}------------剩余可分配年假数:{leftDays}");
+                //WriteLine($"q{startIndex+1}分配的年假数:{day}------------剩余可分配年假数:{leftDays}");
                 quarterDays[startIndex] = day;
                 startIndex++;
             }

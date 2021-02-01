@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MonthlyNewlyIncreased.Jobs;
 using static System.Console;
+using static MonthlyNewlyIncreased.Constant;
 
 namespace MonthlyNewlyIncreased
 {
@@ -27,7 +28,7 @@ namespace MonthlyNewlyIncreased
 
         public async void init()
         {
-            WriteLine($"come on");
+            WriteLine($"当前基地址：{realsunBaseURL}");
             await LoginRealsunJob.start();
             //入职分配定时任务
             await EntryAssignmentJob.init();
@@ -39,6 +40,8 @@ namespace MonthlyNewlyIncreased
             await AnnualLeaveResidueResetJob.init();
             //社保信息同步定时任务
             await SyncSocialSecurityMonthsJob.init();
+            //年初创建定时任务
+            await CreateYearBeginningAndIntoLastYearJob.init();
             await LoginRealsunJob.init();
         }
         
@@ -66,7 +69,7 @@ namespace MonthlyNewlyIncreased
 
                 var name = typeof(Startup).Assembly.GetName() + ".xml";
 
-                var filePath = Path.Combine(System.AppContext.BaseDirectory, "ShopAPI.xml");
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "MonthlyNewlyIncreased.xml");
                 c.IncludeXmlComments(filePath);
             });
 

@@ -103,7 +103,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 }
                 else
                 {
-                    WriteLine("同步社保信息出错：微信后台没有该员工");
+                    WriteLine($"同步社保信息出错：微信后台社保信息表中没有员工[{employee.name}-{employee.jobId}]");
                     AddTaskDetail("同步社保信息",
                         starttime,
                         DateTime.Now.ToString(datetimeFormatString),

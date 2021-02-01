@@ -23,8 +23,7 @@ namespace MonthlyNewlyIncreased.Controllers
         [HttpGet("sync")]
         public async Task<OkObjectResult> Sync()
         {
-            var monthlyIncreasedTask = new SyncSocialSecurityMonthsTask();
-            monthlyIncreasedTask.GetNewEmployeeList();
+            SyncSocialSecurityMonthsJob.start();
             return Ok(new ActionResponseModel{error = 0,message = "任务已启动"});
         }
         /// <summary>

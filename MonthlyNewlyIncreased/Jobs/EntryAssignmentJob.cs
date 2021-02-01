@@ -15,19 +15,19 @@ namespace MonthlyNewlyIncreased.Jobs {
     public class EntryAssignmentJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
-            await start ();
+            await start (DateTime.Today);
         }
 
         /// <summary>
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start () {
+        public static async Task<object> start (DateTime date) {
             var ret = new Hashtable ();
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
+            WriteLine($"开始执行入职分配-{taskStartTime}");
             var newEmployee = new NewEmployeeTask();
-            var cmswhere = $"enterDate between '{DateTime.Today.AddDays(-7).ToString(dateFormatString)}' and '{DateTime.Today.ToString(dateFormatString)}'";
+            var cmswhere = $"enterDate between '{date.AddDays(-7).ToString(dateFormatString)}' and '{date.ToString(dateFormatString)}'";
             await newEmployee.Run(cmswhere);
             WriteLine($"结束执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
             AddTask("入职分配",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
@@ -49,7 +49,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<EntryAssignmentJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 1))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 30))
                 .Build ();
 
             // 添加调度

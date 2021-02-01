@@ -23,7 +23,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             }
             else
             {
-                await start ();
+                await start (DateTime.Today);
             }
         }
 
@@ -31,13 +31,13 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start () {
+        public static async Task<object> start (DateTime DTdate) {
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
+            WriteLine($"开始执行月度结算-{taskStartTime}");
             var monthlyIncreased = new MonthlyIncreasedTask();
-            var year = DateTime.Today.Year;
-            var date = DateTime.Today.ToString(dateFormatString);
-            await monthlyIncreased.Run(DateTime.Today.ToString("dd"),year,date);
+            var year = DTdate.Year;
+            var date = DTdate.ToString(dateFormatString);
+            await monthlyIncreased.Run(DTdate.ToString("dd"),year,date);
             AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
             WriteLine($"结束执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
             return new {};
