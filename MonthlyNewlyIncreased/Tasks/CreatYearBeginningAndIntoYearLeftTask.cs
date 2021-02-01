@@ -81,7 +81,7 @@ namespace MonthlyNewlyIncreased.Tasks
             await this.client.AddRecords<object>(ygnjjdzhResid, njjdAccountModals);
             return new { };
         }
-        
+
         /// <summary>
         /// 年假季度账户表中是否已存在记录
         /// </summary>
@@ -459,9 +459,8 @@ namespace MonthlyNewlyIncreased.Tasks
                 _state = "added",
                 _id = _id.ToString()
             };
-
-
-            if (!IsTradeExist("上年转入", annualLeaveTradeModel.Year, annualLeaveTradeModel.Quarter ?? 1, annualLeaveTradeModel.NumberID).Result)
+         
+            if (!await IsTradeExist("上年转入", annualLeaveTradeModel.Year, annualLeaveTradeModel.Quarter ?? 1, annualLeaveTradeModel.NumberID))
             {
                 var rsp = await this.client.AddRecords<object>(annualLeaveTradeResid, new List<AnnualLeaveTradeModel> { annualLeaveTradeModel });
                 var JRsp = (JObject)rsp;
@@ -471,9 +470,9 @@ namespace MonthlyNewlyIncreased.Tasks
                 }
             }
             else //上年转入已存在
-            {
+            {             
                 await AddTaskDetail("上年转入", startTime, DateTime.Now.ToString(datetimeFormatString), $"{annualLeaveTradeModel.Year}年{annualLeaveTradeModel.Quarter}季度{annualLeaveTradeModel.NumberID}工号的上年转入已存在", annualLeaveTradeModel.NumberID);
-            }
+            }            
             return new { };
         }
 
