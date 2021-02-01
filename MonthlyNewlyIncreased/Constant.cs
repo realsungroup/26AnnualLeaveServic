@@ -1,21 +1,23 @@
+using Microsoft.Extensions.Configuration;
 using System;
 
 namespace MonthlyNewlyIncreased
 {
     public class Constant
     {
+        public static IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();        
         /// <summary>
         /// 后端相关
         /// </summary>
         // 后端 api 基地址
-        public static string realsunBaseURL = "http://10.108.2.66:9091/";
-        public static string WXBaseURL = "http://kingofdinner.realsun.me:9091/";
-        
+        public static string realsunBaseURL = configuration["realsunBaseURL"];
+        public static string WXBaseURL = configuration["WXBaseURL"];
+
         // 后端 api 登录用户名称
-        public static string realsunUsername = "demo";
+        public static string realsunUsername = configuration["realsunUsername"];
 
         // 后端 api 登录密码
-        public static string realsunPassword = "1234@qwer";
+        public static string realsunPassword = configuration["realsunPassword"];
 
         // 访问后端的 accessToken
         public static string realsunAccessToken = "";

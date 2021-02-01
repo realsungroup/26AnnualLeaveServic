@@ -19,6 +19,7 @@ namespace MonthlyNewlyIncreased.Tasks
     {
         public AnnualLeaveResidueResetTask()
         {
+            Console.WriteLine("realsunBaseURL" + realsunBaseURL);
             this.client = new LzRequest(realsunBaseURL);
             this.client.setHeaders(new { Accept = "application/json", accessToken = realsunAccessToken });
         }
