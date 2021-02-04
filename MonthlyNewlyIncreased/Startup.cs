@@ -42,9 +42,11 @@ namespace MonthlyNewlyIncreased
             await SyncSocialSecurityMonthsJob.init();
             //年初创建定时任务
             await CreateYearBeginningAndIntoLastYearJob.init();
+            //同步银行卡信息定时任务
+            await SyncBankCardJob.init();
             await LoginRealsunJob.init();
         }
-        
+
 
         public IConfiguration Configuration { get; }
 
@@ -65,7 +67,7 @@ namespace MonthlyNewlyIncreased
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "人员信息同步EmpolyeeConnect API 文档", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "人员信息同步EmpolyeeConnect API 文档", Version = "v1" });
 
                 var name = typeof(Startup).Assembly.GetName() + ".xml";
 
@@ -101,7 +103,7 @@ namespace MonthlyNewlyIncreased
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseSwagger();
-            
+
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); });
         }
     }

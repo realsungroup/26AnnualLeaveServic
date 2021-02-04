@@ -25,6 +25,7 @@ namespace MonthlyNewlyIncreased.Models {
         //姓名
         public string name { get; set; }
         //分配假期总数(老员工)
-        public string totalHolidays { get; set; }       
+        public string totalHolidays { get; set; }      
+        
     }
 }
