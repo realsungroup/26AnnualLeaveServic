@@ -58,8 +58,10 @@ namespace MonthlyNewlyIncreased
 
         //个人银行卡表(微信端)
         public static string PersonalBankCardResid = "547032160625";
-        //全部员工表
+        //所有员工表
         public static string AllEmployeeResid = "227186227531";
+        //员工银行卡表
+        public static string EmployeeBankCardResid = "665841454598";
 
     }
 }

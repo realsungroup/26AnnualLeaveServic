@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 namespace MonthlyNewlyIncreased.Models
 {
     /// <summary>
-    /// 全部员工Model
+    /// 员工银行卡Model
     /// </summary>
-    public class AllEmployeeModel
+    public class EmployeeBankCardModel
     {
         //记录编号
         public string? REC_ID { get; set; }
@@ -25,6 +25,6 @@ namespace MonthlyNewlyIncreased.Models
         /// </summary>
         public string? C3_497724865718 { get; set; }
         public string? _state { get; set; }
-        public string? _id { get; set; }        
+        public string? _id { get; set; }
     }
 }

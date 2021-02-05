@@ -43,7 +43,7 @@ namespace MonthlyNewlyIncreased
             //年初创建定时任务
             await CreateYearBeginningAndIntoLastYearJob.init();
             //同步银行卡信息定时任务
-            await SyncBankCardJob.init();
+            //await SyncBankCardJob.init();
             await LoginRealsunJob.init();
         }
 
