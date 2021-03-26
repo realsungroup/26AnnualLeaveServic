@@ -60,8 +60,8 @@ namespace MonthlyNewlyIncreased.Tasks {
                 foreach (var item in res.data)
                 {
                     var option1 = new GetTableOptionsModal{};
-                    option1.cmswhere = $"numberID = '{item.jobId}' and year = '{item.enterDate.Substring(0,4)}'";
-                    var result = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
+                    option1.cmswhere = $"NumberID = '{item.jobId}' and year = '{item.enterDate.Substring(0,4)}' and Type = '入职分配'";
+                    var result = await this.client.getTable<NjjdAccountModal>(annualLeaveTradeResid,option1);
                     if (result.data.Count == 0)
                     {
                         await Distribution(item);
@@ -96,24 +96,14 @@ namespace MonthlyNewlyIncreased.Tasks {
                     var quarter = GetQuarterByDate(employee.enterDate);
                     var quarterDays= this.getQuarterTradsDays((int)employee.serviceAge, quarter,employee.enterDate);
                     var jobid = employee.jobId;
-                    
-                    List<NjjdAccountModal> accounts = new List<NjjdAccountModal>();
-                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 1,_state = "added",_id = "1"});
-                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 2,_state = "added",_id = "2"});
-                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 3,_state = "added",_id = "3"});
-                    accounts.Add(new NjjdAccountModal{numberID = jobid,year = year,quarter = 4,_state = "added",_id = "4"});
                     List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 1,_state = "added",_id = "1"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 2,_state = "added",_id = "2"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 3,_state = "added",_id = "3"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 4,_state = "added",_id = "4"});
-                    //创建4条季度年假账户
-                    var resp = await client.AddRecords<ResponseModel<NjjdAccountModal>>(ygnjjdzhResid, accounts);
-                    if (resp.Error == 0)
-                    {
-                        //增加4条年假交易记录，类型为‘入职分配’
-                        await client.AddRecords<object>(annualLeaveTradeResid, trades);
-                    }
+                    Console.WriteLine(employee.name);
+                    //增加4条年假交易记录，类型为‘入职分配’
+                    await client.AddRecords<object>(annualLeaveTradeResid, trades);
                 }
                 else
                 {

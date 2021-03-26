@@ -64,8 +64,8 @@ namespace MonthlyNewlyIncreased.Controllers
                     if (employee.totalMonth != null)
                     {
                         var option1 = new GetTableOptionsModal{};
-                        option1.cmswhere = $"numberID = '{employee.jobId}' and year = '{employee.enterDate.Substring(0,4)}'";
-                        var result = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
+                        option1.cmswhere = $"NumberID = '{employee.jobId}' and year = '{employee.enterDate.Substring(0,4)}' and Type = '入职分配'";
+                        var result = await client.getTable<NjjdAccountModal>(annualLeaveTradeResid,option1);
                         if (result.data.Count == 0)
                         {
                             await newEmployeeTask.Distribution(res.data[0]);
@@ -73,7 +73,7 @@ namespace MonthlyNewlyIncreased.Controllers
                         }
                         else
                         {
-                            return new ActionResponseModel{error = -1,message = "该员工已有年假季度账户"};
+                            return new ActionResponseModel{error = -1,message = "该员工已有入职分配交易记录"};
                         }
                     }
                     else

@@ -27,7 +27,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             WriteLine($"开始执行入职分配-{taskStartTime}");
             var newEmployee = new NewEmployeeTask();
-            var cmswhere = $"enterDate between '{date.AddDays(-7).ToString(dateFormatString)}' and '{date.ToString(dateFormatString)}'";
+            var cmswhere = $"enterDate between '{date.AddDays(-30).ToString(dateFormatString)}' and '{date.ToString(dateFormatString)}'";
             await newEmployee.Run(cmswhere);
             WriteLine($"结束执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
             AddTask("入职分配",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
