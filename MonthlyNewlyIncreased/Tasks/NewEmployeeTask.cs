@@ -93,7 +93,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 if (employee.totalMonth != null)
                 {
                     var year = Convert.ToDateTime(employee.enterDate).Year;
-                    var quarter = GetQuarterByDate(employee.enterDate);
+                    var quarter = GetQuarterByDate(DateTime.Today.ToString("yyyy-MM-dd"));
                     var quarterDays= this.getQuarterTradsDays((int)employee.serviceAge, quarter,employee.enterDate);
                     var jobid = employee.jobId;
                     List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
