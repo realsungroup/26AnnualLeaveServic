@@ -45,6 +45,8 @@ namespace MonthlyNewlyIncreased
             //同步银行卡信息定时任务
             //await SyncBankCardJob.init();
             await LoginRealsunJob.init();
+            //同步微信端年假累计申请和移动端冻结
+            await SyncAnnualLeaveJob.init();
         }
 
 

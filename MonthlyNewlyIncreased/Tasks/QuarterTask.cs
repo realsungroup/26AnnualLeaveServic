@@ -1,6 +1,7 @@
 using System;
 using static MonthlyNewlyIncreased.Constant;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MonthlyNewlyIncreased.Modals;
 using Newtonsoft.Json;
@@ -32,7 +33,7 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <summary>
         /// 每页数量
         /// </summary>
-        private string pageSize = "100";
+        private string pageSize = "100000";
 
         /// <summary>
         /// 是否还有下一页数据
@@ -61,39 +62,41 @@ namespace MonthlyNewlyIncreased.Tasks
             option.pageSize = pageSize;
             option.pageIndex = _pageNo;
             option.cmswhere = $"isAlive = 'Y' and year = '{year}' and quarter = '{quarter}'";
-            try
+            var res = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid, option);
+            foreach (var item in res.data)
             {
-                var res = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid, option);
-                foreach (var item in res.data)
+                WriteLine($"----------开始结算--------,工号{item.numberID}---{DateTime.Now.ToString(datetimeFormatString)}");
+                try
                 {
-                    WriteLine($"----------开始结算--------,工号{item.numberID}---{DateTime.Now.ToString(datetimeFormatString)}");
                     //季度使用
                     bool success = await QuarterUse(item);
+                    Thread.Sleep(500);
                     if (success)
                     {
                         //季度转出
                         await QuarterRollOut(year, quarter, item.numberID);
+                        Thread.Sleep(500);
                         //季度转入
                         await QuarterRollIn(year, quarter, item.numberID);
                     }
                     WriteLine($"----------结束结算---------,工号{item.numberID}{DateTime.Now.ToString(datetimeFormatString)}");
                 }
-                if (HasNextPage(res))
+                catch (Exception e)
                 {
-                    _pageNo = (Convert.ToInt16(_pageNo) + 1).ToString();
-                    await Run(year, quarter);
-                }
-                else
-                {
-                    WriteLine($"结算完成：{DateTime.Now.ToString(datetimeFormatString)}");
-                    AddTask("季度结算", taskStartTime, DateTime.Now.ToString(datetimeFormatString), "");
+                    var time = DateTime.Now.ToString(datetimeFormatString);
+                    AddTaskDetail("季度使用", time, time, $"{e.Message}。{year}第{quarter}季度", item.numberID);
                 }
             }
-            catch (System.Exception exception)
+            if (HasNextPage(res))
             {
-                WriteLine($"error：{exception}");
-                return ret;
+                _pageNo = (Convert.ToInt16(_pageNo) + 1).ToString();
+                await Run(year, quarter);
             }
+            else
+            {
+                WriteLine($"结算完成：{DateTime.Now.ToString(datetimeFormatString)}");
+                AddTask("季度结算", taskStartTime, DateTime.Now.ToString(datetimeFormatString), "");
+            } 
             return ret;
         }
 

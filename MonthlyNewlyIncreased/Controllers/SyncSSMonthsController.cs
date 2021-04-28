@@ -42,18 +42,22 @@ namespace MonthlyNewlyIncreased.Controllers
             var client = new LzRequest(realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
             var option = new GetTableOptionsModal{};
-            option.cmswhere = $"jobId = {numberID}";
+            option.cmswhere = $"jobId = '{numberID}'";
             try
             {
                 var res = await client.getTable<EmployeeModel>(newEmployeeResid,option);
-                if (res.data.Count > 0)
+                if (Convert.ToInt32(res.error)  != 0)
+                {
+                    return Ok(new ActionResponseModel{error = -1,message = res.message});
+                }
+                if (res.data?.Count > 0)
                 {
                     await syncSocialSecurityMonthsTask.SyncMonths(res.data[0]);
                     return Ok(new ActionResponseModel{error = 0,message = "已同步社保信息"});
                 }
                 else
                 {
-                    return Ok(new ActionResponseModel{error = -1,message = "微信后台没有该员工"});
+                    return Ok(new ActionResponseModel{error = -1,message = "内网后台没有该员工"});
                 }
             }
             catch (Exception e)
