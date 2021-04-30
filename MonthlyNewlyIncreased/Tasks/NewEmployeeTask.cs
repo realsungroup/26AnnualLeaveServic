@@ -56,7 +56,7 @@ namespace MonthlyNewlyIncreased.Tasks {
             option.pageIndex = _pageNo;
             option.cmswhere = cmswhere;
             try {
-                var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
+                var res = await this.client.getTable<EmployeeModel>(ALL_NEW_EMPLOYEE,option);
                 foreach (var item in res.data)
                 {
                     var option1 = new GetTableOptionsModal{};
@@ -93,15 +93,24 @@ namespace MonthlyNewlyIncreased.Tasks {
                 if (employee.totalMonth != null)
                 {
                     var year = Convert.ToDateTime(employee.enterDate).Year;
-                    var quarter = GetQuarterByDate(DateTime.Today.ToString("yyyy-MM-dd"));
+                    var quarter = GetQuarterByDate(employee.enterDate);
+                    var currentQuarter = GetQuarterByDate(DateTime.Today.ToString("yyyy-MM-dd"));
                     var quarterDays= this.getQuarterTradsDays((int)employee.serviceAge, quarter,employee.enterDate);
                     var jobid = employee.jobId;
+                    var diff = currentQuarter - quarter;
+                    double surplus = 0;
+                    while (diff>0)
+                    {
+                        surplus += quarterDays[currentQuarter - diff-1];
+                        quarterDays[currentQuarter - diff - 1] = 0.0;
+                        diff--;
+                    }
+                    quarterDays[currentQuarter-1] += surplus; 
                     List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 1,_state = "added",_id = "1"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 2,_state = "added",_id = "2"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 3,_state = "added",_id = "3"});
                     trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "入职分配",NumberID = jobid,Year = year,Quarter = 4,_state = "added",_id = "4"});
-                    Console.WriteLine(employee.name);
                     //增加4条年假交易记录，类型为‘入职分配’
                     await client.AddRecords<object>(annualLeaveTradeResid, trades);
                 }

@@ -6,6 +6,10 @@ namespace MonthlyNewlyIncreased.Models {
     /// </summary>
     /// 
     public class AnnualLeaveTradeModel {
+        //编号
+        public int? pnid { get; set; }
+        //
+        public string? njsytzjlbh { get; set; }
         //工号
         public string NumberID { get; set; }
         //姓名

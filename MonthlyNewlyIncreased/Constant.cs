@@ -34,11 +34,13 @@ namespace MonthlyNewlyIncreased
 
         //员工年假交易表
         public static string annualLeaveTradeResid = "662169358054";
-
+        
         //21年后入职且在职的员工
         public static string newEmployeeResid = "664466340655";
         //20年及之前入职且在职的员工
         public static string oldEmployeeResid = "664466391252";
+        
+        public static string ALL_NEW_EMPLOYEE = "673115967782";
 
         //员工社保信息
         public static string SocialSecurityInfoResid = "662122466450";

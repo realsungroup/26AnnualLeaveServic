@@ -8,6 +8,8 @@ namespace MonthlyNewlyIncreased.Models {
     public class EmployeeModel {
         //记录编号
         public string? REC_ID  { get; set; }
+        //编号
+        public string personId { get; set; }
         //工号
         public string jobId { get; set; }
         //入职日期
