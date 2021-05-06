@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using static MonthlyNewlyIncreased.Constant;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -59,7 +60,9 @@ namespace MonthlyNewlyIncreased.Tasks {
                 var res = await wxclient.getTable<OutApplyModel>("663933483597",option);
                 foreach (var item in res.data)
                 {
-                    await Sync(item);
+                    OutApplyModel temp = new OutApplyModel();
+                    temp = item;
+                    await Sync(temp);
                 }
                 if (HasNextPage(res)) {
                     _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
@@ -99,7 +102,18 @@ namespace MonthlyNewlyIncreased.Tasks {
                         _id =1,
                         _state = "modified"});
                     
-                    await client.AddRecords<object>(ygnjjdzhResid, list);
+                    var res1 = await client.AddRecords<Hashtable>(ygnjjdzhResid, list);
+                    if (Convert.ToInt32(res1["error"]) == 0)
+                    {
+                        List<ModifyOutApplyModel> list1 = new List<ModifyOutApplyModel>();
+                        list1.Add(new ModifyOutApplyModel(){
+                            isNeedSyn = "",
+                            REC_ID = account.REC_ID,
+                            _id = 1,
+                            _state = "modified"});
+
+                        var result = await wxclient.AddRecords<object>("663933483597",list1);
+                    }
                 }
                 else
                 {
@@ -119,9 +133,17 @@ namespace MonthlyNewlyIncreased.Tasks {
             return ret;
         }
     }
-
+    
+    public class ModifyOutApplyModel
+    {
+        public string REC_ID  { get; set; }
+        public string? isNeedSyn { get; set; }
+        public string? _state { get; set; }
+        public int? _id{ get; set; } 
+    }
     public class OutApplyModel
     {
+        public string REC_ID  { get; set; }
         public string numberID  { get; set; }
         public string name  { get; set; }
         public int year  { get; set; }
