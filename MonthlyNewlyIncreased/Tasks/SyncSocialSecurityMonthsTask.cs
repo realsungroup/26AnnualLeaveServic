@@ -21,27 +21,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         private LzRequest client = null;
         private LzRequest wxclient = null;
 
-        /// <summary>
-        /// 页码
-        /// </summary>
-        private string _pageNo = "0";
-
-        /// <summary>
-        /// 每页数量
-        /// </summary>
-        private string pageSize = "100";
         
-        /// <summary>
-        /// 是否还有下一页数据
-        /// </summary>
-        /// <param name="rsp"></param>
-        /// <returns></returns>
-        private bool HasNextPage (GetTagbleResponseModal<EmployeeModel> rsp) {
-            if ((Convert.ToInt16(this._pageNo )+1) *  Convert.ToInt16(this.pageSize) > Convert.ToInt16(rsp.total)) {
-                return false;
-            }
-            return true;
-        }
 
         /// <summary>
         /// 获取到的员工
@@ -54,19 +34,13 @@ namespace MonthlyNewlyIncreased.Tasks {
         public async Task<object> GetNewEmployeeList () {
             var ret = new { };
             var option = new GetTableOptionsModal{};
-            option.pageSize = pageSize;
-            option.pageIndex = _pageNo;
             //只查询社保月数为null的数据
-            option.cmswhere = $"totalMonth is null";
+            option.cmswhere = $"wxMonths=0";
             try {
                 var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
                 foreach (var item in res.data)
                 {
                     await SyncMonths(item);
-                }
-                if (HasNextPage(res)) {
-                    _pageNo =(Convert.ToInt16(_pageNo) + 1).ToString();
-                    await GetNewEmployeeList();
                 }
             } catch (System.Exception exception) {
                 Console.WriteLine($"error：{exception}");
@@ -96,7 +70,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                         enterDate = employee.enterDate,
                         REC_ID = employee.REC_ID,
                         jobId = employee.jobId,
-                        totalMonth = data.C3_662122615028,
+                        wxMonths = data.C3_662122615028,
                         _id =1,
                         _state = "modified"});
                     await client.AddRecords<object>(newEmployeeResid, list);

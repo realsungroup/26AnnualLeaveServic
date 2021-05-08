@@ -8,8 +8,6 @@ namespace MonthlyNewlyIncreased.Models {
     public class ModifyEmployeeModel {
         //记录编号
         public string REC_ID  { get; set; }
-        //社保月数
-        public int? totalMonth { get; set; }
         public string monthAddTrigger { get; set; }
         //
         public string? _state { get; set; }

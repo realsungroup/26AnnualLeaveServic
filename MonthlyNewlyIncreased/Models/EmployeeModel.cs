@@ -9,7 +9,7 @@ namespace MonthlyNewlyIncreased.Models {
         //记录编号
         public string? REC_ID  { get; set; }
         //编号
-        public string personId { get; set; }
+        public int? personId { get; set; }
         //工号
         public string jobId { get; set; }
         //入职日期
@@ -20,6 +20,10 @@ namespace MonthlyNewlyIncreased.Models {
         public int? serviceAge { get; set; }
         //社保月数
         public int? totalMonth { get; set; }
+        //微信参保月数
+        public float? wxMonths { get; set; }
+        //微信参保月数
+        public float serviceMonths { get; set; }
         //
         public string? _state { get; set; }
         //

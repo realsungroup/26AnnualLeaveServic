@@ -114,6 +114,15 @@ namespace MonthlyNewlyIncreased.Controllers
                 };
                 list.Add(trade);
                 await client.AddRecords<object>(annualLeaveTradeResid, list);
+
+                var list1 = new List<ModifyAccountModel>();
+                list1.Add(new ModifyAccountModel
+                {
+                    REC_ID = account.REC_ID,
+                    _state = "modified",
+                    _id=1
+                });
+                await client.AddRecords<object>(ygnjjdzhResid,list1);
                 return Ok(new ActionResponseModel{error = 0,message = "操作成功"});
             }
             catch (Exception e)
@@ -241,6 +250,19 @@ namespace MonthlyNewlyIncreased.Controllers
                 };
                 list.Add(trade);
                 await client.AddRecords<object>(annualLeaveTradeResid, list);
+                
+                var option = new GetTableOptionsModal{};
+                option.cmswhere = $"memberID={memberId} and year={year} and quarter={quarter}";
+                var res = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option);
+                var data = res.data[0];
+                var list1 = new List<ModifyAccountModel>();
+                list1.Add(new ModifyAccountModel
+                {
+                    REC_ID = data.REC_ID,
+                    _state = "modified",
+                    _id = 1
+                });
+                await client.AddRecords<object>(ygnjjdzhResid,list1);
                 return Ok(new ActionResponseModel{error = 0,message = "操作成功"});
             }
             catch (Exception e)
@@ -248,5 +270,14 @@ namespace MonthlyNewlyIncreased.Controllers
                 return Ok(new ActionResponseModel{error = -1,message = e.Message});
             }
         }
+    }
+
+    public class ModifyAccountModel
+    {
+        public string? REC_ID { get; set; }
+        //
+        public string? _state { get; set; }
+        //
+        public int? _id{ get; set; }
     }
 }

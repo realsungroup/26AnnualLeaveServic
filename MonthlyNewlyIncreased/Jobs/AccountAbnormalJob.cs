@@ -7,30 +7,32 @@ using System.Threading.Tasks;
 using Quartz;
 using Quartz.Impl;
 using static System.Console;
+using MonthlyNewlyIncreased.Http;
 using static MonthlyNewlyIncreased.Constant;
+using System.Collections.Generic;
+using MonthlyNewlyIncreased.Models;
 using MonthlyNewlyIncreased.Tasks;
 using static MonthlyNewlyIncreased.Utils;
 
 namespace MonthlyNewlyIncreased.Jobs {
-    public class EntryAssignmentJob : IJob {
+    public class AccountAbnormalJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
-            await start (DateTime.Today);
+            await start ();
         }
 
         /// <summary>
         /// 开始执行任务
         /// </summary>
         /// <returns></returns>
-        public static async Task<object> start (DateTime date) {
+        public static async Task<object> start () {
             var ret = new Hashtable ();
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行入职分配-{taskStartTime}");
-            var newEmployee = new NewEmployeeTask();
-            var cmswhere = $"enterDate between '{date.AddDays(-30).ToString(dateFormatString)}' and '{date.ToString(dateFormatString)}'";
-            await newEmployee.Run(cmswhere);
-            WriteLine($"结束执行入职分配{DateTime.Now.ToString(datetimeFormatString)}");
-            AddTask("入职分配",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
+            WriteLine($"开始年假账户异常处理{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+            var task = new AccountAbnormalTask();
+            await  task.GetNoEmployeeList();
+            AddTask("年假账户异常处理",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
+            WriteLine($"结束年假账户异常处理{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
             return ret;
         }
         
@@ -43,14 +45,14 @@ namespace MonthlyNewlyIncreased.Jobs {
             var scheduler = await schedulerFactory.GetScheduler ();
 
             await scheduler.Start ();
-            WriteLine ($"EntryAssignmentJob init");
+            WriteLine ($"年假账户异常处理 init");
 
             // 创建作业和触发器
-            var jobDetail = JobBuilder.Create<EntryAssignmentJob> ().Build ();
+            var jobDetail = JobBuilder.Create<AccountAbnormalJob> ().Build ();
 
-            var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (1, 30))
-                .Build ();
+            var trigger = TriggerBuilder.Create().StartNow().
+                WithSchedule(SimpleScheduleBuilder.Create().WithIntervalInMinutes(10).RepeatForever())
+                .Build ();;
 
             // 添加调度
             return await scheduler.ScheduleJob (jobDetail, trigger);
