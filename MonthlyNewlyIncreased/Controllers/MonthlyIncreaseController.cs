@@ -77,7 +77,7 @@ namespace MonthlyNewlyIncreased.Controllers
                 if (employee.totalMonth != null)
                 {
                     var year = DateTime.Today.Year;
-                    await monthlyIncreasedTask.Distribution(res.data[0], year, date);
+                    await monthlyIncreasedTask.Distribution(res.data[0], year, date,Convert.ToInt32(res.data[0].serviceMonths));
                     return new ActionResponseModel {error = 0, message = "月度新增已完成"};
                 }
                 else

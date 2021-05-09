@@ -35,7 +35,7 @@ namespace MonthlyNewlyIncreased.Tasks {
             var ret = new { };
             var option = new GetTableOptionsModal{};
             //只查询社保月数为null的数据
-            option.cmswhere = $"wxMonths=0";
+            option.cmswhere = $"wxMonths=0 or wxMonths is null";
             try {
                 var res = await this.client.getTable<EmployeeModel>(newEmployeeResid,option);
                 foreach (var item in res.data)
@@ -65,11 +65,9 @@ namespace MonthlyNewlyIncreased.Tasks {
                 if (res.data.Count>0)
                 {
                     var data = res.data[0];
-                    List<EmployeeModel> list = new List<EmployeeModel>();
-                    list.Add(new EmployeeModel{
-                        enterDate = employee.enterDate,
+                    List<ModifyMonthModel> list = new List<ModifyMonthModel>();
+                    list.Add(new ModifyMonthModel{
                         REC_ID = employee.REC_ID,
-                        jobId = employee.jobId,
                         wxMonths = data.C3_662122615028,
                         _id =1,
                         _state = "modified"});
@@ -94,5 +92,13 @@ namespace MonthlyNewlyIncreased.Tasks {
             return ret;
         }
         
+    }
+
+    public class ModifyMonthModel
+    {
+        public string REC_ID { get; set; }
+        public float? wxMonths { get; set; }
+        public string? _state { get; set; }
+        public int? _id{ get; set; } 
     }
 }

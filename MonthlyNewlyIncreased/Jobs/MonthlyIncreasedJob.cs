@@ -18,13 +18,7 @@ namespace MonthlyNewlyIncreased.Jobs {
     public class MonthlyIncreasedJob : IJob {
 
         public async Task Execute (IJobExecutionContext context) {
-            if (DateTime.Today.Day > 28)
-            {
-            }
-            else
-            {
-                await start (DateTime.Today);
-            }
+            await start(DateTime.Today);
         }
 
         /// <summary>
@@ -33,15 +27,15 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start (DateTime DTdate) {
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始执行月度结算-{taskStartTime}");
+            WriteLine($"开始执行月度新增-{taskStartTime}");
             var monthlyIncreased = new MonthlyIncreasedTask();
             var year = DTdate.Year;
             var date = DTdate.ToString(dateFormatString);
-            await monthlyIncreased.Run(DTdate.ToString("dd"),year,date);
+            await monthlyIncreased.Run(year,date);
             AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
-            WriteLine($"结束执行月度结算{DateTime.Now.ToString(datetimeFormatString)}");
+            WriteLine($"结束执行月度新增{DateTime.Now.ToString(datetimeFormatString)}");
             return new {};
-        }
+        } 
         
         /// <summary>
         /// 初始化任务
@@ -58,7 +52,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (0, 15))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (6, 0))
                 .Build ();
 
             // 添加调度

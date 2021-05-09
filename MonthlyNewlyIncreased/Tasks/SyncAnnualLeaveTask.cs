@@ -159,7 +159,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         public int year  { get; set; }
         public int quarter  { get; set; }
         public Nullable<float>  C3_662492645279  { get; set; }
-        public float freezeMobile  { get; set; }
+        public Nullable<float> freezeMobile  { get; set; }
         public string? _state { get; set; }
         public int? _id{ get; set; } 
     }

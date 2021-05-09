@@ -43,11 +43,6 @@ namespace MonthlyNewlyIncreased.Tasks {
         }
 
         /// <summary>
-        /// 获取到的员工
-        /// </summary>
-        public List<EmployeeModel> employeeList = new List<EmployeeModel> ();
-
-        /// <summary>
         /// </summary>
         public async Task<object> Run (string cmswhere) {
             var ret = new { };
@@ -90,7 +85,7 @@ namespace MonthlyNewlyIncreased.Tasks {
             string startTime = DateTime.Now.ToString(datetimeFormatString);
             try
             {
-                if (employee.totalMonth != null)
+                if (employee.wxMonths != null)
                 {
                     var year = Convert.ToDateTime(employee.enterDate).Year;
                     var quarter = GetQuarterByDate(employee.enterDate);
