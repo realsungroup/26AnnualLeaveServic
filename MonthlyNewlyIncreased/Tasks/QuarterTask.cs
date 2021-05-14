@@ -118,7 +118,7 @@ namespace MonthlyNewlyIncreased.Tasks
                 try
                 {
                     var sum = account.snsy + account.sjsy + account.djfp;
-                    var days = await GetLeaveDays(quarter, number, year + "");
+                    var days = await GetLeaveDays(quarter, account.memberID, year + "");
                     Console.WriteLine($"待扣年假数：{days}");
                     //待扣除的年假数
                     var waitDeductionDays = days;
@@ -190,7 +190,7 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <summary>
         /// 获取员工某年某季度请的年假天数
         /// </summary>
-        public async Task<double> GetLeaveDays(int quarter, string number, string year)
+        public async Task<double> GetLeaveDays(int quarter,int number, string year)
         {
             var option = new GetTableOptionsModal { };
             string startMonth = year;
@@ -218,7 +218,7 @@ namespace MonthlyNewlyIncreased.Tasks
                     endMonth += "03";
                     break;
             }
-            option.cmswhere = $"YGNO = '{number}' and YEARMONTH between '{startMonth}' and '{endMonth}'";
+            option.cmswhere = $"PNID={number} and YEARMONTH between '{startMonth}' and '{endMonth}'";
             double days = 0;
             try
             {

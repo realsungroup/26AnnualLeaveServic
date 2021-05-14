@@ -37,7 +37,7 @@ namespace MonthlyNewlyIncreased
             //月度新增定时任务
             await MonthlyIncreasedJob.init();
             //剩余清零定时任务
-            await AnnualLeaveResidueResetJob.init();
+            //await AnnualLeaveResidueResetJob.init();
             //社保信息同步定时任务
             await SyncSocialSecurityMonthsJob.init();
             //年初创建定时任务
@@ -47,6 +47,7 @@ namespace MonthlyNewlyIncreased
             await LoginRealsunJob.init();
             //同步微信端年假累计申请和移动端冻结
             await SyncAnnualLeaveJob.init();
+            await AccountAbnormalJob.init();
         }
 
 

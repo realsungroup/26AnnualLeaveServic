@@ -39,11 +39,19 @@ namespace MonthlyNewlyIncreased.Jobs {
                     var date = Convert.ToDateTime(config.runDate).ToString("MM-dd");
                     if (date == today)
                     {
-                        WriteLine(config.quarter);
+                        var year = DateTime.Today.Year;
+                        if (config.quarter == 4)
+                        {
+                            var currentQuarter = GetQuarterByMonth(DateTime.Now.Month);
+                            if (currentQuarter !=4)
+                            {
+                                year = year - 1;
+                            }
+                        }
                         WriteLine($"开始执行季度结算{DateTime.Now.ToString(datetimeFormatString)}");
                         var task = new QuarterTask();
                         task.taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-                        await task.Run(DateTime.Today.Year, config.quarter);
+                        await task.Run(year, config.quarter);
                     }
                 }
             }

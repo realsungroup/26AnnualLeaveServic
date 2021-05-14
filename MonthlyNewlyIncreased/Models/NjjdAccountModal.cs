@@ -13,6 +13,8 @@ namespace MonthlyNewlyIncreased.Models
         public string? REC_ID { get; set; }
         //工号
         public string numberID { get; set; }
+        //编号
+        public int memberID { get; set; }
         //姓名
         public string name { get; set; }
         //年度

@@ -53,7 +53,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     var total = Convert.ToInt32( savedData["newTotalMonth"]);
                     if (total == 12 || total == 120 || total == 240)
                     {
-                        var exist = await IsTradeExist("月度新增", year, item.jobId);
+                        var exist = await IsTradeExist("月度新增", year, item.personId);
                         var serviceMonths = Convert.ToInt32(savedData["serviceMonths"]);
                         if (!exist &&  serviceMonths> 0)
                         {
@@ -74,7 +74,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// <param name="number">工号</param>
         /// <returns></returns>
         /// 
-        public static async Task<bool> IsTradeExist(string type,int year,string number)
+        public static async Task<bool> IsTradeExist(string type,int year,int number)
         {
             var client = new LzRequest(realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
@@ -84,7 +84,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     await client.getTable<AnnualLeaveTradeModel>(annualLeaveTradeResid,
                         new GetTableOptionsModal
                         {
-                            cmswhere = $"Type = '{type}' and Year = '{year}' and NumberID = '{number}'"
+                            cmswhere = $"Type = '{type}' and Year = '{year}' and pnid={number}"
                         });
                 bool isExist = result.data.Count > 0;
                 return isExist;
@@ -111,19 +111,19 @@ namespace MonthlyNewlyIncreased.Tasks {
             List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
             if (1 >= quarter)
             {
-                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 1,_state = "added",_id = "1"});
+                trades.Add(new AnnualLeaveTradeModel{pnid = employee.personId,snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[0],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 1,_state = "added",_id = "1"});
             }
             if (2 >= quarter)
             {
-                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 2,_state = "added",_id = "2"});
+                trades.Add(new AnnualLeaveTradeModel{pnid = employee.personId,snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[1],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 2,_state = "added",_id = "2"});
             }
             if (3 >= quarter)
             {
-                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 3,_state = "added",_id = "3"});
+                trades.Add(new AnnualLeaveTradeModel{pnid = employee.personId,snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[2],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 3,_state = "added",_id = "3"});
             }
             if (4 >= quarter)
             {
-                trades.Add(new AnnualLeaveTradeModel{snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 4,_state = "added",_id = "4"});
+                trades.Add(new AnnualLeaveTradeModel{pnid = employee.personId,snsytrans = 0,sjsytrans = 0,djfptrans = quarterDays[3],Type = "月度新增",NumberID = employee.jobId,Year = year,Quarter = 4,_state = "added",_id = "4"});
             }
             try
             {

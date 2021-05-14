@@ -9,7 +9,7 @@ namespace MonthlyNewlyIncreased.Models {
         //记录编号
         public string? REC_ID  { get; set; }
         //编号
-        public int? personId { get; set; }
+        public int personId { get; set; }
         //工号
         public string jobId { get; set; }
         //入职日期
