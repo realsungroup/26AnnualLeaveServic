@@ -27,12 +27,12 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start () {
             var ret = new Hashtable ();
-            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
-            WriteLine($"开始年假账户异常处理{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+            //var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
+            //WriteLine($"开始年假账户异常处理{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
             var task = new AccountAbnormalTask();
             await  task.GetNoEmployeeList();
-            AddTask("年假账户异常处理",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
-            WriteLine($"结束年假账户异常处理{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
+            //AddTask("年假账户异常处理",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
+            //WriteLine($"结束年假账户异常处理{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
             return ret;
         }
         

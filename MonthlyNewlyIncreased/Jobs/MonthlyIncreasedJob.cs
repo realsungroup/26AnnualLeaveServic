@@ -17,8 +17,16 @@ using static MonthlyNewlyIncreased.Utils;
 namespace MonthlyNewlyIncreased.Jobs {
     public class MonthlyIncreasedJob : IJob {
 
-        public async Task Execute (IJobExecutionContext context) {
-            await start(DateTime.Today);
+        public async Task Execute (IJobExecutionContext context)
+        {
+            var dayOfYear = DateTime.Today.DayOfYear;
+            if (dayOfYear==1 || dayOfYear ==2)
+            {
+            }
+            else
+            {
+                await start(DateTime.Today);
+            }
         }
 
         /// <summary>

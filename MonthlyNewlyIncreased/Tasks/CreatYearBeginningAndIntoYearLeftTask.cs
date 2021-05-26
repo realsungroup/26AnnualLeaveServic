@@ -32,15 +32,11 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <param name="pageNo">查询页</param>
         /// <param name="resid">员工表id</param>
         /// <returns></returns>
-        public async Task<dynamic> GetEmployeeList(string pageNo, string resid)
+        public async Task<dynamic> GetEmployeeList( string resid)
         {
-            var option = new GetTableOptionsModal { };
-            option.pageSize = pageSize;
-            option.pageIndex = pageNo;
 
-            var rsp = await this.client.getTable<EmployeeModel>(resid, option);
-            bool existNextPage = HasNextPage<EmployeeModel>(rsp, pageNo);
-            return new { rsp.data, existNextPage };
+            var rsp = await this.client.getTable<EmployeeModel>(resid);
+            return new { rsp.data };
         }
         public async Task<dynamic> GetEmployee(string numberID)
         {
@@ -116,21 +112,15 @@ namespace MonthlyNewlyIncreased.Tasks
         /// <param name="employeeResid"></param>
         /// <param name="pageNo"></param>
         /// <returns></returns>
-        private async Task<object> CreatYearBeginningAndIntoYearLeft(int year, string employeeResid, string pageNo = "0")
+        private async Task<object> CreatYearBeginningAndIntoYearLeft(int year, string employeeResid)
         {
-            var rsp = await GetEmployeeList(pageNo, employeeResid); //获得员工+是否存在下页标识
-            if (rsp.data != null)
+            var rsp = await GetEmployeeList(employeeResid); //获得员工
+            foreach (EmployeeModel item in rsp.data)
             {
-                foreach (EmployeeModel item in rsp.data)
-                {
-                    await CreateYearBeginning(item, year);  //年初创建               
-                    await DoQuarterAssignForEmployee(item, year, employeeResid == newEmployeeResid);  //季度分配               
-                    await IntoYearLeft(item,year); //上年转入
-                }
+                await CreateYearBeginning(item, year);  //年初创建               
+                await DoQuarterAssignForEmployee(item, year, false);  //季度分配               
+                await IntoYearLeft(item,year); //上年转入
             }
-            pageNo = (Convert.ToInt16(pageNo) + 1).ToString();
-            if (rsp.existNextPage) //存在下一页
-                await CreatYearBeginningAndIntoYearLeft(year, employeeResid, pageNo);
             return new { };
         }
         private async Task<object> CreateYearBeginningAndIntoYearLeftForNumberID(int year, string numberID)
@@ -396,7 +386,7 @@ namespace MonthlyNewlyIncreased.Tasks
         }
         public async Task<object> Start(int year)
         {
-            string[] employeeResids = { newEmployeeResid, oldEmployeeResid };
+            string[] employeeResids = { oldEmployeeResid };
             await CreatYearBeginningAndIntoYearLeft(year, employeeResids);
             return new { };
         }
