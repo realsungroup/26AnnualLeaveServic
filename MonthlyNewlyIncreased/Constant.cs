@@ -63,7 +63,7 @@ namespace MonthlyNewlyIncreased
         //所有员工表
         public static string AllEmployeeResid = "227186227531";
         //员工银行卡表
-        public static string EmployeeBankCardResid = "665841454598";
+        public static string EmployeeBankCardResid = "675883546934";
 
     }
 }

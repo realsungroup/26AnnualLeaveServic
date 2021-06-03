@@ -15,15 +15,15 @@ namespace MonthlyNewlyIncreased.Models
         /// <summary>
         /// 员工工号
         /// </summary>
-        public string C3_227192472953 { get; set; }
+        public string C3_675883566967 { get; set; }
         /// <summary>
         /// 账户
         /// </summary>
-        public string? C3_497724880304 { get; set; }
+        public string? C3_675883584577 { get; set; }
         /// <summary>
         /// 开户行
         /// </summary>
-        public string? C3_497724865718 { get; set; }
+        public string? C3_675883596703 { get; set; }
         public string? _state { get; set; }
         public string? _id { get; set; }
     }

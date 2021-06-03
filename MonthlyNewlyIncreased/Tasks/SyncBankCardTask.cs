@@ -95,11 +95,11 @@ namespace MonthlyNewlyIncreased.Tasks
                 var rsp = await this.wxclient.getTable<PersonalBankCardModel>(PersonalBankCardResid, option); //微信端查询到的员工银行卡信息
                 if (rsp.data != null && rsp.data.Count > 0)
                 {
-                    employeeBankCardModel.C3_227192472953 = rsp.data[0].C3_594120941744;
-                    employeeBankCardModel.C3_497724865718 = rsp.data[0].C3_547144218383;
-                    employeeBankCardModel.C3_497724880304 = rsp.data[0].C3_547032175037;
+                    employeeBankCardModel.C3_675883566967 = rsp.data[0].C3_594120941744;//工号
+                    employeeBankCardModel.C3_675883596703 = rsp.data[0].C3_547144218383;//开户行信息
+                    employeeBankCardModel.C3_675883584577 = rsp.data[0].C3_547032175037; //银行卡号
                     employeeBankCardModel._id = "1";
-                    var existingEmployeeBankCard = await GetEmployeeBankCard(employeeBankCardModel.C3_227192472953); //员工银行卡表中是否存在记录
+                    var existingEmployeeBankCard = await GetEmployeeBankCard(employeeBankCardModel.C3_675883566967); //员工银行卡表中是否存在记录
                     if (existingEmployeeBankCard == null) //员工银行卡表,还未存在记录
                     {
                         employeeBankCardModel._state = "added";
