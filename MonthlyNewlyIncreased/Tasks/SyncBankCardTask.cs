@@ -134,7 +134,7 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             var employeeBankCardModel = new EmployeeBankCardModel();
             var option = new GetTableOptionsModal { };
-            option.cmswhere = $"C3_227192472953={jobID}";
+            option.cmswhere = $"C3_675883566967={jobID}";
             var rsp = await this.client.getTable<EmployeeBankCardModel>(EmployeeBankCardResid, option);
             if (rsp.data != null && rsp.data.Count > 0)
             {

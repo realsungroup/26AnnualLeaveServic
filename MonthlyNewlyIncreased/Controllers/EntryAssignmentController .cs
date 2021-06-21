@@ -61,7 +61,7 @@ namespace MonthlyNewlyIncreased.Controllers
                 if (res.data.Count > 0)
                 {
                     var employee = res.data[0];
-                    if (employee.totalMonth != null)
+                    if (employee.wxMonths != null)
                     {
                         var option1 = new GetTableOptionsModal{};
                         option1.cmswhere = $"NumberID = '{employee.jobId}' and year = '{employee.enterDate.Substring(0,4)}' and Type = '入职分配'";
