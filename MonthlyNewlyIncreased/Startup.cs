@@ -30,7 +30,7 @@ namespace MonthlyNewlyIncreased
         {
             WriteLine($"当前基地址：{realsunBaseURL}");
             await LoginRealsunJob.start();
-            /*
+            
             //入职分配定时任务
             await EntryAssignmentJob.init();
             //季度结算定时任务
@@ -48,7 +48,7 @@ namespace MonthlyNewlyIncreased
             await LoginRealsunJob.init();
             //同步微信端年假累计申请和移动端冻结
             await SyncAnnualLeaveJob.init();
-            await AccountAbnormalJob.init();*/
+            await AccountAbnormalJob.init();
         }
 
 

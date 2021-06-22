@@ -49,7 +49,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<EntryAssignmentJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (1, 30))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (20, 40))
                 .Build ();
 
             // 添加调度
