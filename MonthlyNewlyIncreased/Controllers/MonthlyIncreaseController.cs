@@ -74,11 +74,19 @@ namespace MonthlyNewlyIncreased.Controllers
             if (res.data.Count > 0)
             {
                 var employee = res.data[0];
-                if (employee.totalMonth != null)
+                if (employee.newTotalMonth != null)
                 {
                     var year = DateTime.Today.Year;
-                    await monthlyIncreasedTask.Distribution(res.data[0], year, date,Convert.ToInt32(res.data[0].serviceMonths));
-                    return new ActionResponseModel {error = 0, message = "月度新增已完成"};
+                    var exist = await MonthlyIncreasedTask.IsTradeExist("月度新增", year,employee.personId);
+                    if (!exist){ 
+                        await monthlyIncreasedTask.Distribution(res.data[0], year, date,Convert.ToInt32(res.data[0].serviceMonths));
+                        return new ActionResponseModel {error = 0, message = "月度新增已完成"};
+                        
+                    }
+                    else
+                    {
+                        return new ActionResponseModel{error = -1,message = "该员工年假已经存在新增记录"};
+                    }
                 }
                 else
                 {

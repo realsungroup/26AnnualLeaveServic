@@ -94,7 +94,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     await client.getTable<AnnualLeaveTradeModel>(annualLeaveTradeResid,
                         new GetTableOptionsModal
                         {
-                            cmswhere = $"Type = '{type}' and Year = '{year}' and pnid={number}"
+                            cmswhere = $"Type = '{type}' and Year = '{year}' and pnid={number} and isnull(C3_678988015559,'')<>'Y'"
                         });
                 bool isExist = result.data.Count > 0;
                 return isExist;

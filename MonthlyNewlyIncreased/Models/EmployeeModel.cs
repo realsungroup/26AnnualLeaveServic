@@ -20,6 +20,8 @@ namespace MonthlyNewlyIncreased.Models {
         public int? serviceAge { get; set; }
         //社保月数
         public int? totalMonth { get; set; }
+        //社保月数
+        public Double? newTotalMonth { get; set; }
         //微信参保月数
         public float? wxMonths { get; set; }
         //微信参保月数

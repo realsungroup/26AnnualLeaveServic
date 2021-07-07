@@ -59,8 +59,8 @@ namespace MonthlyNewlyIncreased.Tasks
         {
             var ret = new { };
             var option = new GetTableOptionsModal { };
-            option.pageSize = pageSize;
-            option.pageIndex = _pageNo;
+           // option.pageSize = pageSize;
+          //  option.pageIndex = _pageNo;
             option.cmswhere = $"isAlive = 'Y' and year = '{year}' and quarter = '{quarter}'";
             var res = await this.client.getTable<NjjdAccountModal>(ygnjjdzhResid, option);
             foreach (var item in res.data)
@@ -286,6 +286,8 @@ namespace MonthlyNewlyIncreased.Tasks
                             _state = "modified",
                             _id = "1"
                         });
+                        WriteLine($"锁定记录：{JsonConvert.SerializeObject(modifyList)}"); 
+                        Thread.Sleep(300);
                         await client.AddRecords<object>(ygnjjdzhResid, modifyList);
                     }
                     else
