@@ -27,7 +27,6 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// </summary>
         /// <returns></returns>
         public static async Task<object> start () {
-            WriteLine ($"QuarterJob start1");
             var ret = new Hashtable ();
             var client = new LzRequest(realsunBaseURL);
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
@@ -35,13 +34,10 @@ namespace MonthlyNewlyIncreased.Jobs {
             {
                 var res =await client.getTable<QuarterConfigModel>(QuarterConfigResid);
                 var today = DateTime.Today.ToString("MM-dd");
-                WriteLine ($"QuarterJob start2");
                 foreach (var config in res.data)
                 {
                   
                     var date = Convert.ToDateTime(config.runDate).ToString("MM-dd");
-                    WriteLine ($"QuarterJob start3："+today);
-                    WriteLine ($"QuarterJob start4："+date);
                     if (date == today)
                     {
                         var year = DateTime.Today.Year;
@@ -77,7 +73,6 @@ namespace MonthlyNewlyIncreased.Jobs {
             var scheduler = await schedulerFactory.GetScheduler ();
 
             await scheduler.Start ();
-            WriteLine ($"QuarterJob init 1622");
             // 创建作业和触发器
             var jobDetail = JobBuilder.Create<QuarterJob> ().Build ();
             var trigger = TriggerBuilder.Create ()

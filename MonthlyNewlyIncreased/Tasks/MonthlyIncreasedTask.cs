@@ -59,8 +59,17 @@ namespace MonthlyNewlyIncreased.Tasks {
                         if (total == 12 || total == 120 || total == 240)
                         {
                             var exist = await IsTradeExist("月度新增", year, item.personId);
-                            var serviceMonths = Convert.ToInt32(savedData["serviceMonths"]);
-                            if (!exist &&  serviceMonths> 0)
+                            var serviceMonths = 0;
+                            if (savedData["serviceMonths"]!=null)
+                            {
+                                serviceMonths = Convert.ToInt32(savedData["serviceMonths"]);
+                            }
+                            var isSame = 0;
+                            if (savedData["isSame"] != null)
+                            {
+                                isSame = Convert.ToInt32(savedData["isSame"]);
+                            }
+                            if (!exist &&  serviceMonths>0 && isSame<1)
                             {
                                 await Distribution(item,year,date,serviceMonths);
                             }
@@ -104,6 +113,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 return true;
             }
         }
+        
         
         /// <summary>
         /// 创建账户并分配年假
