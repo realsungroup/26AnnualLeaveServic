@@ -19,6 +19,8 @@ namespace MonthlyNewlyIncreased.Models {
         //社会工龄
         public int? serviceAge { get; set; }
         //社保月数
+        public int? beforeServiceAge { get; set; }
+        //社保月数
         public int? totalMonth { get; set; }
         //社保月数
         public Double? newTotalMonth { get; set; }
