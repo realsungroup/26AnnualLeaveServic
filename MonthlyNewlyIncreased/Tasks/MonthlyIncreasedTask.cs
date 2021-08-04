@@ -76,7 +76,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                                 isSame = Convert.ToInt32(savedData["isSame"]);
                             }
                             
-                            if ((!exist &&  serviceMonths>0 && isSame<1 ) || needAdd>0)
+                            if ((!exist &&  serviceMonths>0 && isSame<1 ) || (needAdd>0 && !exist))
                             {
                                 await Distribution(item,year,date,serviceMonths);
                             }
