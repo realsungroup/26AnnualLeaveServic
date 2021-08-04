@@ -64,12 +64,19 @@ namespace MonthlyNewlyIncreased.Tasks {
                             {
                                 serviceMonths = Convert.ToInt32(savedData["serviceMonths"]);
                             }
+                            var needAdd = 0;
+                            if (savedData["needAdd"] != null)
+                            {
+                                needAdd = Convert.ToInt32(savedData["needAdd"]);
+                            }
+                            
                             var isSame = 0;
                             if (savedData["isSame"] != null)
                             {
                                 isSame = Convert.ToInt32(savedData["isSame"]);
                             }
-                            if (!exist &&  serviceMonths>0 && isSame<1)
+                            
+                            if ((!exist &&  serviceMonths>0 && isSame<1 ) || needAdd>0)
                             {
                                 await Distribution(item,year,date,serviceMonths);
                             }
