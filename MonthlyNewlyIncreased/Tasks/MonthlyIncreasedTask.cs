@@ -54,26 +54,25 @@ namespace MonthlyNewlyIncreased.Tasks {
                     var savedData = await SaveEmployee(item);
                     var total = Convert.ToInt32( savedData["newTotalMonth"]);
                     var accountsRes = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
+                    var isSame = 0;
+                    if (savedData["isSame"] != null)
+                    {
+                        isSame = Convert.ToInt32(savedData["isSame"]);
+                    }
+                    var needAdd = 0;
+                    if (savedData["needAdd"] != null)
+                    {
+                        needAdd = Convert.ToInt32(savedData["needAdd"]);
+                    }
                     if (accountsRes.data.Count > 0)
                     {
-                        if (total == 12 || total == 120 || total == 240)
+                        if (total == 12 || total == 120 || total == 240 || needAdd>0)
                         {
                             var exist = await IsTradeExist("月度新增", year, item.personId);
                             var serviceMonths = 0;
                             if (savedData["serviceMonths"]!=null)
                             {
                                 serviceMonths = Convert.ToInt32(savedData["serviceMonths"]);
-                            }
-                            var needAdd = 0;
-                            if (savedData["needAdd"] != null)
-                            {
-                                needAdd = Convert.ToInt32(savedData["needAdd"]);
-                            }
-                            
-                            var isSame = 0;
-                            if (savedData["isSame"] != null)
-                            {
-                                isSame = Convert.ToInt32(savedData["isSame"]);
                             }
                             
                             if ((!exist &&  serviceMonths>0 && isSame<1 ) || (needAdd>0 && !exist))
