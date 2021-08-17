@@ -43,6 +43,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// </summary>
         public async Task<object> Run (int year,string date) {
             var ret = new { };
+            
             try {
                 var res = await client.getTable<EmployeeModel>(newEmployeeResid);
                 foreach (var item in res.data)
@@ -64,6 +65,13 @@ namespace MonthlyNewlyIncreased.Tasks {
                     {
                         needAdd = Convert.ToInt32(savedData["needAdd"]);
                     }
+                    var date2Add = date;
+                    var nA = 0;
+                    if (needAdd > 0)
+                    {
+                        date2Add = Convert.ToString(savedData["addDateStr"]);
+                        nA = 1;
+                    }
                     if (accountsRes.data.Count > 0)
                     {
                         if (total == 12 || total == 120 || total == 240 || needAdd>0)
@@ -77,7 +85,8 @@ namespace MonthlyNewlyIncreased.Tasks {
                             
                             if ((!exist &&  serviceMonths>0 && isSame<1 ) || (needAdd>0 && !exist))
                             {
-                                await Distribution(item,year,date,serviceMonths);
+                                
+                                await Distribution(item,year,date2Add,serviceMonths,nA);
                             }
                         }
                     }
@@ -409,13 +418,17 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// 给员工分配年假
         /// <param name="employee">员工</param>
         /// </summary>
-        public async Task<object> Distribution(EmployeeModel employee,int year,string date,int serviceMonths)
+        public async Task<object> Distribution(EmployeeModel employee,int year,string date,int serviceMonths,int nA)
         {
             var ret = new { };
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             var quarter = GetQuarterByDate(date);
             var enterdate = Convert.ToDateTime(employee.enterDate);
             var increasedate= enterdate.AddMonths(serviceMonths).ToString(dateFormatString);
+            if (nA > 0)
+            {
+                increasedate = date;
+            }
             var quarterDays= getQuarterTradsDays(quarter,increasedate);
             List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
             if (1 >= quarter)
