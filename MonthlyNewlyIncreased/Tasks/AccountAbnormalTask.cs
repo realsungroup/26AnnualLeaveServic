@@ -30,15 +30,19 @@ namespace MonthlyNewlyIncreased.Tasks {
                 var res = await this.client.getTable<Hashtable>("227186227531" ,option);
                 var list = new List<AddEmployee>();
                 var _id = 0;
-                foreach (var item in res.data)
+                if (res.data.Count > 0)
                 {
-                    list.Add(new AddEmployee{
-                        personId = Convert.ToInt64(item["C3_305737857578"]),
-                        jobId = Convert.ToString( item["C3_227192472953"]),
-                        _id = _id++,
-                        _state = "added"
-                    });
+                    foreach (var item in res.data)
+                    {
+                        list.Add(new AddEmployee{
+                            personId = Convert.ToInt64(item["C3_305737857578"]),
+                            jobId = Convert.ToString( item["C3_227192472953"]),
+                            _id = _id++,
+                            _state = "added"
+                        });
+                    }
                 }
+                
                await client.AddRecords<AddEmployee>(newEmployeeResid, list);
             } catch (Exception exception) {
                 WriteLine($"error：{exception}");
