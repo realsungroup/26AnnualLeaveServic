@@ -13,6 +13,7 @@ namespace MonthlyNewlyIncreased.Models {
         //工号
         public string jobId { get; set; }
         //入职日期
+       
         public string enterDate { get; set; }
         //入职天
         public string dayNum { get; set; }

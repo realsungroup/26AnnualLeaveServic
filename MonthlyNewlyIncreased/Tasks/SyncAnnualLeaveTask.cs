@@ -111,7 +111,6 @@ namespace MonthlyNewlyIncreased.Tasks {
                             REC_ID = account.REC_ID,
                             _id = 1,
                             _state = "modified"});
-
                         var result = await wxclient.AddRecords<object>("663933483597",list1);
                     }
                 }

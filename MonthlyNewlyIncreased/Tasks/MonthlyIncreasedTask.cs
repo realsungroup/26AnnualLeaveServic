@@ -52,6 +52,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     {
                         cmswhere = $"memberID={item.personId} and year={year}"
                     };
+                    
                     var savedData = await SaveEmployee(item);
                     var total = Convert.ToInt32( savedData["newTotalMonth"]);
                     var accountsRes = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
@@ -85,8 +86,15 @@ namespace MonthlyNewlyIncreased.Tasks {
                             
                             if ((!exist &&  serviceMonths>0 && isSame<1 ) || (needAdd>0 && !exist))
                             {
+                                var toDel = Convert.ToSingle(savedData["C3_683299058941"]);
+                                var exDay = 0;
+                                var isSameYear = Convert.ToInt32(savedData["C3_683305452288"]);
+                                if (isSameYear == 1)
+                                {
+                                    exDay = Convert.ToInt32(savedData["C3_683305609035"]);
+                                }
                                 
-                                await Distribution(item,year,date2Add,serviceMonths,nA);
+                                await Distribution(item,year,date2Add,serviceMonths,nA,toDel,exDay,total);
                             }
                         }
                     }
@@ -418,7 +426,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// 给员工分配年假
         /// <param name="employee">员工</param>
         /// </summary>
-        public async Task<object> Distribution(EmployeeModel employee,int year,string date,int serviceMonths,int nA)
+        public async Task<object> Distribution(EmployeeModel employee,int year,string date,int serviceMonths,int nA,float toDel,int exDay,int newTotalMonth)
         {
             var ret = new { };
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
@@ -429,7 +437,8 @@ namespace MonthlyNewlyIncreased.Tasks {
             {
                 increasedate = date;
             }
-            var quarterDays= getQuarterTradsDays(quarter,increasedate);
+            
+            var quarterDays= getQuarterTradsDays(quarter,increasedate,newTotalMonth,toDel,exDay);
             List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
             if (1 >= quarter)
             {
@@ -465,12 +474,12 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// <param name="currentQuarter">当前季度</param>
         /// <param name="date">日期</param>
         /// </summary>
-        public double[] getQuarterTradsDays(int currentQuarter, string date)
+        public double[] getQuarterTradsDays(int currentQuarter, string date, int newTotalMonth,float toDel,int exDay)
         {
             double[] quarterDays = {0,0,0,0};
             int startIndex = currentQuarter - 1;
             //总可用天数
-            int totalDays = getConversionDays(date);
+            int totalDays = getConversionDays(date,newTotalMonth,toDel,exDay);
             //WriteLine($"总年假天数:{totalDays}");
 
             double leftDays = totalDays;
@@ -516,9 +525,24 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// 根据社龄和折算日期获取折算后的年假天数
         /// <param name="conversionDate">折算日期</param>
         /// </summary>
-        public int getConversionDays(string conversionDate)
+        public int getConversionDays(string conversionDate , int newTotalMonth,float toDel,int exDay)
         {
             int days = 5;
+            int exDays = 0;
+            if (newTotalMonth > 119 && newTotalMonth < 240)
+            {
+                days = 10;
+                exDays = 5;
+            }
+            if (newTotalMonth > 239)
+            {
+                days = 15;
+                exDays = 15;
+            }
+
+            float percent2 = (float)exDay / 365;
+            float toAddO = percent2 * exDays;
+            int toAdd = Convert.ToInt32(toAddO);
             DateTime t1 = Convert.ToDateTime(conversionDate);
             int year = t1.Year;
             DateTime tbase = Convert.ToDateTime(string.Format("{0}-1-1",year));
@@ -526,7 +550,10 @@ namespace MonthlyNewlyIncreased.Tasks {
             int d = ts.Days;
             int difference = 365 - d;
             float percent = (float) difference / 365;
-            int daysConversion =(int) (percent * days);
+            int daysConversion =(int) (percent * days) + toAdd;
+            var days2 = Convert.ToSingle(daysConversion);
+            var finalDays = days2 - toDel;
+            daysConversion = Convert.ToInt32(finalDays);
             return daysConversion;
         }
     }
