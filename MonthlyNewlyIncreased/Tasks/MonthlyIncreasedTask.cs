@@ -542,7 +542,7 @@ namespace MonthlyNewlyIncreased.Tasks {
 
             float percent2 = (float)exDay / 365;
             float toAddO = percent2 * exDays;
-            int toAdd = Convert.ToInt32(toAddO);
+            int toAdd = (int) (percent2 * exDays);
             DateTime t1 = Convert.ToDateTime(conversionDate);
             int year = t1.Year;
             DateTime tbase = Convert.ToDateTime(string.Format("{0}-1-1",year));
