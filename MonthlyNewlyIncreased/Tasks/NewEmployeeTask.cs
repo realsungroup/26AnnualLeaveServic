@@ -205,8 +205,11 @@ namespace MonthlyNewlyIncreased.Tasks {
             DateTime tbase = Convert.ToDateTime(string.Format("{0}-1-1",year));
             TimeSpan ts = t1 - tbase;
             int d = ts.Days;
-            int difference = 365 - d;
+            int difference = 364 - d;
+            WriteLine($"剩余天数{difference}");
+
             float percent = (float) difference / 365;
+            WriteLine($"剩余天数百分比{percent}");
             int daysConversion =(int) (percent * days);
             return daysConversion;
         }

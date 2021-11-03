@@ -540,19 +540,26 @@ namespace MonthlyNewlyIncreased.Tasks {
                 exDays = 15;
             }
 
+            WriteLine($"总:{newTotalMonth}");
+
             float percent2 = (float)exDay / 365;
+            WriteLine($"月度新增前的天数百分比:{percent2}");
             float toAddO = percent2 * exDays;
             int toAdd = (int) (percent2 * exDays);
+            WriteLine($"月度新增前的天数:{toAdd}");
             DateTime t1 = Convert.ToDateTime(conversionDate);
             int year = t1.Year;
             DateTime tbase = Convert.ToDateTime(string.Format("{0}-1-1",year));
             TimeSpan ts = t1 - tbase;
             int d = ts.Days;
-            int difference = 365 - d;
+            int difference = 364 - d;
             float percent = (float) difference / 365;
+            WriteLine($"月度新增后的天数百分比:{percent}");
             int daysConversion =(int) (percent * days) + toAdd;
+            WriteLine($"合计要加的天数:{daysConversion}");
             var days2 = Convert.ToSingle(daysConversion);
             var finalDays = days2 - toDel;
+            WriteLine($"合计要加的天数扣去已经加的天数:{finalDays}");
             daysConversion = Convert.ToInt32(finalDays);
             return daysConversion;
         }
