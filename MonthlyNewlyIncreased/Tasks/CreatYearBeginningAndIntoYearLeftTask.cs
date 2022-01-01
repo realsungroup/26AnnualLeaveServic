@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static MonthlyNewlyIncreased.Constant;
 using static MonthlyNewlyIncreased.Utils;
+using static System.Console;
 
 namespace MonthlyNewlyIncreased.Tasks
 {
@@ -303,7 +304,8 @@ namespace MonthlyNewlyIncreased.Tasks
         private int GetTotalAnnualLeaveForOldEmployee(int serviceAge, string enterDate)
         {
             var enter = DateTime.Parse(enterDate);
-            var workYears = DateTime.Now.Year - enter.Year; //相差年份数
+            var workYears = 2022 - enter.Year; //相差年份数
+            WriteLine($"workyear：{workYears}");
             if (workYears == 0) //入职还没跨年
             {
                 workYears = 0; //第一年

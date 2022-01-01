@@ -43,7 +43,8 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// </summary>
         public async Task<object> Run (int year,string date) {
             var ret = new { };
-            
+            WriteLine($"year:${year}");
+            WriteLine($"date:${date}");
             try {
                 var res = await client.getTable<EmployeeModel>(newEmployeeResid);
                 foreach (var item in res.data)
@@ -52,7 +53,8 @@ namespace MonthlyNewlyIncreased.Tasks {
                     {
                         cmswhere = $"memberID={item.personId} and year={year}"
                     };
-                    
+                    var cms = $"memberID={item.personId} and year={year}";
+                    WriteLine($"cms:${cms}");
                     var savedData = await SaveEmployee(item);
                     var total = Convert.ToInt32( savedData["newTotalMonth"]);
                     var accountsRes = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
@@ -73,8 +75,10 @@ namespace MonthlyNewlyIncreased.Tasks {
                         date2Add = Convert.ToString(savedData["addDateStr"]);
                         nA = 1;
                     }
+                    WriteLine($"accountsRes:${accountsRes.data}");
                     if (accountsRes.data.Count > 0)
                     {
+                        WriteLine($"进来了e");
                         if (total == 12 || total == 120 || total == 240 || needAdd>0)
                         {
                             var exist = await IsTradeExist("月度新增", year, item.personId);
@@ -100,6 +104,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     }
                     else
                     {
+                        WriteLine($"进来了0");
                         await CreateAccountAndDistribution(item,year,total);
                     }
                 }
@@ -149,6 +154,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         public  async Task<Object> CreateAccountAndDistribution(EmployeeModel employee, int year, int months)
         {
             var client = new LzRequest(realsunBaseURL);
+            WriteLine($"进来了1");
             client.setHeaders (new { Accept = "application/json", accessToken = realsunAccessToken });
             try
             {
@@ -288,6 +294,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         {
             try
             {
+                WriteLine($"进来了2");
                 var annualLeaveTradeModels = new List<AnnualLeaveTradeModel>(); //年假交易
                 var annualLeaves = new double[] { }; //季度年假分配天数
                 annualLeaves = GetQuarterAssignDays(GetTotalAnnualLeaveForNewEmployee(employee.serviceAge ?? 0));
