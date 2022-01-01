@@ -22,6 +22,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var dayOfYear = DateTime.Today.DayOfYear;
             if (dayOfYear==1 || dayOfYear ==2)
             {
+                await start(DateTime.Today);
             }
             else
             {
@@ -60,7 +61,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (6, 0))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (11, 30))
                 .Build ();
 
             // 添加调度
