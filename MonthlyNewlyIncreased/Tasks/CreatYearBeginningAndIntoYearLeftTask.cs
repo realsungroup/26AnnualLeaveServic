@@ -156,7 +156,7 @@ namespace MonthlyNewlyIncreased.Tasks
             var annualLeaves = new double[] { }; //季度年假分配天数
             int sAge = employeeModel.serviceAge??0 + employeeModel.tune??0;
             if (isNewEmployee) //新员工季度分配天数
-                annualLeaves =GetQuarterAssignDays(GetTotalAnnualLeaveForNewEmployee(employeeModel.serviceAge ?? 0,employeeModel.enterDate));
+                annualLeaves =GetQuarterAssignDays(GetTotalAnnualLeaveForNewEmployee(employeeModel.serviceAge ?? 0));
             else //老员工季度分配天数
                 annualLeaves = GetQuarterAssignDays(GetTotalAnnualLeaveForOldEmployee(sAge, employeeModel.enterDate));
             annualLeaveTradeModels.Add(
@@ -279,25 +279,18 @@ namespace MonthlyNewlyIncreased.Tasks
         /// </summary>
         /// <param name="workyears">新员工工龄</param>
         /// <returns></returns>
-        private int GetTotalAnnualLeaveForNewEmployee(int serviceAge,string enterDate)
+        private int GetTotalAnnualLeaveForNewEmployee(int serviceAge)
         {
             int days = 0;
-            var enter = DateTime.Parse(enterDate);
-            var enterMonth = enter.Month; //相差年份数
-            var age = serviceAge;
-            if (enterMonth == 1)
-            {
-                age = age - 1;
-            }
-            if (age < 10 && age >= 1)
+            if (serviceAge < 10 && serviceAge >= 1)
             {
                 days = 5;
             }
-            if (age < 20 && age >= 10)
+            if (serviceAge < 20 && serviceAge >= 10)
             {
                 days = 10;
             }
-            if (age >= 20)
+            if (serviceAge >= 20)
             {
                 days = 15;
             }
