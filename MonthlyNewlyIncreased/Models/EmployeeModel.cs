@@ -24,6 +24,8 @@ namespace MonthlyNewlyIncreased.Models {
         //社保月数
         public int? totalMonth { get; set; }
         //社保月数
+        public int? tune { get; set; }
+        //调整年假
         public Double? newTotalMonth { get; set; }
         //微信参保月数
         public float? wxMonths { get; set; }
