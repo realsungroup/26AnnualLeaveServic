@@ -105,7 +105,6 @@ namespace MonthlyNewlyIncreased.Http {
         /// <returns></returns>
         public async Task<GetTagbleResponseModal<T>> getTable<T> (string resid, GetTableOptionsModal options = null) {
             var url = "api/100/table/Retrieve?resid=" + resid;
-            WriteLine($"newEmployeeResid：{baseURL}");
             var reqURL = getReqURL (baseURL, url);
             var query = new Hashtable ();
 

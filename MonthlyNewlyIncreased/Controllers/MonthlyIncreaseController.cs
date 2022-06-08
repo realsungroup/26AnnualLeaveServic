@@ -80,7 +80,7 @@ namespace MonthlyNewlyIncreased.Controllers
                     var exist = await MonthlyIncreasedTask.IsTradeExist("月度新增", year,employee.personId);
                     
                     if (!exist){ 
-                        await monthlyIncreasedTask.Distribution(res.data[0], year, date,Convert.ToInt32(res.data[0].serviceMonths),0,0,0,0);
+                        await monthlyIncreasedTask.Distribution(res.data[0], year, date,Convert.ToInt32(res.data[0].serviceMonths),0,0,0,0,0);
                         return new ActionResponseModel {error = 0, message = "月度新增已完成"};
                         
                     }

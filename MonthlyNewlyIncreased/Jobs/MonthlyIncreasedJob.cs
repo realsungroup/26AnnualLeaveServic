@@ -36,11 +36,11 @@ namespace MonthlyNewlyIncreased.Jobs {
         /// <returns></returns>
         public static async Task<object> start (DateTime DTdate)
         {
-            var taskStartTime = "2022-01-01 00:00:01";
+            var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
             WriteLine($"开始执行月度新增-{taskStartTime}");
             var monthlyIncreased = new MonthlyIncreasedTask();
-            var year = 2022;
-            var date = "2022-01-01";
+            var year = DTdate.Year;
+            var date = DTdate.ToString(dateFormatString);
             await monthlyIncreased.Run(year,date);
             AddTask("月度新增",taskStartTime , DateTime.Now.ToString(datetimeFormatString), "");
             WriteLine($"结束执行月度新增{DateTime.Now.ToString(datetimeFormatString)}");
@@ -62,7 +62,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<MonthlyIncreasedJob> ().Build ();
 
             var trigger = TriggerBuilder.Create ()
-                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (15, 45))
+                .WithSchedule (CronScheduleBuilder.DailyAtHourAndMinute (11, 30))
                 .Build ();
 
             // 添加调度

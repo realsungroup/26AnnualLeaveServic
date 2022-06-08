@@ -98,7 +98,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                                     exDay = Convert.ToInt32(savedData["C3_683305609035"]);
                                 }
                                 
-                                await Distribution(item,year,date2Add,serviceMonths,nA,toDel,exDay,total);
+                                await Distribution(item,year,date2Add,serviceMonths,nA,toDel,exDay,total,isSameYear);
                             }
                         }
                     }
@@ -433,7 +433,7 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// 给员工分配年假
         /// <param name="employee">员工</param>
         /// </summary>
-        public async Task<object> Distribution(EmployeeModel employee,int year,string date,int serviceMonths,int nA,float toDel,int exDay,int newTotalMonth)
+        public async Task<object> Distribution(EmployeeModel employee,int year,string date,int serviceMonths,int nA,float toDel,int exDay,int newTotalMonth,int isSameYear)
         {
             var ret = new { };
             var taskStartTime = DateTime.Now.ToString(datetimeFormatString);
@@ -445,7 +445,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                 increasedate = date;
             }
             
-            var quarterDays= getQuarterTradsDays(quarter,increasedate,newTotalMonth,toDel,exDay);
+            var quarterDays= getQuarterTradsDays(quarter,increasedate,newTotalMonth,toDel,exDay,isSameYear);
             List<AnnualLeaveTradeModel> trades = new List<AnnualLeaveTradeModel>();
             if (1 >= quarter)
             {
@@ -481,12 +481,12 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// <param name="currentQuarter">当前季度</param>
         /// <param name="date">日期</param>
         /// </summary>
-        public double[] getQuarterTradsDays(int currentQuarter, string date, int newTotalMonth,float toDel,int exDay)
+        public double[] getQuarterTradsDays(int currentQuarter, string date, int newTotalMonth,float toDel,int exDay,int isSameYear)
         {
             double[] quarterDays = {0,0,0,0};
             int startIndex = currentQuarter - 1;
             //总可用天数
-            int totalDays = getConversionDays(date,newTotalMonth,toDel,exDay);
+            int totalDays = getConversionDays(date,newTotalMonth,toDel,exDay,isSameYear);
             //WriteLine($"总年假天数:{totalDays}");
 
             double leftDays = totalDays;
@@ -532,18 +532,32 @@ namespace MonthlyNewlyIncreased.Tasks {
         /// 根据社龄和折算日期获取折算后的年假天数
         /// <param name="conversionDate">折算日期</param>
         /// </summary>
-        public int getConversionDays(string conversionDate , int newTotalMonth,float toDel,int exDay)
+        public int getConversionDays(string conversionDate , int newTotalMonth,float toDel,int exDay,int isSameYear)
         {
             int days = 5;
             int exDays = 0;
             if (newTotalMonth > 119 && newTotalMonth < 240)
             {
-                days = 10;
+                if(isSameYear < 1)
+                {
+                    days = 5;
+                }
+                else
+                {
+                    days = 10;
+                }
                 exDays = 5;
             }
             if (newTotalMonth > 239)
             {
-                days = 15;
+                if(isSameYear < 1)
+                {
+                    days = 5;
+                }
+                else
+                {
+                    days = 15;
+                }
                 exDays = 15;
             }
 
