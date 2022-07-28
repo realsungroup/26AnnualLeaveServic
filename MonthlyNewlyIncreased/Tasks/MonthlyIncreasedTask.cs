@@ -91,7 +91,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                             if ((!exist &&  serviceMonths>0 && isSame<1 ) || (needAdd>0 && !exist))
                             {
                                 var toDel = Convert.ToSingle(savedData["C3_683299058941"]);
-                                var exDay = 0;
+                                var exDay =  Convert.ToInt32(savedData["diffday"]);
                                 var isSameYear = Convert.ToInt32(savedData["C3_683305452288"]);
                                 if (isSameYear == 1)
                                 {
@@ -538,27 +538,15 @@ namespace MonthlyNewlyIncreased.Tasks {
             int exDays = 0;
             if (newTotalMonth > 119 && newTotalMonth < 240)
             {
-                if(isSameYear < 1)
-                {
-                    days = 5;
-                }
-                else
-                {
-                    days = 10;
-                }
+                
+                days = 10;
                 exDays = 5;
             }
             if (newTotalMonth > 239)
             {
-                if(isSameYear < 1)
-                {
-                    days = 5;
-                }
-                else
-                {
+                
                     days = 15;
-                }
-                exDays = 15;
+                    exDays = 10;
             }
 
             WriteLine($"总:{newTotalMonth}");
