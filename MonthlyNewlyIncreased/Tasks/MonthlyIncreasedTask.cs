@@ -54,9 +54,8 @@ namespace MonthlyNewlyIncreased.Tasks {
                         cmswhere = $"memberID={item.personId} and year={year}"
                     };
                     var cms = $"memberID={item.personId} and year={year}";
-                    WriteLine($"cms:${cms}");
                     var savedData = await SaveEmployee(item);
-                    var total = Convert.ToInt32( savedData["newTotalMonth"]);
+                    var total = Convert.ToInt32(savedData["newTotalMonth"]);
                     var accountsRes = await client.getTable<NjjdAccountModal>(ygnjjdzhResid,option1);
                     var isSame = 0;
                     if (savedData["isSame"] != null)
@@ -75,12 +74,12 @@ namespace MonthlyNewlyIncreased.Tasks {
                         date2Add = Convert.ToString(savedData["addDateStr"]);
                         nA = 1;
                     }
-                    WriteLine($"accountsRes:${accountsRes.data}");
                     if (accountsRes.data.Count > 0)
                     {
-                        WriteLine($"进来了e");
+                        
                         if (total == 12 || total == 120 || total == 240 || needAdd>0)
                         {
+                            WriteLine($"cms:${cms}");
                             var exist = await IsTradeExist("月度新增", year, item.personId);
                             var serviceMonths = 0;
                             if (savedData["serviceMonths"]!=null)
@@ -549,7 +548,7 @@ namespace MonthlyNewlyIncreased.Tasks {
                     exDays = 10;
             }
 
-            WriteLine($"总:{newTotalMonth}");
+            WriteLine($"总:{newTotalMonth}删除{toDel}");
 
             float percent2 = (float)exDay / 365;
             WriteLine($"月度新增前的天数百分比:{percent2}");
