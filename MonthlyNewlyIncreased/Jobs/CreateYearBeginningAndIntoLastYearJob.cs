@@ -57,7 +57,7 @@ namespace MonthlyNewlyIncreased.Jobs
             var jobDetail = JobBuilder.Create<CreateYearBeginningAndIntoLastYearJob>().Build();
 
             var trigger = TriggerBuilder.Create()
-                .WithSchedule(CronScheduleBuilder.MonthlyOnDayAndHourAndMinute(3, 0, 0))
+                .WithSchedule(CronScheduleBuilder.MonthlyOnDayAndHourAndMinute(1, 13, 40))
                 .Build();
 
             // 添加调度

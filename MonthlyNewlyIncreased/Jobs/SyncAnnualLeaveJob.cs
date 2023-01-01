@@ -47,7 +47,7 @@ namespace MonthlyNewlyIncreased.Jobs {
             var jobDetail = JobBuilder.Create<SyncAnnualLeaveJob> ().Build ();
 
             var trigger = TriggerBuilder.Create().StartNow().
-                WithSchedule(SimpleScheduleBuilder.Create().WithIntervalInMinutes(20).RepeatForever())
+                WithSchedule(SimpleScheduleBuilder.Create().WithIntervalInMinutes(5).RepeatForever())
                 .Build ();
 
             // 添加调度
