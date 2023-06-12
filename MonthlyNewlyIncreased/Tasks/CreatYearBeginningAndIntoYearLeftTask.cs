@@ -389,7 +389,9 @@ namespace MonthlyNewlyIncreased.Tasks
         }
         public async Task<object> Start(int year)
         {
-            string[] employeeResids = { oldEmployeeResid };
+            //string[] employeeResids = { oldEmployeeResid };
+            string[] employeeResids = { allEmployeeOnJobResid };
+            
             await CreatYearBeginningAndIntoYearLeft(year, employeeResids);
             return new { };
         }

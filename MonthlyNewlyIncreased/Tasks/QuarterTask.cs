@@ -398,7 +398,7 @@ namespace MonthlyNewlyIncreased.Tasks
                             };
                             yearLeftList.Add(yearLeftData);
                             //往年假上年剩余明细表增加一条记录
-                            //await client.AddRecords<object>(YearLeftResid, yearLeftList);
+                            await client.AddRecords<object>(YearLeftResid, yearLeftList);
                         }
                         else
                         {
